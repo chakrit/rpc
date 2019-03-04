@@ -1,0 +1,34 @@
+option go_import "github.com/chakrit/rpc/examples"
+option go_package "examples"
+
+type Failure {
+    string code
+    string description
+}
+
+namespace Todo {
+    type User {
+        string username
+        time ctime
+    }
+
+    namespace Auth {
+        type AuthRequest {
+            string provider
+            string username
+            string secret
+        }
+
+        type AuthResponse {
+            Failure failure
+            User user
+        }
+
+        rpc Current() User
+        rpc Authenticate(AuthRequest) AuthResponse
+    }
+
+    namespace System {
+        rpc Status() Failure
+    }
+}

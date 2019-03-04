@@ -1,0 +1,12 @@
+option elm_module "Api"
+
+type TodoItem {
+    string id
+    string description
+    bool done
+}
+
+rpc List() list<TodoItem>
+rpc Retrieve(string) TodoItem
+rpc Update(string, TodoItem) TodoItem
+rpc Destroy(string) TodoItem

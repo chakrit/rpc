@@ -1,0 +1,26 @@
+{{  define "typeref" -}}
+{{- if .IsSimple -}}
+    {{ .Name }}
+{{- else if .IsTime -}}
+    time.Time
+{{- else if .IsMap -}}
+    map[{{- template "typeref" (index .Args 0) -}}]{{- template "typeref" (index .Args 1) }}
+{{- else if .IsList -}}
+    []{{- template "typeref" (index .Args 0) }}
+{{- else if .IsLocal -}}
+    *{{ .Name }}
+{{- else if .IsImported -}}
+    *{{ .Pkg.MangledName }}.{{ .Name }}
+{{- else -}}
+    interface{} /* {{ .Name }} has bad resolved flags */
+{{- end -}}
+{{- end  }}
+
+{{  define "imports" -}}
+    {{- if .ImportPath  }}
+        {{ .MangledName }} "{{ .ImportPath }}"
+    {{- end  }}
+    {{- range $child := .Children -}}
+        {{ template "imports" $child }}
+    {{- end  }}
+{{  end  }}

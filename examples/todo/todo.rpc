@@ -1,0 +1,13 @@
+option go_import "github.com/chakrit/rpc/todo/api"
+option go_package "api"
+
+type TodoItem {
+    string id
+    string description
+    bool done
+}
+
+rpc List() list<TodoItem>
+rpc Retrieve(string) TodoItem
+rpc Update(string, TodoItem) TodoItem
+rpc Destroy(string) TodoItem

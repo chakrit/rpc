@@ -1,0 +1,21 @@
+option transport "http"
+option encoding "json"
+option ruby_module "minitodo"
+option go_package "minitodo"
+
+type Failure {
+    string code
+    string description
+}
+
+type TodoItem {
+    string uuid
+    string description
+    time ctime
+    bool completed
+}
+
+rpc List() list<TodoItem>
+rpc Get(string) TodoItem
+rpc Put(TodoItem) TodoItem
+rpc Delete(string) TodoItem

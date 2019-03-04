@@ -1,0 +1,135 @@
+module {{ .Name }} exposing (..)
+
+import Http
+import Json.Decode as D
+import Json.Encode as E
+{{- range $import := .Imports  }}
+import {{ $import.Name }}
+{{- end  }}
+
+type alias Config =
+    { baseUrl : String
+    , headers : List Http.Header
+    }
+
+
+type CallResult a
+    = HttpError Http.Error
+    | ApiError String
+    | Success a
+
+
+unwrapHttpResult : (Result Http.Error (CallResult a)) -> CallResult a
+unwrapHttpResult result =
+    case result of
+        Ok callResult ->
+            callResult
+        Err httpErr ->
+            HttpError httpErr
+
+decodeCallResult : D.Decoder a -> D.Decoder (CallResult a)
+decodeCallResult decodeReturns =
+    let
+        mapResultObj : Maybe String -> a -> CallResult a
+        mapResultObj err ret =
+            case err of
+                Just str ->
+                    ApiError str
+                Nothing ->
+                    Success ret
+    in
+    D.map2 (mapResultObj)
+        (D.field "error" (D.maybe D.string))
+        (D.field "returns" decodeReturns)
+
+
+{{  range $type := .Types  }}
+type alias {{ $type.Name }} =
+    {{- range $idx, $field := $type.Fields  }}
+    {{ ifFirst $idx "{" "," }} {{ $field.Name }} : {{ (resolve $field.Type).Name }}
+    {{- end  }}
+    }
+
+encode{{ $type.Name }} : {{ $type.Name }} -> E.Value
+encode{{ $type.Name }} obj =
+    E.object
+        {{- range $idx, $field := $type.Fields  }}
+        {{ ifFirst $idx "[" "," }} ( "{{ $field.Name }}", {{ (resolve $field.Type).Encode }} obj.{{ $field.Name }} )
+        {{- end }}
+        ]
+
+decode{{ $type.Name }} : D.Decoder {{ $type.Name }}
+decode{{ $type.Name }} =
+    {{  if (eq (len $type.Fields) 0) -}}
+        D.succeed {}
+    {{  else if (eq (len $type.Fields) 1) -}}
+        D.map {{ $type.Name }}
+            (D.field "{{ (index $type.Fields 0).Name }}" ({{ (resolve (index $type.Fields 0).Type).Decode }}))
+    {{  else -}}
+        D.map{{ len $type.Fields }} {{ $type.Name }}
+            {{- range $idx, $field := $type.Fields  }}
+            (D.field "{{ $field.Name }}" ({{ (resolve $field.Type).Decode }}))
+            {{- end }}
+    {{  end  }}
+{{  end  }}
+
+{{  range $tuple := .Tuples  }}
+type alias {{ $tuple.Name }} =
+    {{  range $idx, $arg := $tuple.Args -}}
+    {{ ifFirst $idx "(" ", " }}{{ (resolve $arg).Name }}
+    {{- else -}}
+    (()
+    {{- end -}}
+    )
+
+encode{{ $tuple.Name }} : {{ $tuple.Name }} -> E.Value
+encode{{ $tuple.Name }}
+    {{  range $idx, $arg := $tuple.Args -}}
+    {{ ifFirst $idx "(" "," }}arg{{ $idx }}
+    {{- else -}}
+    (
+    {{- end -}}
+    ) =
+        E.list (identity)
+            {{  range $idx, $arg := $tuple.Args -}}
+            {{ ifFirst $idx "[" "," }} {{ (resolve $arg).Encode }} arg{{ $idx }}
+            {{  else -}}
+            [
+            {{  end -}}
+        ]
+
+decode{{ $tuple.Name}} : D.Decoder {{ $tuple.Name }}
+decode{{ $tuple.Name }} =
+    {{- if (eq (len $tuple.Args) 0)  }}
+        D.succeed ()
+    {{- else if (eq (len $tuple.Args) 1) }}
+        D.map (\a -> (a))
+            (D.index 0 ({{ (resolve (index $tuple.Args 0)).Decode }}))
+    {{- else  }}
+        D.map{{ len $tuple.Args }} (
+        {{- range $idx, $_ := $tuple.Args -}}
+            {{ ifFirst $idx "\\" " " }}arg{{ $idx }}
+        {{- end  }} ->
+        {{- range $idx, $_ := $tuple.Args -}}
+        {{ ifFirst $idx " (" ", " }}arg{{ $idx }}
+        {{- end -}}
+        ))
+        {{- range $idx, $arg := $tuple.Args  }}
+            (D.index {{ $idx }} {{ (resolve $arg).Decode }})
+        {{- end  }}
+    {{  end  }}
+{{  end  }}
+
+{{  range $rpc := .RPCFuncs  }}
+call{{ $rpc.Name }} : Config -> InputFor{{ $rpc.Name }} -> (CallResult OutputFor{{ $rpc.Name }} -> a) -> Cmd a
+call{{ $rpc.Name }} config input mapResult =
+    Http.request
+        { method = "POST"
+        , headers = config.headers
+        , url = config.baseUrl ++ "/{{ $rpc.RPCPath }}"
+        , body = Http.jsonBody (encodeInputFor{{ $rpc.Name }} input)
+        , expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult (decodeOutputFor{{ $rpc.Name }}))
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+{{  end  }}
