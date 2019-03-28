@@ -1,6 +1,6 @@
 module {{ .Name }} exposing (..)
 
-import Http
+import Http exposing (Error(..))
 import Json.Encode as E
 import Json.Decode as D
 
@@ -15,6 +15,25 @@ type CallResult a
     = HttpError Http.Error
     | ApiError String
     | Success a
+
+
+translateHttpError : Http.Error -> String
+translateHttpError httpErr =
+    case httpErr of
+        BadUrl str ->
+            "Bad URL: " ++ str
+
+        Timeout ->
+            "Network Timeout"
+
+        NetworkError ->
+            "Network Error"
+
+        BadStatus code ->
+            "Bad Status Code: " ++ String.fromInt code
+
+        BadBody str ->
+            "Malformed Response: " ++ str
 
 
 mapResult : { onHttpErr : Http.Error -> msg, onApiErr : String -> msg, onSuccess : a -> msg } -> CallResult a -> msg

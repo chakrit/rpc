@@ -89,12 +89,16 @@ decode{{ $tuple.Name }} =
 {{  range $rpc := .RPCFuncs  }}
 call{{ $rpc.Name }} : Config -> InputFor{{ $rpc.Name }} -> (CallResult OutputFor{{ $rpc.Name }} -> a) -> Cmd a
 call{{ $rpc.Name }} config input mapResult =
+    let
+        body = Http.jsonBody (encodeInputFor{{ $rpc.Name }} input)
+        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputFor{{ $rpc.Name }})
+    in
     Http.request
         { method = "POST"
         , headers = config.headers
         , url = config.baseUrl ++ "/{{ $rpc.RPCPath }}"
-        , body = Http.jsonBody (encodeInputFor{{ $rpc.Name }} input)
-        , expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult (decodeOutputFor{{ $rpc.Name }}))
+        , body = body
+        , expect = expect
         , timeout = Nothing
         , tracker = Nothing
         }
