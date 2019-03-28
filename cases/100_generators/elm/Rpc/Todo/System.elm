@@ -43,12 +43,16 @@ decodeOutputForStatus =
 
 callStatus : Config -> InputForStatus -> (CallResult OutputForStatus -> a) -> Cmd a
 callStatus config input mapResult =
+    let
+        body = Http.jsonBody (encodeInputForStatus input)
+        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForStatus)
+    in
     Http.request
         { method = "POST"
         , headers = config.headers
         , url = config.baseUrl ++ "/rpc/todo/system/Status"
-        , body = Http.jsonBody (encodeInputForStatus input)
-        , expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult (decodeOutputForStatus))
+        , body = body
+        , expect = expect
         , timeout = Nothing
         , tracker = Nothing
         }

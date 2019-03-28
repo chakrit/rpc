@@ -5960,20 +5960,14 @@ var elm$http$Http$request = function (r) {
 };
 var author$project$Api$callDestroy = F3(
 	function (config, input, mapResult) {
+		var expect = A2(
+			elm$http$Http$expectJson,
+			A2(elm$core$Basics$composeR, author$project$RpcUtil$unwrapHttpResult, mapResult),
+			author$project$RpcUtil$decodeCallResult(author$project$Api$decodeOutputForDestroy));
+		var body = elm$http$Http$jsonBody(
+			author$project$Api$encodeInputForDestroy(input));
 		return elm$http$Http$request(
-			{
-				body: elm$http$Http$jsonBody(
-					author$project$Api$encodeInputForDestroy(input)),
-				expect: A2(
-					elm$http$Http$expectJson,
-					A2(elm$core$Basics$composeR, author$project$RpcUtil$unwrapHttpResult, mapResult),
-					author$project$RpcUtil$decodeCallResult(author$project$Api$decodeOutputForDestroy)),
-				headers: config.headers,
-				method: 'POST',
-				timeout: elm$core$Maybe$Nothing,
-				tracker: elm$core$Maybe$Nothing,
-				url: config.baseUrl + '/api/Destroy'
-			});
+			{body: body, expect: expect, headers: config.headers, method: 'POST', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: config.baseUrl + '/api/Destroy'});
 	});
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
@@ -6003,20 +5997,14 @@ var author$project$Api$encodeInputForList = function (_n0) {
 };
 var author$project$Api$callList = F3(
 	function (config, input, mapResult) {
+		var expect = A2(
+			elm$http$Http$expectJson,
+			A2(elm$core$Basics$composeR, author$project$RpcUtil$unwrapHttpResult, mapResult),
+			author$project$RpcUtil$decodeCallResult(author$project$Api$decodeOutputForList));
+		var body = elm$http$Http$jsonBody(
+			author$project$Api$encodeInputForList(input));
 		return elm$http$Http$request(
-			{
-				body: elm$http$Http$jsonBody(
-					author$project$Api$encodeInputForList(input)),
-				expect: A2(
-					elm$http$Http$expectJson,
-					A2(elm$core$Basics$composeR, author$project$RpcUtil$unwrapHttpResult, mapResult),
-					author$project$RpcUtil$decodeCallResult(author$project$Api$decodeOutputForList)),
-				headers: config.headers,
-				method: 'POST',
-				timeout: elm$core$Maybe$Nothing,
-				tracker: elm$core$Maybe$Nothing,
-				url: config.baseUrl + '/api/List'
-			});
+			{body: body, expect: expect, headers: config.headers, method: 'POST', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: config.baseUrl + '/api/List'});
 	});
 var author$project$Api$decodeOutputForUpdate = A2(
 	elm$json$Json$Decode$map,
@@ -6067,20 +6055,14 @@ var author$project$Api$encodeInputForUpdate = function (_n0) {
 };
 var author$project$Api$callUpdate = F3(
 	function (config, input, mapResult) {
+		var expect = A2(
+			elm$http$Http$expectJson,
+			A2(elm$core$Basics$composeR, author$project$RpcUtil$unwrapHttpResult, mapResult),
+			author$project$RpcUtil$decodeCallResult(author$project$Api$decodeOutputForUpdate));
+		var body = elm$http$Http$jsonBody(
+			author$project$Api$encodeInputForUpdate(input));
 		return elm$http$Http$request(
-			{
-				body: elm$http$Http$jsonBody(
-					author$project$Api$encodeInputForUpdate(input)),
-				expect: A2(
-					elm$http$Http$expectJson,
-					A2(elm$core$Basics$composeR, author$project$RpcUtil$unwrapHttpResult, mapResult),
-					author$project$RpcUtil$decodeCallResult(author$project$Api$decodeOutputForUpdate)),
-				headers: config.headers,
-				method: 'POST',
-				timeout: elm$core$Maybe$Nothing,
-				tracker: elm$core$Maybe$Nothing,
-				url: config.baseUrl + '/api/Update'
-			});
+			{body: body, expect: expect, headers: config.headers, method: 'POST', timeout: elm$core$Maybe$Nothing, tracker: elm$core$Maybe$Nothing, url: config.baseUrl + '/api/Update'});
 	});
 var author$project$Main$RefreshItems = function (a) {
 	return {$: 'RefreshItems', a: a};

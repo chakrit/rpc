@@ -157,48 +157,64 @@ decodeOutputForUpdate =
 
 callDestroy : Config -> InputForDestroy -> (CallResult OutputForDestroy -> a) -> Cmd a
 callDestroy config input mapResult =
+    let
+        body = Http.jsonBody (encodeInputForDestroy input)
+        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForDestroy)
+    in
     Http.request
         { method = "POST"
         , headers = config.headers
         , url = config.baseUrl ++ "/api/Destroy"
-        , body = Http.jsonBody (encodeInputForDestroy input)
-        , expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult (decodeOutputForDestroy))
+        , body = body
+        , expect = expect
         , timeout = Nothing
         , tracker = Nothing
         }
 
 callList : Config -> InputForList -> (CallResult OutputForList -> a) -> Cmd a
 callList config input mapResult =
+    let
+        body = Http.jsonBody (encodeInputForList input)
+        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForList)
+    in
     Http.request
         { method = "POST"
         , headers = config.headers
         , url = config.baseUrl ++ "/api/List"
-        , body = Http.jsonBody (encodeInputForList input)
-        , expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult (decodeOutputForList))
+        , body = body
+        , expect = expect
         , timeout = Nothing
         , tracker = Nothing
         }
 
 callRetrieve : Config -> InputForRetrieve -> (CallResult OutputForRetrieve -> a) -> Cmd a
 callRetrieve config input mapResult =
+    let
+        body = Http.jsonBody (encodeInputForRetrieve input)
+        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForRetrieve)
+    in
     Http.request
         { method = "POST"
         , headers = config.headers
         , url = config.baseUrl ++ "/api/Retrieve"
-        , body = Http.jsonBody (encodeInputForRetrieve input)
-        , expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult (decodeOutputForRetrieve))
+        , body = body
+        , expect = expect
         , timeout = Nothing
         , tracker = Nothing
         }
 
 callUpdate : Config -> InputForUpdate -> (CallResult OutputForUpdate -> a) -> Cmd a
 callUpdate config input mapResult =
+    let
+        body = Http.jsonBody (encodeInputForUpdate input)
+        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForUpdate)
+    in
     Http.request
         { method = "POST"
         , headers = config.headers
         , url = config.baseUrl ++ "/api/Update"
-        , body = Http.jsonBody (encodeInputForUpdate input)
-        , expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult (decodeOutputForUpdate))
+        , body = body
+        , expect = expect
         , timeout = Nothing
         , tracker = Nothing
         }

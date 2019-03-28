@@ -115,24 +115,32 @@ decodeOutputForCurrent =
 
 callAuthenticate : Config -> InputForAuthenticate -> (CallResult OutputForAuthenticate -> a) -> Cmd a
 callAuthenticate config input mapResult =
+    let
+        body = Http.jsonBody (encodeInputForAuthenticate input)
+        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForAuthenticate)
+    in
     Http.request
         { method = "POST"
         , headers = config.headers
         , url = config.baseUrl ++ "/rpc/todo/auth/Authenticate"
-        , body = Http.jsonBody (encodeInputForAuthenticate input)
-        , expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult (decodeOutputForAuthenticate))
+        , body = body
+        , expect = expect
         , timeout = Nothing
         , tracker = Nothing
         }
 
 callCurrent : Config -> InputForCurrent -> (CallResult OutputForCurrent -> a) -> Cmd a
 callCurrent config input mapResult =
+    let
+        body = Http.jsonBody (encodeInputForCurrent input)
+        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForCurrent)
+    in
     Http.request
         { method = "POST"
         , headers = config.headers
         , url = config.baseUrl ++ "/rpc/todo/auth/Current"
-        , body = Http.jsonBody (encodeInputForCurrent input)
-        , expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult (decodeOutputForCurrent))
+        , body = body
+        , expect = expect
         , timeout = Nothing
         , tracker = Nothing
         }
