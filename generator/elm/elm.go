@@ -12,22 +12,32 @@ import (
 )
 
 const (
-	TemplateName    = "/elm/Rpc.elm.gotmpl"
-	ElmModuleOption = "elm_module"
+	RpcTemplateName    = "/elm/Rpc.elm.gotmpl"
+	SharedTemplateName = "/elm/RpcUtil.elm.gotmpl"
+	ElmModuleOption    = "elm_module"
+	// ElmModulePrefix = "elm_prefix" // option to allow generating into sub-folders.
 )
 
 func Generate(ns *spec.Namespace, outdir string) error {
 	module := newModule(nil, outdir, ns)
-	return writeModule(module)
+	sharedModule := newSharedModule(module, outdir, ns)
+
+	if err := writeModule(sharedModule, SharedTemplateName); err != nil {
+		return err
+	}
+	if err := writeModule(module, RpcTemplateName); err != nil {
+		return err
+	}
+	return nil
 }
 
-func writeModule(mod *Module) error {
-	if err := writeTmpl(mod.OutPath, TemplateName, mod); err != nil {
+func writeModule(mod *Module, templateName string) error {
+	if err := writeTmpl(mod.OutPath, templateName, mod); err != nil {
 		return errors.Wrap(err, "elm template failure")
 	}
 
 	for _, child := range mod.Children {
-		if err := writeModule(child); err != nil {
+		if err := writeModule(child, templateName); err != nil {
 			return err
 		}
 	}

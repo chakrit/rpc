@@ -67,6 +67,15 @@ type ElmRPCFunc struct {
 
 var counter = 0
 
+func newSharedModule(rootModule *Module, outdir string, ns *spec.Namespace) *Module {
+	return &Module{
+		Name:      "RpcUtil",
+		Namespace: ns,
+		Parent:    nil,
+		OutPath:   filepath.Join(filepath.Dir(rootModule.OutPath), "RpcUtil.elm"),
+	}
+}
+
 func newModule(parent *Module, outdir string, ns *spec.Namespace) *Module {
 	counter += 1
 	mod := &Module{
