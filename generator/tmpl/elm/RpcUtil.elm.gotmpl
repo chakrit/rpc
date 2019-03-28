@@ -1,7 +1,7 @@
 module {{ .Name }} exposing (..)
 
+import Array exposing (Array)
 import Http exposing (Error(..))
-import Json.Encode as E
 import Json.Decode as D
 
 
@@ -9,6 +9,29 @@ type alias Config =
     { baseUrl : String
     , headers : List Http.Header
     }
+
+
+decodeConfig : D.Decoder Config
+decodeConfig =
+    let
+        mapHeader : Array String -> Http.Header
+        mapHeader arr =
+            let
+                header =
+                    Array.get 0 arr |> Maybe.withDefault ""
+
+                content =
+                    Array.get 1 arr |> Maybe.withDefault ""
+            in
+            Http.header header content
+
+        mapHeaderArray : Array (Array String) -> List Http.Header
+        mapHeaderArray arr =
+            arr |> Array.map mapHeader |> Array.toList
+    in
+    D.map2 Config
+        (D.field "baseUrl" <| D.string)
+        (D.field "headers" <| D.map mapHeaderArray (D.array (D.array D.string)))
 
 
 type CallResult a
