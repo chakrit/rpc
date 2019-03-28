@@ -3,11 +3,11 @@ module Main exposing (Flags, Model, Msg(..), main)
 import Api
 import Browser
 import Html exposing (Html, button, div, input, li, text, ul)
-import Html.Attributes exposing (style, value)
+import Html.Attributes exposing (value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Encode
-import Url exposing (Url)
+import RpcUtil exposing (CallResult(..))
 
 
 type alias Flags =
@@ -90,7 +90,7 @@ viewItemList model =
     div [] [ ul [] (List.map listItem model.todoItems) ]
 
 
-rpcConfig : Api.Config
+rpcConfig : RpcUtil.Config
 rpcConfig =
     { baseUrl = "http://0.0.0.0:9999"
     , headers = []
@@ -127,16 +127,16 @@ update msg model =
 
         SetDirty ->
             let
-                response : Api.CallResult (List Api.TodoItem) -> Msg
+                response : RpcUtil.CallResult (List Api.TodoItem) -> Msg
                 response result =
                     case result of
-                        Api.HttpError httpErr ->
+                        HttpError httpErr ->
                             SetError ("HTTP" ++ translateHttpError httpErr)
 
-                        Api.ApiError errStr ->
+                        ApiError errStr ->
                             SetError errStr
 
-                        Api.Success items ->
+                        Success items ->
                             RefreshItems items
             in
             ( model
@@ -155,16 +155,16 @@ update msg model =
 
         SaveNewItem ->
             let
-                response : Api.CallResult Api.TodoItem -> Msg
+                response : CallResult Api.TodoItem -> Msg
                 response result =
                     case result of
-                        Api.HttpError httpErr ->
+                        HttpError httpErr ->
                             SetError (translateHttpError httpErr)
 
-                        Api.ApiError errStr ->
+                        ApiError errStr ->
                             SetError errStr
 
-                        Api.Success _ ->
+                        Success _ ->
                             SetDirty
             in
             ( { model | newItem = { id = "", description = "", done = False } }
@@ -173,16 +173,16 @@ update msg model =
 
         DeleteItem itemId ->
             let
-                response : Api.CallResult Api.TodoItem -> Msg
+                response : CallResult Api.TodoItem -> Msg
                 response result =
                     case result of
-                        Api.HttpError httpErr ->
+                        HttpError httpErr ->
                             SetError (translateHttpError httpErr)
 
-                        Api.ApiError errStr ->
+                        ApiError errStr ->
                             SetError errStr
 
-                        Api.Success _ ->
+                        Success _ ->
                             SetDirty
             in
             ( model, Api.callDestroy rpcConfig itemId response )
