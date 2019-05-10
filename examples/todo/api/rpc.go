@@ -4,9 +4,9 @@
 package api
 
 type TodoItem struct {
-	Description string `json:"description"`
-	Done        bool   `json:"done"`
-	ID          string `json:"id"`
+	Description string `json:"description" yaml:"description" db:"description"`
+	Done        bool   `json:"done" yaml:"done" db:"done"`
+	ID          string `json:"id" yaml:"id" db:"id"`
 }
 
 type Interface interface {
