@@ -9,14 +9,14 @@ import (
 )
 
 type AuthRequest struct {
-	Provider string `json:"provider"`
-	Secret   string `json:"secret"`
-	Username string `json:"username"`
+	Provider string `json:"provider" yaml:"provider"`
+	Secret   string `json:"secret" yaml:"secret"`
+	Username string `json:"username" yaml:"username"`
 }
 
 type AuthResponse struct {
-	Failure *gcr1_examples.Failure `json:"failure"`
-	User    *gcre2_todo.User       `json:"user"`
+	Failure *gcr1_examples.Failure `json:"failure" yaml:"failure"`
+	User    *gcre2_todo.User       `json:"user" yaml:"user"`
 }
 
 type Interface interface {

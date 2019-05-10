@@ -4,8 +4,8 @@
 package examples
 
 type Failure struct {
-	Code        string `json:"code"`
-	Description string `json:"description"`
+	Code        string `json:"code" yaml:"code"`
+	Description string `json:"description" yaml:"description"`
 }
 
 type Interface interface {

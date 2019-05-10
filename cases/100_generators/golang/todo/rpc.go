@@ -8,8 +8,8 @@ import (
 )
 
 type User struct {
-	Ctime    time.Time `json:"ctime"`
-	Username string    `json:"username"`
+	Ctime    time.Time `json:"ctime" yaml:"ctime"`
+	Username string    `json:"username" yaml:"username"`
 }
 
 type Interface interface {
