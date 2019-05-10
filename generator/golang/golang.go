@@ -23,6 +23,9 @@ const (
 	PkgTemplateName    = "/golang/pkg.go.gotmpl"
 	ClientTemplateName = "/golang/client.go.gotmpl"
 	ServerTemplateName = "/golang/server.go.gotmpl"
+
+	DefaultPkgName    = "rpc"
+	DefaultImportPath = "go.example.com/rpc"
 )
 
 func Generate(ns *spec.Namespace, outdir string) error {

@@ -80,12 +80,20 @@ func newChildPkg(parent *Pkg, ns *spec.Namespace) *Pkg {
 
 func (pkg *Pkg) initialize() {
 	pkg.assignNamesAndNumbers(nil)
-	pkgNameOption := pkg.lookupOption(PackageOption)
+
+	pkgNameOption, importOption := pkg.lookupOption(PackageOption), pkg.lookupOption(ImportOption)
+	if pkgNameOption == "" {
+		pkgNameOption = DefaultPkgName
+	}
+	if importOption == "" {
+		importOption = DefaultImportPath
+	}
+
 	if pkg.Name == "" || pkg.Name == "root" {
 		pkg.Name = pkgNameOption
 	}
 
-	pkg.resolvePaths("", pkg.lookupOption(ImportOption))
+	pkg.resolvePaths("", importOption)
 	pkg.Registry.RegisterAll(pkg)
 	pkg.resolveImports()
 	pkg.generateAltNames()
