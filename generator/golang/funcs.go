@@ -11,6 +11,7 @@ func funcMap(pkg *Pkg) template.FuncMap {
 	reg, f := pkg.Registry, template.FuncMap{}
 
 	f["pascal"] = internal.InflectPascal
+	f["snake"] = internal.InflectSnake
 	f["resolve"] = reg.Resolve
 	f["resolveAbs"] = func(pkg *Pkg, ref *spec.TypeRef) *ResolvedType {
 		if resolved := reg.Resolve(pkg, ref); resolved == nil {
