@@ -16,7 +16,7 @@ import (
 {{ range $name, $type := .Namespace.Types }}
 type {{ $name }} struct {
     {{  range $name, $prop := .Properties -}}
-    {{ pascal $name }} {{ template "typeref" (resolve $pkg $prop.Type) }} `json:"{{$name}}" yaml:"{{$name}}"`
+    {{ pascal $name }} {{ template "typeref" (resolve $pkg $prop.Type) }} `json:"{{$name}}" yaml:"{{$name}}" db:"{{$name}}"`
     {{  end -}}
 }
 {{ end }}
