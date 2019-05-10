@@ -87,7 +87,7 @@ option go_package "rpc"
 option elm_module "Rpc"
 
 namespace todo {
-  object TodoItem {
+  type TodoItem {
     string text
     bool   completed
   }
@@ -99,7 +99,7 @@ namespace todo {
 
 * `option __name__ __value__` - Sets target-specific option.
 * `namespace __name__ { }` - Defines a scope.
-* `object __name__ { }` - Defines an object type (or class or message).
+* `type __name__ { }` - Defines an object type (or class or message).
 * `rpc __name__ ( __args__ ) __return_args__` - Defines an RPC call.
 
 Supported types:
