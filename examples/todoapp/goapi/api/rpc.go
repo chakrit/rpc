@@ -3,19 +3,21 @@
 // expected import: github.com/chakrit/rpc/todo/api
 package api
 
+import (
+	time "time"
+)
+
 type TodoItem struct {
-	Description string `json:"description" yaml:"description" db:"description"`
-	Done        bool   `json:"done" yaml:"done" db:"done"`
-	ID          string `json:"id" yaml:"id" db:"id"`
+	Ctime       time.Time `json:"ctime" yaml:"ctime" db:"ctime"`
+	Description string    `json:"description" yaml:"description" db:"description"`
+	ID          int64     `json:"id" yaml:"id" db:"id"`
 }
 
 type Interface interface {
-	Destroy(string) (*TodoItem, error,
+	Create(string) (*TodoItem, error,
+	)
+	Destroy(int64) (*TodoItem, error,
 	)
 	List() ([]*TodoItem, error,
-	)
-	Retrieve(string) (*TodoItem, error,
-	)
-	Update(string, *TodoItem) (*TodoItem, error,
 	)
 }

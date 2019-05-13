@@ -43,7 +43,7 @@ type Msg
     | Create
     | Reset
     | Refresh
-    | Delete String
+    | Delete Int
     | ErrorReply String
     | ListReply (List TodoItem)
 
@@ -89,16 +89,8 @@ update msg model =
             ( { model | text = str }, Cmd.none )
 
         Create ->
-            let
-                newItem : Api.TodoItem
-                newItem =
-                    { id = model.text
-                    , description = model.text
-                    , done = False
-                    }
-            in
             ( { model | state = Calling }
-            , Api.callUpdate config ( model.text, newItem ) onCreateReply
+            , Api.callCreate config model.text onCreateReply
             )
 
         Reset ->
@@ -111,9 +103,9 @@ update msg model =
             , Api.callList config () onListReply
             )
 
-        Delete item ->
+        Delete id ->
             ( { model | state = Calling }
-            , Api.callDestroy config item onDeleteReply
+            , Api.callDestroy config id onDeleteReply
             )
 
         ErrorReply err ->

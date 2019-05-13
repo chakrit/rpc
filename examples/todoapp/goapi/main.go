@@ -69,61 +69,49 @@ func runServerCmd(cmd *cobra.Command, args []string) {
 }
 
 func runClientCmd(cmd *cobra.Command, args []string) {
-	opts := client.Options(flags)
-	cl := client.New(&opts)
+	var (
+		opts = client.Options(flags)
+		c    = client.New(&opts)
 
-	if items, err := cl.List(); err != nil {
-		log.Fatal(err)
-	} else {
-		logOutput("List", items...)
-	}
+		check = func(err error) {
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	)
 
-	alpha := &api.TodoItem{Description: "alpha", Done: false}
-	if item, err := cl.Update("alpha", alpha); err != nil {
-		log.Fatal(err)
-	} else {
-		logOutput("Update", item)
-	}
+	list, err := c.List()
+	check(err)
+	logOutput("List", list...)
 
-	beta := &api.TodoItem{Description: "beta", Done: true}
-	if item, err := cl.Update("beta", beta); err != nil {
-		log.Fatal(err)
-	} else {
-		logOutput("Update", item)
-	}
+	alpha, err := c.Create("alpha")
+	check(err)
+	logOutput("Create", alpha)
 
-	if items, err := cl.List(); err != nil {
-		log.Fatal(err)
-	} else {
-		logOutput("List", items...)
-	}
+	list, err = c.List()
+	check(err)
+	logOutput("List", list...)
 
-	if item, err := cl.Destroy("alpha"); err != nil {
-		log.Fatal(err)
-	} else {
-		logOutput("Destroy", item)
-	}
+	beta, err := c.Create("beta")
+	check(err)
+	logOutput("Create", beta)
 
-	if item, err := cl.Destroy("beta"); err != nil {
-		log.Fatal(err)
-	} else {
-		logOutput("Destroy", item)
-	}
+	list, err = c.List()
+	check(err)
+	logOutput("List", list...)
 
-	if items, err := cl.List(); err != nil {
-		log.Fatal(err)
-	} else {
-		logOutput("List", items...)
-	}
+	alpha, err = c.Destroy(alpha.ID)
+	check(err)
+	logOutput("Destroy", list...)
+
+	list, err = c.List()
+	check(err)
+	logOutput("List", list...)
 }
 
 func logOutput(name string, items ...*api.TodoItem) {
 	fmt.Printf("%s\n", name)
 	for _, item := range items {
-		if item.Done {
-			fmt.Printf("[%s] %s !DONE!\n", item.ID, item.Description)
-		} else {
-			fmt.Printf("[%s] %s\n", item.ID, item.Description)
-		}
+		fmt.Printf("[%d] %s\n", item.ID, item.Description)
 	}
 }

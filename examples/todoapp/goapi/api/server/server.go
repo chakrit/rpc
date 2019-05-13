@@ -47,11 +47,47 @@ func (s *Server) register_gcrt1_api(
 	handler Handler_gcrt1_api,
 ) *http.ServeMux {
 
-	mux.HandleFunc("/api/Destroy", func(resp http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/api/Create", func(resp http.ResponseWriter, req *http.Request) {
 		var err error
 		resp.Header().Set("Content-Type", "application/json")
 
 		var arg0 string
+		args := [1]interface{}{
+			&arg0,
+		}
+
+		if req.Body != nil {
+			if err := json.NewDecoder(req.Body).Decode(&args); err != nil {
+				resp.WriteHeader(400)
+				renderError(resp, err)
+				return
+			}
+		}
+
+		var out0 *gcrt1_api.TodoItem
+		out0, err = handler.Handler.Create(arg0)
+		result := &Result{
+			Error: err,
+			Returns: []interface{}{
+				out0,
+			},
+		}
+
+		bytes, err := json.Marshal(result)
+		if err != nil {
+			resp.WriteHeader(500)
+			renderError(resp, err)
+		}
+
+		resp.WriteHeader(200)
+		_, _ = resp.Write(bytes)
+	})
+
+	mux.HandleFunc("/api/Destroy", func(resp http.ResponseWriter, req *http.Request) {
+		var err error
+		resp.Header().Set("Content-Type", "application/json")
+
+		var arg0 int64
 		args := [1]interface{}{
 			&arg0,
 		}
@@ -89,80 +125,6 @@ func (s *Server) register_gcrt1_api(
 
 		var out0 []*gcrt1_api.TodoItem
 		out0, err = handler.Handler.List()
-		result := &Result{
-			Error: err,
-			Returns: []interface{}{
-				out0,
-			},
-		}
-
-		bytes, err := json.Marshal(result)
-		if err != nil {
-			resp.WriteHeader(500)
-			renderError(resp, err)
-		}
-
-		resp.WriteHeader(200)
-		_, _ = resp.Write(bytes)
-	})
-
-	mux.HandleFunc("/api/Retrieve", func(resp http.ResponseWriter, req *http.Request) {
-		var err error
-		resp.Header().Set("Content-Type", "application/json")
-
-		var arg0 string
-		args := [1]interface{}{
-			&arg0,
-		}
-
-		if req.Body != nil {
-			if err := json.NewDecoder(req.Body).Decode(&args); err != nil {
-				resp.WriteHeader(400)
-				renderError(resp, err)
-				return
-			}
-		}
-
-		var out0 *gcrt1_api.TodoItem
-		out0, err = handler.Handler.Retrieve(arg0)
-		result := &Result{
-			Error: err,
-			Returns: []interface{}{
-				out0,
-			},
-		}
-
-		bytes, err := json.Marshal(result)
-		if err != nil {
-			resp.WriteHeader(500)
-			renderError(resp, err)
-		}
-
-		resp.WriteHeader(200)
-		_, _ = resp.Write(bytes)
-	})
-
-	mux.HandleFunc("/api/Update", func(resp http.ResponseWriter, req *http.Request) {
-		var err error
-		resp.Header().Set("Content-Type", "application/json")
-
-		var arg0 string
-		var arg1 *gcrt1_api.TodoItem
-		args := [2]interface{}{
-			&arg0,
-			&arg1,
-		}
-
-		if req.Body != nil {
-			if err := json.NewDecoder(req.Body).Decode(&args); err != nil {
-				resp.WriteHeader(400)
-				renderError(resp, err)
-				return
-			}
-		}
-
-		var out0 *gcrt1_api.TodoItem
-		out0, err = handler.Handler.Update(arg0, arg1)
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{

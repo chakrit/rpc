@@ -25,8 +25,51 @@ func (c *Client_gcrt1_api) initialize(client *Client) {
 	c.Client = client
 }
 
-func (c Client_gcrt1_api) Destroy(
+func (c Client_gcrt1_api) Create(
 	arg0 string,
+) (
+	out0 *gcrt1_api.TodoItem,
+	err error,
+) {
+	payload := []interface{}{arg0}
+
+	buf := &bytes.Buffer{}
+	if err = json.NewEncoder(buf).Encode(payload); err != nil {
+		return
+	}
+
+	var req *http.Request
+	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/api/Create", buf)
+	if err != nil {
+		return
+	}
+
+	var resp *http.Response
+	resp, err = c.HTTPClient.Do(req)
+	if err != nil {
+		return
+	}
+
+	returns := [1]interface{}{&out0}
+	result := &Result{}
+	result.Returns = returns[:]
+
+	if resp.Body != nil {
+		defer resp.Body.Close()
+
+		if err = json.NewDecoder(resp.Body).Decode(result); err != nil {
+			return
+		}
+	}
+
+	if result.Error != nil {
+		err = result.Error
+	}
+	return
+}
+
+func (c Client_gcrt1_api) Destroy(
+	arg0 int64,
 ) (
 	out0 *gcrt1_api.TodoItem,
 	err error,
@@ -81,93 +124,6 @@ func (c Client_gcrt1_api) List() (
 
 	var req *http.Request
 	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/api/List", buf)
-	if err != nil {
-		return
-	}
-
-	var resp *http.Response
-	resp, err = c.HTTPClient.Do(req)
-	if err != nil {
-		return
-	}
-
-	returns := [1]interface{}{&out0}
-	result := &Result{}
-	result.Returns = returns[:]
-
-	if resp.Body != nil {
-		defer resp.Body.Close()
-
-		if err = json.NewDecoder(resp.Body).Decode(result); err != nil {
-			return
-		}
-	}
-
-	if result.Error != nil {
-		err = result.Error
-	}
-	return
-}
-
-func (c Client_gcrt1_api) Retrieve(
-	arg0 string,
-) (
-	out0 *gcrt1_api.TodoItem,
-	err error,
-) {
-	payload := []interface{}{arg0}
-
-	buf := &bytes.Buffer{}
-	if err = json.NewEncoder(buf).Encode(payload); err != nil {
-		return
-	}
-
-	var req *http.Request
-	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/api/Retrieve", buf)
-	if err != nil {
-		return
-	}
-
-	var resp *http.Response
-	resp, err = c.HTTPClient.Do(req)
-	if err != nil {
-		return
-	}
-
-	returns := [1]interface{}{&out0}
-	result := &Result{}
-	result.Returns = returns[:]
-
-	if resp.Body != nil {
-		defer resp.Body.Close()
-
-		if err = json.NewDecoder(resp.Body).Decode(result); err != nil {
-			return
-		}
-	}
-
-	if result.Error != nil {
-		err = result.Error
-	}
-	return
-}
-
-func (c Client_gcrt1_api) Update(
-	arg0 string,
-	arg1 *gcrt1_api.TodoItem,
-) (
-	out0 *gcrt1_api.TodoItem,
-	err error,
-) {
-	payload := []interface{}{arg0, arg1}
-
-	buf := &bytes.Buffer{}
-	if err = json.NewEncoder(buf).Encode(payload); err != nil {
-		return
-	}
-
-	var req *http.Request
-	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/api/Update", buf)
 	if err != nil {
 		return
 	}
