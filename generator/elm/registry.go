@@ -45,7 +45,7 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 			Decode: "D.bool",
 		}
 	default:
-		return r.resolveNever()
+		return r.resolveUnknown()
 	}
 }
 
@@ -54,7 +54,7 @@ func (r Registry) resolveList(ref *ElmTypeRef) *ElmTypeResolution {
 	if len(ref.Args) > 0 {
 		elementType = r.Resolve(ref.Args[0])
 	} else {
-		elementType = r.resolveNever()
+		elementType = r.resolveUnknown()
 	}
 
 	return r.resolveWithDefault("[]", &ElmTypeResolution{
@@ -67,7 +67,7 @@ func (r Registry) resolveList(ref *ElmTypeRef) *ElmTypeResolution {
 func (r Registry) resolveUserDefined(ref *ElmTypeRef) *ElmTypeResolution {
 	elmType := r.Lookup(ref.Module, ref.Name)
 	if elmType == nil {
-		return r.resolveNever() // TODO: Output a warning
+		return r.resolveUnknown() // TODO: Output a warning
 	}
 
 	resolved := &ElmTypeResolution{
@@ -98,10 +98,10 @@ func (r Registry) resolveWithDefault(defaultValue string, elementType *ElmTypeRe
 	}
 }
 
-func (r Registry) resolveNever() *ElmTypeResolution {
+func (r Registry) resolveUnknown() *ElmTypeResolution {
 	return &ElmTypeResolution{
 		Name:   "()",
-		Encode: "never",
-		Decode: "never",
+		Encode: `(\_ -> E.null)`,
+		Decode: `(D.succeed ())`,
 	}
 }
