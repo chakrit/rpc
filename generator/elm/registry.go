@@ -21,7 +21,7 @@ func (r Registry) Lookup(context *Module, name string) *ElmType {
 // TODO: time, map, etc.
 func (r Registry) Resolve(ref *ElmTypeRef) *ElmTypeResolution {
 	switch ref.Name {
-	case "string", "bool":
+	case "string", "bool", "int", "long", "float", "double", "time":
 		return r.resolveBasic(ref)
 	case "list":
 		return r.resolveList(ref)
@@ -43,6 +43,24 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 			Name:   "Bool",
 			Encode: "E.bool",
 			Decode: "D.bool",
+		}
+	case "int", "long":
+		return &ElmTypeResolution{
+			Name:   "Int",
+			Encode: "E.int",
+			Decode: "D.int",
+		}
+	case "float", "double":
+		return &ElmTypeResolution{
+			Name:   "float",
+			Encode: "E.float",
+			Decode: "D.float",
+		}
+	case "time":
+		return &ElmTypeResolution{
+			Name:   "Time.Posix",
+			Encode: `(Time.posixToMillis >> E.int)`,
+			Decode: `(D.map Time.millisToPosix D.int)`,
 		}
 	default:
 		return r.resolveUnknown()
