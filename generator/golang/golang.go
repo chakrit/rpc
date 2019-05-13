@@ -30,7 +30,7 @@ const (
 
 func Generate(ns *spec.Namespace, outdir string) error {
 	pkg := newRootPkg(ns)
-	if err := writeStubPackages(outdir, pkg); err != nil {
+	if err := writeRPCPackages(outdir, pkg); err != nil {
 		return errors.Wrap(err, "go template failure")
 	}
 	if err := writeClientPackage(outdir, pkg); err != nil {
@@ -59,7 +59,7 @@ func writeServerPackage(rootdir string, pkg *Pkg) error {
 	)
 }
 
-func writeStubPackages(rootdir string, pkg *Pkg) error {
+func writeRPCPackages(rootdir string, pkg *Pkg) error {
 	outpath := path.Join(rootdir, pkg.FilePath)
 	if err := write(outpath, PkgTemplateName, pkg); err != nil {
 		name := pkg.Name
@@ -71,7 +71,7 @@ func writeStubPackages(rootdir string, pkg *Pkg) error {
 	}
 
 	for _, child := range pkg.Children {
-		if err := writeStubPackages(rootdir, child); err != nil {
+		if err := writeRPCPackages(rootdir, child); err != nil {
 			return err
 		}
 	}

@@ -10,8 +10,7 @@ import (
 
 // TODO: Make the character ranges unicode-aware.
 var (
-	urlPart     = regexp.MustCompile(`[a-zA-Z][a-zA-Z0-9.]*([^a-zA-Z0-9.]+)?`)
-	genericPart = regexp.MustCompile(`[A-Z_]?[^_A-Z]+`)
+	urlPart = regexp.MustCompile(`[a-zA-Z][a-zA-Z0-9.]*([^a-zA-Z0-9.]+)?`)
 )
 
 // InflectPascal takes a word and produce a pascal-cased version of it.
@@ -24,8 +23,8 @@ func InflectPascal(s string) string { return flect.Pascalize(s) }
 // Example: GoLanguage -> go_language
 func InflectSnake(s string) string { return flect.Underscore(s) }
 
-// MangleID expects an url-like string and generates something that can be used as a
-// valid and unique identifier name in most language
+// MangleID expects an url-like string and generates a mangled identifier that has a high
+// chance to be valid and unique in most scopes.
 //
 // Example: github.com/chakrit/rpc -> gc_rpc
 func MangleID(s string, inserts ...string) string {

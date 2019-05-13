@@ -3,7 +3,7 @@ package internal
 import "fmt"
 
 type Pos struct {
-	Byte int `json"byte_no"`
+	Byte int `json:"byte_no"`
 	Line int `json:"line_no"`
 	Col  int `json:"col_no"`
 }
