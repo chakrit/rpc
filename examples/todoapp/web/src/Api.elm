@@ -1,10 +1,9 @@
-module Api exposing (..)
+module Api exposing (InputForDestroy, InputForList, InputForRetrieve, InputForUpdate, OutputForDestroy, OutputForList, OutputForRetrieve, OutputForUpdate, TodoItem, callDestroy, callList, callRetrieve, callUpdate, decodeInputForDestroy, decodeInputForList, decodeInputForRetrieve, decodeInputForUpdate, decodeOutputForDestroy, decodeOutputForList, decodeOutputForRetrieve, decodeOutputForUpdate, decodeTodoItem, encodeInputForDestroy, encodeInputForList, encodeInputForRetrieve, encodeInputForUpdate, encodeOutputForDestroy, encodeOutputForList, encodeOutputForRetrieve, encodeOutputForUpdate, encodeTodoItem)
 
 import Http
 import Json.Decode as D
 import Json.Encode as E
-import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult)
-
+import RpcUtil exposing (CallResult, Config, decodeCallResult, unwrapHttpResult)
 
 
 type alias TodoItem =
@@ -12,6 +11,7 @@ type alias TodoItem =
     , done : Bool
     , id : String
     }
+
 
 encodeTodoItem : TodoItem -> E.Value
 encodeTodoItem obj =
@@ -21,145 +21,159 @@ encodeTodoItem obj =
         , ( "id", E.string obj.id )
         ]
 
+
 decodeTodoItem : D.Decoder TodoItem
 decodeTodoItem =
     D.map3 TodoItem
-            (D.field "description" (D.string))
-            (D.field "done" (D.bool))
-            (D.field "id" (D.string))
-    
-
+        (D.field "description" D.string)
+        (D.field "done" D.bool)
+        (D.field "id" D.string)
 
 
 type alias InputForDestroy =
-    (String)
+    String
+
 
 encodeInputForDestroy : InputForDestroy -> E.Value
-encodeInputForDestroy
-    (arg0) =
-        E.list (identity)
-            [ E.string arg0
-            ]
+encodeInputForDestroy arg0 =
+    E.list identity
+        [ E.string arg0
+        ]
+
 
 decodeInputForDestroy : D.Decoder InputForDestroy
 decodeInputForDestroy =
-        D.map (\a -> (a))
-            (D.index 0 (D.string))
+    D.map (\a -> a)
+        (D.index 0 D.string)
+
 
 type alias OutputForDestroy =
-    (TodoItem)
+    TodoItem
+
 
 encodeOutputForDestroy : OutputForDestroy -> E.Value
-encodeOutputForDestroy
-    (arg0) =
-        E.list (identity)
-            [ encodeTodoItem arg0
-            ]
+encodeOutputForDestroy arg0 =
+    E.list identity
+        [ encodeTodoItem arg0
+        ]
+
 
 decodeOutputForDestroy : D.Decoder OutputForDestroy
 decodeOutputForDestroy =
-        D.map (\a -> (a))
-            (D.index 0 (decodeTodoItem))
+    D.map (\a -> a)
+        (D.index 0 decodeTodoItem)
+
 
 type alias InputForList =
-    (())
+    ()
+
 
 encodeInputForList : InputForList -> E.Value
-encodeInputForList
-    () =
-        E.list (identity)
-            [
-            ]
+encodeInputForList () =
+    E.list identity
+        []
+
 
 decodeInputForList : D.Decoder InputForList
 decodeInputForList =
-        D.succeed ()
+    D.succeed ()
+
 
 type alias OutputForList =
-    (List (TodoItem))
+    List TodoItem
+
 
 encodeOutputForList : OutputForList -> E.Value
-encodeOutputForList
-    (arg0) =
-        E.list (identity)
-            [ E.list (encodeTodoItem) arg0
-            ]
+encodeOutputForList arg0 =
+    E.list identity
+        [ E.list encodeTodoItem arg0
+        ]
+
 
 decodeOutputForList : D.Decoder OutputForList
 decodeOutputForList =
-        D.map (\a -> (a))
-            (D.index 0 (D.map (Maybe.withDefault ([])) (D.maybe (D.list (decodeTodoItem)))))
+    D.map (\a -> a)
+        (D.index 0 (D.map (Maybe.withDefault []) (D.maybe (D.list decodeTodoItem))))
+
 
 type alias InputForRetrieve =
-    (String)
+    String
+
 
 encodeInputForRetrieve : InputForRetrieve -> E.Value
-encodeInputForRetrieve
-    (arg0) =
-        E.list (identity)
-            [ E.string arg0
-            ]
+encodeInputForRetrieve arg0 =
+    E.list identity
+        [ E.string arg0
+        ]
+
 
 decodeInputForRetrieve : D.Decoder InputForRetrieve
 decodeInputForRetrieve =
-        D.map (\a -> (a))
-            (D.index 0 (D.string))
+    D.map (\a -> a)
+        (D.index 0 D.string)
+
 
 type alias OutputForRetrieve =
-    (TodoItem)
+    TodoItem
+
 
 encodeOutputForRetrieve : OutputForRetrieve -> E.Value
-encodeOutputForRetrieve
-    (arg0) =
-        E.list (identity)
-            [ encodeTodoItem arg0
-            ]
+encodeOutputForRetrieve arg0 =
+    E.list identity
+        [ encodeTodoItem arg0
+        ]
+
 
 decodeOutputForRetrieve : D.Decoder OutputForRetrieve
 decodeOutputForRetrieve =
-        D.map (\a -> (a))
-            (D.index 0 (decodeTodoItem))
+    D.map (\a -> a)
+        (D.index 0 decodeTodoItem)
+
 
 type alias InputForUpdate =
-    (String, TodoItem)
+    ( String, TodoItem )
+
 
 encodeInputForUpdate : InputForUpdate -> E.Value
-encodeInputForUpdate
-    (arg0,arg1) =
-        E.list (identity)
-            [ E.string arg0
-            , encodeTodoItem arg1
-            ]
+encodeInputForUpdate ( arg0, arg1 ) =
+    E.list identity
+        [ E.string arg0
+        , encodeTodoItem arg1
+        ]
+
 
 decodeInputForUpdate : D.Decoder InputForUpdate
 decodeInputForUpdate =
-        D.map2 (\arg0 arg1 -> (arg0, arg1))
-            (D.index 0 D.string)
-            (D.index 1 decodeTodoItem)
-    
+    D.map2 (\arg0 arg1 -> ( arg0, arg1 ))
+        (D.index 0 D.string)
+        (D.index 1 decodeTodoItem)
+
 
 type alias OutputForUpdate =
-    (TodoItem)
+    TodoItem
+
 
 encodeOutputForUpdate : OutputForUpdate -> E.Value
-encodeOutputForUpdate
-    (arg0) =
-        E.list (identity)
-            [ encodeTodoItem arg0
-            ]
+encodeOutputForUpdate arg0 =
+    E.list identity
+        [ encodeTodoItem arg0
+        ]
+
 
 decodeOutputForUpdate : D.Decoder OutputForUpdate
 decodeOutputForUpdate =
-        D.map (\a -> (a))
-            (D.index 0 (decodeTodoItem))
-
+    D.map (\a -> a)
+        (D.index 0 decodeTodoItem)
 
 
 callDestroy : Config -> InputForDestroy -> (CallResult OutputForDestroy -> a) -> Cmd a
 callDestroy config input mapResult =
     let
-        body = Http.jsonBody (encodeInputForDestroy input)
-        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForDestroy)
+        body =
+            Http.jsonBody (encodeInputForDestroy input)
+
+        expect =
+            Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForDestroy)
     in
     Http.request
         { method = "POST"
@@ -171,11 +185,15 @@ callDestroy config input mapResult =
         , tracker = Nothing
         }
 
+
 callList : Config -> InputForList -> (CallResult OutputForList -> a) -> Cmd a
 callList config input mapResult =
     let
-        body = Http.jsonBody (encodeInputForList input)
-        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForList)
+        body =
+            Http.jsonBody (encodeInputForList input)
+
+        expect =
+            Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForList)
     in
     Http.request
         { method = "POST"
@@ -187,11 +205,15 @@ callList config input mapResult =
         , tracker = Nothing
         }
 
+
 callRetrieve : Config -> InputForRetrieve -> (CallResult OutputForRetrieve -> a) -> Cmd a
 callRetrieve config input mapResult =
     let
-        body = Http.jsonBody (encodeInputForRetrieve input)
-        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForRetrieve)
+        body =
+            Http.jsonBody (encodeInputForRetrieve input)
+
+        expect =
+            Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForRetrieve)
     in
     Http.request
         { method = "POST"
@@ -203,11 +225,15 @@ callRetrieve config input mapResult =
         , tracker = Nothing
         }
 
+
 callUpdate : Config -> InputForUpdate -> (CallResult OutputForUpdate -> a) -> Cmd a
 callUpdate config input mapResult =
     let
-        body = Http.jsonBody (encodeInputForUpdate input)
-        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForUpdate)
+        body =
+            Http.jsonBody (encodeInputForUpdate input)
+
+        expect =
+            Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForUpdate)
     in
     Http.request
         { method = "POST"

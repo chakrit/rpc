@@ -1,5 +1,6 @@
 option go_import "github.com/chakrit/rpc/todo/api"
 option go_package "api"
+option elm_module "Api"
 
 type TodoItem {
     string id
