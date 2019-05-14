@@ -9,61 +9,61 @@ import (
 	"net/http"
 	"time"
 
-	gcr1_examples "github.com/chakrit/rpc/examples"
-	gcre2_todo "github.com/chakrit/rpc/examples/todo"
-	gcret3_auth "github.com/chakrit/rpc/examples/todo/auth"
+	rpc_root "github.com/chakrit/rpc/examples"
+	rpc_todo "github.com/chakrit/rpc/examples/todo"
+	rpc_todo_auth "github.com/chakrit/rpc/examples/todo/auth"
 
-	gcret4_system "github.com/chakrit/rpc/examples/todo/system"
+	rpc_todo_system "github.com/chakrit/rpc/examples/todo/system"
 )
 
 var _ time.Time = time.Time{}
 
 // github.com/chakrit/rpc/examples
-var _ gcr1_examples.Interface = Client_gcr1_examples{}
+var _ rpc_root.Interface = Client_rpc_root{}
 
-type Client_gcr1_examples struct {
+type Client_rpc_root struct {
 	*Client
-	Todo Client_gcre2_todo
+	Todo Client_rpc_todo
 }
 
-func (c *Client_gcr1_examples) initialize(client *Client) {
+func (c *Client_rpc_root) initialize(client *Client) {
 	c.Client = client
-	c.Todo = Client_gcre2_todo{}
+	c.Todo = Client_rpc_todo{}
 	c.Todo.initialize(client)
 }
 
 // github.com/chakrit/rpc/examples/todo
-var _ gcre2_todo.Interface = Client_gcre2_todo{}
+var _ rpc_todo.Interface = Client_rpc_todo{}
 
-type Client_gcre2_todo struct {
+type Client_rpc_todo struct {
 	*Client
-	Auth   Client_gcret3_auth
-	System Client_gcret4_system
+	Auth   Client_rpc_todo_auth
+	System Client_rpc_todo_system
 }
 
-func (c *Client_gcre2_todo) initialize(client *Client) {
+func (c *Client_rpc_todo) initialize(client *Client) {
 	c.Client = client
-	c.Auth = Client_gcret3_auth{}
+	c.Auth = Client_rpc_todo_auth{}
 	c.Auth.initialize(client)
-	c.System = Client_gcret4_system{}
+	c.System = Client_rpc_todo_system{}
 	c.System.initialize(client)
 }
 
 // github.com/chakrit/rpc/examples/todo/auth
-var _ gcret3_auth.Interface = Client_gcret3_auth{}
+var _ rpc_todo_auth.Interface = Client_rpc_todo_auth{}
 
-type Client_gcret3_auth struct {
+type Client_rpc_todo_auth struct {
 	*Client
 }
 
-func (c *Client_gcret3_auth) initialize(client *Client) {
+func (c *Client_rpc_todo_auth) initialize(client *Client) {
 	c.Client = client
 }
 
-func (c Client_gcret3_auth) Authenticate(
-	arg0 *gcret3_auth.AuthRequest,
+func (c Client_rpc_todo_auth) Authenticate(
+	arg0 *rpc_todo_auth.AuthRequest,
 ) (
-	out0 *gcret3_auth.AuthResponse,
+	out0 *rpc_todo_auth.AuthResponse,
 	err error,
 ) {
 	payload := []interface{}{arg0}
@@ -103,8 +103,8 @@ func (c Client_gcret3_auth) Authenticate(
 	return
 }
 
-func (c Client_gcret3_auth) Current() (
-	out0 *gcre2_todo.User,
+func (c Client_rpc_todo_auth) Current() (
+	out0 *rpc_todo.User,
 	err error,
 ) {
 	payload := []interface{}{}
@@ -145,18 +145,18 @@ func (c Client_gcret3_auth) Current() (
 }
 
 // github.com/chakrit/rpc/examples/todo/system
-var _ gcret4_system.Interface = Client_gcret4_system{}
+var _ rpc_todo_system.Interface = Client_rpc_todo_system{}
 
-type Client_gcret4_system struct {
+type Client_rpc_todo_system struct {
 	*Client
 }
 
-func (c *Client_gcret4_system) initialize(client *Client) {
+func (c *Client_rpc_todo_system) initialize(client *Client) {
 	c.Client = client
 }
 
-func (c Client_gcret4_system) Status() (
-	out0 *gcr1_examples.Failure,
+func (c Client_rpc_todo_system) Status() (
+	out0 *rpc_root.Failure,
 	err error,
 ) {
 	payload := []interface{}{}
@@ -203,7 +203,7 @@ type Result struct {
 
 type Client struct {
 	Options
-	Client_gcr1_examples
+	Client_rpc_root
 
 	HTTPClient *http.Client
 }
@@ -214,10 +214,10 @@ type Options struct {
 
 func New(opts *Options) *Client {
 	client := &Client{
-		Options:              *opts,
-		Client_gcr1_examples: Client_gcr1_examples{},
-		HTTPClient:           &http.Client{},
+		Options:         *opts,
+		Client_rpc_root: Client_rpc_root{},
+		HTTPClient:      &http.Client{},
 	}
-	client.Client_gcr1_examples.initialize(client)
+	client.Client_rpc_root.initialize(client)
 	return client
 }

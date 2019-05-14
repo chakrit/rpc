@@ -7,30 +7,30 @@ import (
 	"encoding/json"
 	"net/http"
 
-	gcr1_examples "github.com/chakrit/rpc/examples"
-	gcre2_todo "github.com/chakrit/rpc/examples/todo"
-	gcret3_auth "github.com/chakrit/rpc/examples/todo/auth"
+	rpc_root "github.com/chakrit/rpc/examples"
+	rpc_todo "github.com/chakrit/rpc/examples/todo"
+	rpc_todo_auth "github.com/chakrit/rpc/examples/todo/auth"
 
-	gcret4_system "github.com/chakrit/rpc/examples/todo/system"
+	rpc_todo_system "github.com/chakrit/rpc/examples/todo/system"
 )
 
-type Handler_gcr1_examples struct {
-	Handler gcr1_examples.Interface
-	Todo    Handler_gcre2_todo
+type Handler_rpc_root struct {
+	Handler rpc_root.Interface
+	Todo    Handler_rpc_todo
 }
 
-type Handler_gcre2_todo struct {
-	Handler gcre2_todo.Interface
-	Auth    Handler_gcret3_auth
-	System  Handler_gcret4_system
+type Handler_rpc_todo struct {
+	Handler rpc_todo.Interface
+	Auth    Handler_rpc_todo_auth
+	System  Handler_rpc_todo_system
 }
 
-type Handler_gcret3_auth struct {
-	Handler gcret3_auth.Interface
+type Handler_rpc_todo_auth struct {
+	Handler rpc_todo_auth.Interface
 }
 
-type Handler_gcret4_system struct {
-	Handler gcret4_system.Interface
+type Handler_rpc_todo_system struct {
+	Handler rpc_todo_system.Interface
 }
 
 type Result struct {
@@ -40,7 +40,7 @@ type Result struct {
 
 type Server struct {
 	Options
-	Handler_gcr1_examples
+	Handler_rpc_root
 }
 
 type Options struct {
@@ -57,39 +57,39 @@ func (s *Server) Listen() error {
 
 func (s *Server) HTTPHandler() http.Handler {
 	mux := http.NewServeMux()
-	s.register_gcr1_examples(mux, s.Handler_gcr1_examples)
+	s.register_rpc_root(mux, s.Handler_rpc_root)
 	return mux
 }
 
-func (s *Server) register_gcr1_examples(
+func (s *Server) register_rpc_root(
 	mux *http.ServeMux,
-	handler Handler_gcr1_examples,
+	handler Handler_rpc_root,
 ) *http.ServeMux {
 
-	s.register_gcre2_todo(mux, handler.Todo)
+	s.register_rpc_todo(mux, handler.Todo)
 	return mux
 }
 
-func (s *Server) register_gcre2_todo(
+func (s *Server) register_rpc_todo(
 	mux *http.ServeMux,
-	handler Handler_gcre2_todo,
+	handler Handler_rpc_todo,
 ) *http.ServeMux {
 
-	s.register_gcret3_auth(mux, handler.Auth)
-	s.register_gcret4_system(mux, handler.System)
+	s.register_rpc_todo_auth(mux, handler.Auth)
+	s.register_rpc_todo_system(mux, handler.System)
 	return mux
 }
 
-func (s *Server) register_gcret3_auth(
+func (s *Server) register_rpc_todo_auth(
 	mux *http.ServeMux,
-	handler Handler_gcret3_auth,
+	handler Handler_rpc_todo_auth,
 ) *http.ServeMux {
 
 	mux.HandleFunc("/todo/auth/auth/Authenticate", func(resp http.ResponseWriter, req *http.Request) {
 		var err error
 		resp.Header().Set("Content-Type", "application/json")
 
-		var arg0 *gcret3_auth.AuthRequest
+		var arg0 *rpc_todo_auth.AuthRequest
 		args := [1]interface{}{
 			&arg0,
 		}
@@ -102,7 +102,7 @@ func (s *Server) register_gcret3_auth(
 			}
 		}
 
-		var out0 *gcret3_auth.AuthResponse
+		var out0 *rpc_todo_auth.AuthResponse
 		out0, err = handler.Handler.Authenticate(arg0)
 		result := &Result{
 			Error: err,
@@ -125,7 +125,7 @@ func (s *Server) register_gcret3_auth(
 		var err error
 		resp.Header().Set("Content-Type", "application/json")
 
-		var out0 *gcre2_todo.User
+		var out0 *rpc_todo.User
 		out0, err = handler.Handler.Current()
 		result := &Result{
 			Error: err,
@@ -147,16 +147,16 @@ func (s *Server) register_gcret3_auth(
 	return mux
 }
 
-func (s *Server) register_gcret4_system(
+func (s *Server) register_rpc_todo_system(
 	mux *http.ServeMux,
-	handler Handler_gcret4_system,
+	handler Handler_rpc_todo_system,
 ) *http.ServeMux {
 
 	mux.HandleFunc("/todo/system/system/Status", func(resp http.ResponseWriter, req *http.Request) {
 		var err error
 		resp.Header().Set("Content-Type", "application/json")
 
-		var out0 *gcr1_examples.Failure
+		var out0 *rpc_root.Failure
 		out0, err = handler.Handler.Status()
 		result := &Result{
 			Error: err,

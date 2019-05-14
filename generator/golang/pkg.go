@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path"
 	"sort"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -19,16 +18,15 @@ func (p pkgByNameAndNumber) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 
 func (p pkgByNameAndNumber) Less(i, j int) bool {
 	left, right := p[i], p[j]
-	return left.Name < right.Name ||
-		left.Number < right.Number
+	return left.Name < right.Name
 }
 
 type Pkg struct {
-	Number       int // increasing number, for various uniqueness requirements
 	Name         string
 	ExportedName string
 	MangledName  string
 
+	BasePath   string
 	RPCPath    string
 	FilePath   string
 	ImportPath string
@@ -79,8 +77,6 @@ func newChildPkg(parent *Pkg, ns *spec.Namespace) *Pkg {
 }
 
 func (pkg *Pkg) initialize() {
-	pkg.assignNamesAndNumbers(nil)
-
 	pkgNameOption, importOption := pkg.lookupOption(PackageOption), pkg.lookupOption(ImportOption)
 	if pkgNameOption == "" {
 		pkgNameOption = DefaultPkgName
@@ -89,8 +85,10 @@ func (pkg *Pkg) initialize() {
 		importOption = DefaultImportPath
 	}
 
-	if pkg.Name == "" || pkg.Name == "root" {
+	if pkg.Namespace.Name == "" || pkg.Namespace.Name == "root" {
 		pkg.Name = pkgNameOption
+	} else {
+		pkg.Name = strings.ToLower(pkg.Namespace.Name)
 	}
 
 	pkg.resolvePaths("", importOption)
@@ -109,26 +107,12 @@ func (pkg *Pkg) lookupOption(name string) string {
 	}
 }
 
-func (pkg *Pkg) assignNamesAndNumbers(count *int) {
-	if count == nil {
-		n := 1
-		count = &n
-	} else {
-		*count += 1
-	}
-
-	pkg.Number = *count
-	pkg.Name = strings.ToLower(pkg.Namespace.Name)
-	for _, child := range pkg.Children {
-		child.assignNamesAndNumbers(count)
-	}
-}
-
 func (pkg *Pkg) resolvePaths(base, importBase string) {
 	if pkg.Parent != nil {
 		base = path.Join(base, strings.ToLower(pkg.Name))
 	}
 
+	pkg.BasePath = base
 	pkg.RPCPath = path.Join(base, internal.InflectSnake(pkg.Name))
 	pkg.FilePath = path.Join(base, OutName)
 	if pkg.Parent != nil {
@@ -180,9 +164,11 @@ func (pkg *Pkg) resolveImports() {
 
 func (pkg *Pkg) generateAltNames() {
 	pkg.ExportedName = internal.InflectPascal(pkg.Name)
-	pkg.MangledName = internal.MangleID(
-		pkg.ImportPath,
-		strconv.Itoa(pkg.Number))
+	if pkg.Parent != nil {
+		pkg.MangledName = "rpc_" + internal.InflectSnake(pkg.BasePath)
+	} else {
+		pkg.MangledName = "rpc_root"
+	}
 
 	for _, child := range pkg.Children {
 		child.generateAltNames()
