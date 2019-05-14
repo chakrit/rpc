@@ -12,17 +12,52 @@ import (
 )
 
 const (
-	RpcTemplateName    = "/elm/Rpc.elm.gotmpl"
-	SharedTemplateName = "/elm/RpcUtil.elm.gotmpl"
-	ElmModuleOption    = "elm_module"
-	// ElmModulePrefix = "elm_prefix" // option to allow generating into sub-folders.
+	RpcTemplateName  = "/elm/Rpc.elm.gotmpl"
+	UtilTemplateName = "/elm/RpcUtil.elm.gotmpl"
+	ModuleOption     = "elm_module"
 )
+
+type ElmField struct {
+	Name string
+	Type *ElmTypeRef
+}
+
+type ElmType struct {
+	Name   string
+	Fields []*ElmField
+	Module *Module
+}
+
+type ElmTypeRef struct {
+	Name   string
+	Args   []*ElmTypeRef
+	Module *Module
+}
+
+type ElmTypeResolution struct {
+	Name   string
+	Encode string
+	Decode string
+}
+
+type ElmTuple struct {
+	Name string
+	Args []*ElmTypeRef
+}
+
+type ElmRPCFunc struct {
+	Name    string
+	RPCPath string
+
+	InArgs  []*ElmTypeRef
+	OutArgs []*ElmTypeRef
+}
 
 func Generate(ns *spec.Namespace, outdir string) error {
 	module := newModule(nil, outdir, ns)
-	sharedModule := newSharedModule(module, outdir, ns)
+	utilModule := newUtilModule(module, outdir, ns)
 
-	if err := writeModule(sharedModule, SharedTemplateName); err != nil {
+	if err := writeModule(utilModule, UtilTemplateName); err != nil {
 		return err
 	}
 	if err := writeModule(module, RpcTemplateName); err != nil {

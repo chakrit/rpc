@@ -12,7 +12,6 @@ import (
 )
 
 type Module struct {
-	Number  int // increasing number, for uniqueness
 	Name    string
 	RPCPath string
 	OutPath string
@@ -29,45 +28,7 @@ type Module struct {
 	Children []*Module
 }
 
-type ElmField struct {
-	Name string
-	Type *ElmTypeRef
-}
-
-type ElmType struct {
-	Name   string
-	Fields []*ElmField
-	Module *Module
-}
-
-type ElmTypeRef struct {
-	Name   string
-	Args   []*ElmTypeRef
-	Module *Module
-}
-
-type ElmTypeResolution struct {
-	Name   string
-	Encode string
-	Decode string
-}
-
-type ElmTuple struct {
-	Name string
-	Args []*ElmTypeRef
-}
-
-type ElmRPCFunc struct {
-	Name    string
-	RPCPath string
-
-	InArgs  []*ElmTypeRef
-	OutArgs []*ElmTypeRef
-}
-
-var counter = 0
-
-func newSharedModule(rootModule *Module, outdir string, ns *spec.Namespace) *Module {
+func newUtilModule(rootModule *Module, outdir string, ns *spec.Namespace) *Module {
 	return &Module{
 		Name:      "RpcUtil",
 		Namespace: ns,
@@ -77,15 +38,13 @@ func newSharedModule(rootModule *Module, outdir string, ns *spec.Namespace) *Mod
 }
 
 func newModule(parent *Module, outdir string, ns *spec.Namespace) *Module {
-	counter += 1
 	mod := &Module{
-		Number:    counter,
 		Namespace: ns,
 		Parent:    parent,
 	}
 
 	name := ns.Name
-	if nameOpt, isSet := ns.Options[ElmModuleOption]; isSet {
+	if nameOpt, isSet := ns.Options[ModuleOption]; isSet {
 		name = fmt.Sprint(nameOpt)
 	} else if name == "root" {
 		name = "Rpc"
