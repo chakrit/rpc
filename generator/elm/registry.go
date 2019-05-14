@@ -59,8 +59,8 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 	case "time":
 		return &ElmTypeResolution{
 			Name:   "Time.Posix",
-			Encode: `(Time.posixToMillis >> E.int)`,
-			Decode: `(D.map Time.millisToPosix D.int)`,
+			Encode: `(Time.posixToMillis >> toFloat >> (\f -> f/1000.0) >> E.float)`,
+			Decode: `(D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)`,
 		}
 	default:
 		return r.resolveUnknown()

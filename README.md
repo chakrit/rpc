@@ -114,7 +114,7 @@ Supported types:
 | double | 64-bit variant floating-point type, if available.
 | list   | Arrays or native list type.
 | map    | Dictionaries or hashes.
-| time   | Native time type, or same as `long`.
+| time   | Native time type, or same as `double` representing unix seconds.
 
 # LICENSE
 

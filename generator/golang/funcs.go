@@ -13,7 +13,10 @@ func funcMap(pkg *Pkg) template.FuncMap {
 	f["pascal"] = internal.InflectPascal
 	f["snake"] = internal.InflectSnake
 
-	f["asReference"] = AsReference
+	f["asReference"] = asReference
+	f["asMarshalTarget"] = asMarshalTarget
+	f["marshaler"] = marshaler
+	f["unmarshaler"] = unmarshaler
 
 	f["resolve"] = reg.Resolve
 	f["resolveAbs"] = func(pkg *Pkg, ref *spec.TypeRef) *ResolvedType {
@@ -29,23 +32,13 @@ func funcMap(pkg *Pkg) template.FuncMap {
 	return f
 }
 
-func AsReference(rt *ResolvedType) string {
+func asReference(rt *ResolvedType) string {
 	if rt == nil {
 		// TODO: Warn about bad resolution
 		return "interface{}"
 	}
 
-	var (
-		arg0 *ResolvedType
-		arg1 *ResolvedType
-	)
-
-	if len(rt.Args) > 1 {
-		arg1 = rt.Args[1]
-	}
-	if len(rt.Args) > 0 {
-		arg0 = rt.Args[0]
-	}
+	arg0, arg1 := rt.Arg(0), rt.Arg(1)
 
 	switch {
 	case rt.IsSimple():
@@ -53,9 +46,9 @@ func AsReference(rt *ResolvedType) string {
 	case rt.IsTime():
 		return "time.Time"
 	case rt.IsMap():
-		return "map[" + AsReference(arg0) + "]" + AsReference(arg1)
+		return "map[" + asReference(arg0) + "]" + asReference(arg1)
 	case rt.IsList():
-		return "[]" + AsReference(arg0)
+		return "[]" + asReference(arg0)
 	case rt.IsPkgLocal():
 		return "*" + rt.Name
 	case rt.IsImported():
@@ -65,4 +58,55 @@ func AsReference(rt *ResolvedType) string {
 		return "interface{}"
 	}
 
+}
+
+func asMarshalTarget(rt *ResolvedType) string {
+	if rt == nil {
+		// TODO: Warn about bad resolution
+		return "interface{}"
+	}
+
+	switch {
+	case rt.IsTime():
+		// Posix are more universal than iso8601 -> this allows more language to parse and
+		// encode it without having to add a third party dependency. We can still retain
+		// some precision (not perfect, but good enough) from go's nanoseconds by going
+		// into the decimals.
+		return "float64"
+	default:
+		return asReference(rt)
+	}
+}
+
+func marshaler(rt *ResolvedType) string {
+	if rt == nil {
+		return ""
+	}
+
+	switch {
+	case rt.IsTime():
+		return "(func (t time.Time) float64 {" +
+			"sec, nsec := t.Unix(), t.Nanosecond();" +
+			"return float64(sec) + (float64(nsec)/float64(time.Second));" +
+			"})"
+	default:
+		return ""
+	}
+}
+
+func unmarshaler(rt *ResolvedType) string {
+	if rt == nil {
+		return ""
+	}
+
+	switch {
+	case rt.IsTime():
+		return "(func (t float64) time.Time {" +
+			"fsec, fnsec := math.Modf(t);" +
+			"sec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)));" +
+			"return time.Unix(sec, nsec);" +
+			"})"
+	default:
+		return ""
+	}
 }

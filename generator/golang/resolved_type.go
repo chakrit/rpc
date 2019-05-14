@@ -33,6 +33,14 @@ func (rt *ResolvedType) IsBuiltin() bool  { return (rt.Flags & OriginBuiltin) !=
 func (rt *ResolvedType) IsPkgLocal() bool { return (rt.Flags & OriginPkgLocal) != 0 }
 func (rt *ResolvedType) IsImported() bool { return (rt.Flags & OriginImported) != 0 }
 
+func (rt *ResolvedType) Arg(n int) *ResolvedType {
+	if len(rt.Args) > n {
+		return rt.Args[n]
+	} else {
+		return nil
+	}
+}
+
 func (rt *ResolvedType) WithoutFlags(flags int) *ResolvedType {
 	clone := *rt
 	clone.Flags = clone.Flags & ^flags
