@@ -66,7 +66,7 @@ func (s *Server) HTTPHandler() http.Handler {
             resp.Header().Set("Content-Type", "application/json")
 
             {{  range $index, $type := $rpc.InputTypes  }}
-                var arg{{ $index }} {{ template "typeref" (resolveAbs $pkg $type) }}
+                var arg{{ $index }} {{ asReference (resolveAbs $pkg $type) }}
             {{- end -}}
             {{- if (len $rpc.InputTypes)  }}
                 args := [{{ len $rpc.InputTypes }}]interface{}{
@@ -85,7 +85,7 @@ func (s *Server) HTTPHandler() http.Handler {
             {{- end  }}
 
             {{  range $index, $type := $rpc.OutputTypes  }}
-                var out{{ $index }} {{ template "typeref" (resolveAbs $pkg $type) }}
+                var out{{ $index }} {{ asReference (resolveAbs $pkg $type) }}
             {{- end  }}
             {{  range $index, $_ := $rpc.OutputTypes -}}
                 out{{ $index }},

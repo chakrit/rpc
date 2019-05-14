@@ -36,11 +36,11 @@ var _ time.Time = time.Time{}
         {{  range $rpc := .Namespace.RPCs.SortedByName -}}
             func (c Client_{{ $pkg.MangledName }}) {{ $rpc.Name }}(
             {{  range $index, $arg := .InputTypes -}}
-                arg{{ $index }} {{ template "typeref" (resolveAbs $pkg $arg) }},
+                arg{{ $index }} {{ asReference (resolveAbs $pkg $arg) }},
             {{  end -}}
             ) (
             {{  range $index, $arg := .OutputTypes -}}
-                out{{ $index }} {{ template "typeref" (resolveAbs $pkg $arg) }},
+                out{{ $index }} {{ asReference (resolveAbs $pkg $arg) }},
             {{  end -}}
                 err error,
             ) {

@@ -1,6 +1,8 @@
 package golang
 
-import "github.com/chakrit/rpc/spec"
+import (
+	"github.com/chakrit/rpc/spec"
+)
 
 const (
 	TypeSimple = 1 << iota
