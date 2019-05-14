@@ -38,6 +38,7 @@ type Pkg struct {
 	Parent       *Pkg
 	Children     []*Pkg
 	Dependencies []*Pkg
+	LocalTypes   spec.Mappings
 }
 
 func newRootPkg(ns *spec.Namespace) *Pkg {
@@ -84,7 +85,6 @@ func (pkg *Pkg) initialize() {
 	if importOption == "" {
 		importOption = DefaultImportPath
 	}
-
 	if pkg.Namespace.Name == "" || pkg.Namespace.Name == "root" {
 		pkg.Name = pkgNameOption
 	} else {
@@ -92,9 +92,22 @@ func (pkg *Pkg) initialize() {
 	}
 
 	pkg.resolvePaths("", importOption)
+	pkg.generateNames()
 	pkg.Registry.RegisterAll(pkg)
 	pkg.resolveImports()
-	pkg.generateAltNames()
+}
+
+func (pkg *Pkg) generateNames() {
+	pkg.ExportedName = internal.InflectPascal(pkg.Name)
+	if pkg.Parent != nil {
+		pkg.MangledName = "rpc_" + internal.InflectSnake(pkg.BasePath)
+	} else {
+		pkg.MangledName = "rpc_root"
+	}
+
+	for _, child := range pkg.Children {
+		child.generateNames()
+	}
 }
 
 func (pkg *Pkg) lookupOption(name string) string {
@@ -159,18 +172,5 @@ func (pkg *Pkg) resolveImports() {
 	sort.Sort(pkgByNameAndNumber(pkg.Dependencies))
 	for _, child := range pkg.Children {
 		child.resolveImports()
-	}
-}
-
-func (pkg *Pkg) generateAltNames() {
-	pkg.ExportedName = internal.InflectPascal(pkg.Name)
-	if pkg.Parent != nil {
-		pkg.MangledName = "rpc_" + internal.InflectSnake(pkg.BasePath)
-	} else {
-		pkg.MangledName = "rpc_root"
-	}
-
-	for _, child := range pkg.Children {
-		child.generateAltNames()
 	}
 }

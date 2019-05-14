@@ -32,7 +32,7 @@ func init() {
 func (r TypeRegistry) RegisterAll(pkg *Pkg) {
 	for _, typNode := range pkg.Namespace.Types {
 		typ := typNode.(*spec.Type)
-		slug := pkg.ImportPath + "." + typ.Name
+		slug := r.slug(pkg, typ.Name)
 		r[slug] = &ResolvedType{
 			Name:  typ.Name,
 			Pkg:   pkg,
@@ -125,7 +125,7 @@ func (r TypeRegistry) resolveMapType(pkg *Pkg, ref *spec.TypeRef) *ResolvedType 
 
 func (r TypeRegistry) resolveUserDefinedType(pkg *Pkg, ref *spec.TypeRef) *ResolvedType {
 	for findPkg := pkg; findPkg != nil; findPkg = findPkg.Parent {
-		slug := findPkg.ImportPath + "." + ref.Name
+		slug := r.slug(findPkg, ref.Name)
 		if existing, ok := r[slug]; ok {
 			if findPkg == pkg {
 				return existing.WithFlags(TypeIsLocal)
@@ -137,4 +137,8 @@ func (r TypeRegistry) resolveUserDefinedType(pkg *Pkg, ref *spec.TypeRef) *Resol
 
 	// TODO: Emit a warning, can't find user-defind type
 	return resolvedUnknownType
+}
+
+func (r TypeRegistry) slug(pkg *Pkg, name string) string {
+	return pkg.BasePath + "." + name
 }
