@@ -18,8 +18,8 @@ func funcMap(pkg *Pkg) template.FuncMap {
 			return nil
 		} else {
 			return resolved.
-				WithoutFlags(TypeIsLocal).
-				WithFlags(TypeIsImported)
+				WithoutFlags(OriginPkgLocal).
+				WithFlags(OriginImported)
 		}
 	}
 

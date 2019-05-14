@@ -8,9 +8,9 @@ const (
 	TypeMap
 	TypeList
 	TypeUserDefined
-	TypeIsBuiltin
-	TypeIsLocal
-	TypeIsImported
+	OriginBuiltin
+	OriginPkgLocal
+	OriginImported
 )
 
 type ResolvedType struct {
@@ -27,9 +27,9 @@ func (rt *ResolvedType) IsMap() bool         { return (rt.Flags & TypeMap) != 0 
 func (rt *ResolvedType) IsList() bool        { return (rt.Flags & TypeList) != 0 }
 func (rt *ResolvedType) IsUserDefined() bool { return (rt.Flags & TypeUserDefined) != 0 }
 
-func (rt *ResolvedType) IsBuiltin() bool  { return (rt.Flags & TypeIsBuiltin) != 0 }
-func (rt *ResolvedType) IsLocal() bool    { return (rt.Flags & TypeIsLocal) != 0 }
-func (rt *ResolvedType) IsImported() bool { return (rt.Flags & TypeIsImported) != 0 }
+func (rt *ResolvedType) IsBuiltin() bool  { return (rt.Flags & OriginBuiltin) != 0 }
+func (rt *ResolvedType) IsPkgLocal() bool { return (rt.Flags & OriginPkgLocal) != 0 }
+func (rt *ResolvedType) IsImported() bool { return (rt.Flags & OriginImported) != 0 }
 
 func (rt *ResolvedType) WithoutFlags(flags int) *ResolvedType {
 	clone := *rt

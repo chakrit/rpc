@@ -7,7 +7,7 @@
     map[{{- template "typeref" (index .Args 0) -}}]{{- template "typeref" (index .Args 1) }}
 {{- else if .IsList -}}
     []{{- template "typeref" (index .Args 0) }}
-{{- else if .IsLocal -}}
+{{- else if .IsPkgLocal -}}
     *{{ .Name }}
 {{- else if .IsImported -}}
     *{{ .Pkg.MangledName }}.{{ .Name }}
