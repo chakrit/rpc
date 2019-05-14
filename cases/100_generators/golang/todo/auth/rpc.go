@@ -4,19 +4,81 @@
 package Auth
 
 import (
+	"encoding/json"
+	"math"
+
 	rpc_root "github.com/chakrit/rpc/examples"
 	rpc_todo "github.com/chakrit/rpc/examples/todo"
 )
 
+var _ = math.Pi
+var _ = json.Marshal
+
 type AuthRequest struct {
-	Provider string `json:"provider" yaml:"provider" db:"provider"`
-	Secret   string `json:"secret" yaml:"secret" db:"secret"`
-	Username string `json:"username" yaml:"username" db:"username"`
+	Provider string `json:"provider" db:"provider"`
+	Secret   string `json:"secret" db:"secret"`
+	Username string `json:"username" db:"username"`
+}
+
+func (obj *AuthRequest) MarshalJSON() ([]byte, error) {
+	outobj := struct {
+		Provider string `json:"provider"`
+		Secret   string `json:"secret"`
+		Username string `json:"username"`
+	}{
+		Provider: (obj.Provider),
+		Secret:   (obj.Secret),
+		Username: (obj.Username),
+	}
+	return json.Marshal(outobj)
+}
+
+func (obj *AuthRequest) UnmarshalJSON(buf []byte) error {
+	inobj := struct {
+		Provider string `json:"provider"`
+		Secret   string `json:"secret"`
+		Username string `json:"username"`
+	}{}
+
+	if err := json.Unmarshal(buf, &inobj); err != nil {
+		return err
+	}
+
+	obj.Provider = (inobj.Provider)
+	obj.Secret = (inobj.Secret)
+	obj.Username = (inobj.Username)
+	return nil
 }
 
 type AuthResponse struct {
-	Failure *rpc_root.Failure `json:"failure" yaml:"failure" db:"failure"`
-	User    *rpc_todo.User    `json:"user" yaml:"user" db:"user"`
+	Failure *rpc_root.Failure `json:"failure" db:"failure"`
+	User    *rpc_todo.User    `json:"user" db:"user"`
+}
+
+func (obj *AuthResponse) MarshalJSON() ([]byte, error) {
+	outobj := struct {
+		Failure *rpc_root.Failure `json:"failure"`
+		User    *rpc_todo.User    `json:"user"`
+	}{
+		Failure: (obj.Failure),
+		User:    (obj.User),
+	}
+	return json.Marshal(outobj)
+}
+
+func (obj *AuthResponse) UnmarshalJSON(buf []byte) error {
+	inobj := struct {
+		Failure *rpc_root.Failure `json:"failure"`
+		User    *rpc_todo.User    `json:"user"`
+	}{}
+
+	if err := json.Unmarshal(buf, &inobj); err != nil {
+		return err
+	}
+
+	obj.Failure = (inobj.Failure)
+	obj.User = (inobj.User)
+	return nil
 }
 
 type Interface interface {

@@ -4,8 +4,14 @@
 package System
 
 import (
+	"encoding/json"
+	"math"
+
 	rpc_root "github.com/chakrit/rpc/examples"
 )
+
+var _ = math.Pi
+var _ = json.Marshal
 
 type Interface interface {
 	Status() (*rpc_root.Failure, error,

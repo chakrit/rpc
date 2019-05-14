@@ -10,6 +10,9 @@ import (
 	time "time"
 )
 
+var _ = math.Pi
+var _ = json.Marshal
+
 type TodoItem struct {
 	Ctime       time.Time `json:"ctime" db:"ctime"`
 	Description string    `json:"description" db:"description"`

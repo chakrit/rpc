@@ -3,9 +3,43 @@
 // expected import: github.com/chakrit/rpc/examples
 package examples
 
+import (
+	"encoding/json"
+	"math"
+)
+
+var _ = math.Pi
+var _ = json.Marshal
+
 type Failure struct {
-	Code        string `json:"code" yaml:"code" db:"code"`
-	Description string `json:"description" yaml:"description" db:"description"`
+	Code        string `json:"code" db:"code"`
+	Description string `json:"description" db:"description"`
+}
+
+func (obj *Failure) MarshalJSON() ([]byte, error) {
+	outobj := struct {
+		Code        string `json:"code"`
+		Description string `json:"description"`
+	}{
+		Code:        (obj.Code),
+		Description: (obj.Description),
+	}
+	return json.Marshal(outobj)
+}
+
+func (obj *Failure) UnmarshalJSON(buf []byte) error {
+	inobj := struct {
+		Code        string `json:"code"`
+		Description string `json:"description"`
+	}{}
+
+	if err := json.Unmarshal(buf, &inobj); err != nil {
+		return err
+	}
+
+	obj.Code = (inobj.Code)
+	obj.Description = (inobj.Description)
+	return nil
 }
 
 type Interface interface {

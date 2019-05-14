@@ -16,6 +16,9 @@ import (
     {{- end  }}
 )
 
+var _ = math.Pi
+var _ = json.Marshal
+
 {{ range $name, $type := .Namespace.Types }}
 type {{ $name }} struct {
     {{  range $name, $prop := .Properties -}}
