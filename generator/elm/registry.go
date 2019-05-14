@@ -18,7 +18,7 @@ func (r Registry) Lookup(context *Module, name string) *ElmType {
 	}
 }
 
-// TODO: time, map, etc.
+// TODO: map as Dict k v
 func (r Registry) Resolve(ref *ElmTypeRef) *ElmTypeResolution {
 	switch ref.Name {
 	case "string", "bool", "int", "long", "float", "double", "time":
@@ -105,6 +105,7 @@ func (r Registry) resolveUserDefined(ref *ElmTypeRef) *ElmTypeResolution {
 // tries to give a default value when `null` is received without having to define
 // all json-nullable fields as a Maybe
 func (r Registry) resolveWithDefault(defaultValue string, elementType *ElmTypeResolution) *ElmTypeResolution {
+	// i.e. D.map (Maybe.withDefault ([])) (D.maybe (D.list decodeSomething))
 	dec := "Maybe.withDefault (" + defaultValue + ")"
 	dec = "D.map (" + dec + ")"
 	dec = dec + " (D.maybe (" + elementType.Decode + "))"
