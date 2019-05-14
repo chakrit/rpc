@@ -35,5 +35,5 @@ func (silentLogger) Fatal(err error)         { log("[error]", err); os.Exit(1) }
 func (silentLogger) Fatalp(p Pos, err error) { log("[error]", p, err); os.Exit(1) }
 
 func log(args ...interface{}) {
-	fmt.Fprintln(os.Stderr, args...)
+	_, _ = fmt.Fprintln(os.Stderr, args...)
 }
