@@ -9,26 +9,26 @@ import (
 	"net/http"
 	"time"
 
-	gcrt1_api "github.com/chakrit/rpc/todo/api"
+	rpc_root "github.com/chakrit/rpc/todo/api"
 )
 
 var _ time.Time = time.Time{}
 
 // github.com/chakrit/rpc/todo/api
-var _ gcrt1_api.Interface = Client_gcrt1_api{}
+var _ rpc_root.Interface = Client_rpc_root{}
 
-type Client_gcrt1_api struct {
+type Client_rpc_root struct {
 	*Client
 }
 
-func (c *Client_gcrt1_api) initialize(client *Client) {
+func (c *Client_rpc_root) initialize(client *Client) {
 	c.Client = client
 }
 
-func (c Client_gcrt1_api) Create(
+func (c Client_rpc_root) Create(
 	arg0 string,
 ) (
-	out0 *gcrt1_api.TodoItem,
+	out0 *rpc_root.TodoItem,
 	err error,
 ) {
 	payload := []interface{}{arg0}
@@ -68,10 +68,10 @@ func (c Client_gcrt1_api) Create(
 	return
 }
 
-func (c Client_gcrt1_api) Destroy(
+func (c Client_rpc_root) Destroy(
 	arg0 int64,
 ) (
-	out0 *gcrt1_api.TodoItem,
+	out0 *rpc_root.TodoItem,
 	err error,
 ) {
 	payload := []interface{}{arg0}
@@ -111,8 +111,8 @@ func (c Client_gcrt1_api) Destroy(
 	return
 }
 
-func (c Client_gcrt1_api) List() (
-	out0 []*gcrt1_api.TodoItem,
+func (c Client_rpc_root) List() (
+	out0 []*rpc_root.TodoItem,
 	err error,
 ) {
 	payload := []interface{}{}
@@ -159,7 +159,7 @@ type Result struct {
 
 type Client struct {
 	Options
-	Client_gcrt1_api
+	Client_rpc_root
 
 	HTTPClient *http.Client
 }
@@ -170,10 +170,10 @@ type Options struct {
 
 func New(opts *Options) *Client {
 	client := &Client{
-		Options:          *opts,
-		Client_gcrt1_api: Client_gcrt1_api{},
-		HTTPClient:       &http.Client{},
+		Options:         *opts,
+		Client_rpc_root: Client_rpc_root{},
+		HTTPClient:      &http.Client{},
 	}
-	client.Client_gcrt1_api.initialize(client)
+	client.Client_rpc_root.initialize(client)
 	return client
 }

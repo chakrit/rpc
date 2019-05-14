@@ -4,13 +4,53 @@
 package api
 
 import (
+	"encoding/json"
+	"math"
+
 	time "time"
 )
 
 type TodoItem struct {
-	Ctime       time.Time `json:"ctime" yaml:"ctime" db:"ctime"`
-	Description string    `json:"description" yaml:"description" db:"description"`
-	ID          int64     `json:"id" yaml:"id" db:"id"`
+	Ctime       time.Time `json:"ctime" db:"ctime"`
+	Description string    `json:"description" db:"description"`
+	ID          int64     `json:"id" db:"id"`
+}
+
+func (obj *TodoItem) MarshalJSON() ([]byte, error) {
+	outobj := struct {
+		Ctime       float64 `json:"ctime"`
+		Description string  `json:"description"`
+		ID          int64   `json:"id"`
+	}{
+		Ctime: (func(t time.Time) float64 {
+			sec, nsec := t.Unix(), t.Nanosecond()
+			return float64(sec) + (float64(nsec) / float64(time.Second))
+		})(obj.Ctime),
+		Description: (obj.Description),
+		ID:          (obj.ID),
+	}
+	return json.Marshal(outobj)
+}
+
+func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
+	inobj := struct {
+		Ctime       float64 `json:"ctime"`
+		Description string  `json:"description"`
+		ID          int64   `json:"id"`
+	}{}
+
+	if err := json.Unmarshal(buf, &inobj); err != nil {
+		return err
+	}
+
+	obj.Ctime = (func(t float64) time.Time {
+		fsec, fnsec := math.Modf(t)
+		sec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))
+		return time.Unix(sec, nsec)
+	})(inobj.Ctime)
+	obj.Description = (inobj.Description)
+	obj.ID = (inobj.ID)
+	return nil
 }
 
 type Interface interface {

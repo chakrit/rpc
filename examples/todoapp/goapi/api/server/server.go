@@ -7,11 +7,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	gcrt1_api "github.com/chakrit/rpc/todo/api"
+	rpc_root "github.com/chakrit/rpc/todo/api"
 )
 
-type Handler_gcrt1_api struct {
-	Handler gcrt1_api.Interface
+type Handler_rpc_root struct {
+	Handler rpc_root.Interface
 }
 
 type Result struct {
@@ -21,7 +21,7 @@ type Result struct {
 
 type Server struct {
 	Options
-	Handler_gcrt1_api
+	Handler_rpc_root
 }
 
 type Options struct {
@@ -38,13 +38,13 @@ func (s *Server) Listen() error {
 
 func (s *Server) HTTPHandler() http.Handler {
 	mux := http.NewServeMux()
-	s.register_gcrt1_api(mux, s.Handler_gcrt1_api)
+	s.register_rpc_root(mux, s.Handler_rpc_root)
 	return mux
 }
 
-func (s *Server) register_gcrt1_api(
+func (s *Server) register_rpc_root(
 	mux *http.ServeMux,
-	handler Handler_gcrt1_api,
+	handler Handler_rpc_root,
 ) *http.ServeMux {
 
 	mux.HandleFunc("/api/Create", func(resp http.ResponseWriter, req *http.Request) {
@@ -64,7 +64,7 @@ func (s *Server) register_gcrt1_api(
 			}
 		}
 
-		var out0 *gcrt1_api.TodoItem
+		var out0 *rpc_root.TodoItem
 		out0, err = handler.Handler.Create(arg0)
 		result := &Result{
 			Error: err,
@@ -100,7 +100,7 @@ func (s *Server) register_gcrt1_api(
 			}
 		}
 
-		var out0 *gcrt1_api.TodoItem
+		var out0 *rpc_root.TodoItem
 		out0, err = handler.Handler.Destroy(arg0)
 		result := &Result{
 			Error: err,
@@ -123,7 +123,7 @@ func (s *Server) register_gcrt1_api(
 		var err error
 		resp.Header().Set("Content-Type", "application/json")
 
-		var out0 []*gcrt1_api.TodoItem
+		var out0 []*rpc_root.TodoItem
 		out0, err = handler.Handler.List()
 		result := &Result{
 			Error: err,

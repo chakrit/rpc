@@ -7,11 +7,13 @@ import Bulma.Elements exposing (TablePartition, TitleSize(..), button, buttonMod
 import Bulma.Form exposing (controlButton, controlInput, controlInputModifiers, field)
 import Bulma.Layout exposing (SectionSpacing(..), container, section)
 import Bulma.Modifiers as Modifiers exposing (Color(..), Size(..), State(..))
-import Html exposing (Html, div, li, text, ul)
+import Html exposing (Html, div, text)
 import Html.Attributes exposing (value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode
 import RpcUtil as Rpc exposing (CallResult(..), mapResult, translateHttpError)
+import Task
+import Time exposing (Month(..), utc)
 
 
 config : Rpc.Config
@@ -32,14 +34,16 @@ type CallState
 
 
 type alias Model =
-    { text : String
+    { zone : Time.Zone
+    , text : String
     , state : CallState
     , list : List TodoItem
     }
 
 
 type Msg
-    = Input String
+    = TimeZone Time.Zone
+    | Input String
     | Create
     | Reset
     | Refresh
@@ -74,17 +78,24 @@ onDeleteReply =
 
 init : Flags -> ( Model, Cmd Msg )
 init _ =
-    ( { text = ""
+    ( { zone = utc
+      , text = ""
       , state = Idle
       , list = []
       }
-    , Api.callList config () onListReply
+    , Cmd.batch
+        [ Api.callList config () onListReply
+        , Time.here |> Task.perform TimeZone
+        ]
     )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        TimeZone zone ->
+            ( { model | zone = zone }, Cmd.none )
+
         Input str ->
             ( { model | text = str }, Cmd.none )
 
@@ -220,6 +231,7 @@ viewTableHeaders model =
         [ tableRow False
             []
             [ tableCellHead [] [ text "Item" ]
+            , tableCellHead [] [ text "Created" ]
             , tableCellHead [] [ text "Actions" ]
             ]
         ]
@@ -228,11 +240,41 @@ viewTableHeaders model =
 viewTableBody : Model -> Html Msg
 viewTableBody model =
     let
+        rowTime : TodoItem -> Html Msg
+        rowTime todoItem =
+            let
+                t =
+                    todoItem.ctime
+
+                ( day, month, year ) =
+                    ( Time.toDay model.zone t |> String.fromInt
+                    , Time.toMonth model.zone t |> monthName
+                    , Time.toYear model.zone t |> String.fromInt
+                    )
+
+                ( hour, minute ) =
+                    ( Time.toHour model.zone t |> String.fromInt
+                    , Time.toMinute model.zone t |> String.fromInt
+                    )
+            in
+            text
+                (day
+                    ++ " "
+                    ++ month
+                    ++ " "
+                    ++ year
+                    ++ " "
+                    ++ hour
+                    ++ ":"
+                    ++ minute
+                )
+
         row : TodoItem -> Html Msg
         row todoItem =
             tableRow False
                 []
                 [ tableCell [] [ text todoItem.description ]
+                , tableCell [] [ rowTime todoItem ]
                 , tableCell []
                     [ button
                         { buttonModifiers | color = Danger }
@@ -242,6 +284,46 @@ viewTableBody model =
                 ]
     in
     tableBody [] (List.map row model.list)
+
+
+monthName : Time.Month -> String
+monthName m =
+    case m of
+        Jan ->
+            "Jan"
+
+        Feb ->
+            "Feb"
+
+        Mar ->
+            "Mar"
+
+        Apr ->
+            "Apr"
+
+        May ->
+            "May"
+
+        Jun ->
+            "Jun"
+
+        Jul ->
+            "Jul"
+
+        Aug ->
+            "Aug"
+
+        Sep ->
+            "Sep"
+
+        Oct ->
+            "Oct"
+
+        Nov ->
+            "Nov"
+
+        Dec ->
+            "Dec"
 
 
 main : Program Flags Model Msg

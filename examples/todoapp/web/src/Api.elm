@@ -17,7 +17,7 @@ type alias TodoItem =
 encodeTodoItem : TodoItem -> E.Value
 encodeTodoItem obj =
     E.object
-        [ ( "ctime", (Time.posixToMillis >> E.int) obj.ctime )
+        [ ( "ctime", (Time.posixToMillis >> toFloat >> (\f -> f/1000.0) >> E.float) obj.ctime )
         , ( "description", E.string obj.description )
         , ( "id", E.int obj.id )
         ]
@@ -25,7 +25,7 @@ encodeTodoItem obj =
 decodeTodoItem : D.Decoder TodoItem
 decodeTodoItem =
     D.map3 TodoItem
-            (D.field "ctime" ((D.map Time.millisToPosix D.int)))
+            (D.field "ctime" ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)))
             (D.field "description" (D.string))
             (D.field "id" (D.int))
     
