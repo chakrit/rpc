@@ -22,9 +22,8 @@ func (p pkgByNameAndNumber) Less(i, j int) bool {
 }
 
 type Pkg struct {
-	Name         string
-	ExportedName string
-	MangledName  string
+	Name        string
+	MangledName string
 
 	BasePath   string
 	RPCPath    string
@@ -98,7 +97,6 @@ func (pkg *Pkg) initialize() {
 }
 
 func (pkg *Pkg) generateNames() {
-	pkg.ExportedName = pkg.Name
 	if pkg.Parent != nil {
 		pkg.MangledName = "rpc_" + internal.InflectSnake(pkg.BasePath)
 	} else {
