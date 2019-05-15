@@ -44,7 +44,7 @@ type Pkg struct {
 func newRootPkg(ns *spec.Namespace) *Pkg {
 	reg := TypeRegistry{}
 	pkg := &Pkg{
-		Name:      ns.Name,
+		Name:      strings.ToLower(ns.Name),
 		Namespace: ns,
 		Registry:  reg,
 	}
@@ -62,7 +62,7 @@ func newRootPkg(ns *spec.Namespace) *Pkg {
 
 func newChildPkg(parent *Pkg, ns *spec.Namespace) *Pkg {
 	pkg := &Pkg{
-		Name:      ns.Name,
+		Name:      strings.ToLower(ns.Name),
 		Parent:    parent,
 		Namespace: ns,
 		Registry:  parent.Registry,
@@ -98,7 +98,7 @@ func (pkg *Pkg) initialize() {
 }
 
 func (pkg *Pkg) generateNames() {
-	pkg.ExportedName = internal.InflectPascal(pkg.Name)
+	pkg.ExportedName = pkg.Name
 	if pkg.Parent != nil {
 		pkg.MangledName = "rpc_" + internal.InflectSnake(pkg.BasePath)
 	} else {
