@@ -15,9 +15,9 @@ var _ = math.Pi
 var _ = json.Marshal
 
 type AuthRequest struct {
-	Provider string `json:"provider" db:"provider"`
-	Secret   string `json:"secret" db:"secret"`
-	Username string `json:"username" db:"username"`
+	Provider string `json:"provider" yaml:"provider" db:"provider"`
+	Secret   string `json:"secret" yaml:"secret" db:"secret"`
+	Username string `json:"username" yaml:"username" db:"username"`
 }
 
 func (obj *AuthRequest) MarshalJSON() ([]byte, error) {
@@ -51,8 +51,8 @@ func (obj *AuthRequest) UnmarshalJSON(buf []byte) error {
 }
 
 type AuthResponse struct {
-	Failure *rpc_root.Failure `json:"failure" db:"failure"`
-	User    *rpc_todo.User    `json:"user" db:"user"`
+	Failure *rpc_root.Failure `json:"failure" yaml:"failure" db:"failure"`
+	User    *rpc_todo.User    `json:"user" yaml:"user" db:"user"`
 }
 
 func (obj *AuthResponse) MarshalJSON() ([]byte, error) {

@@ -22,7 +22,7 @@ var _ = json.Marshal
 {{ range $name, $type := .Namespace.Types }}
 type {{ $name }} struct {
     {{  range $name, $prop := .Properties -}}
-    {{ pascal $name }} {{ asReference (resolve $pkg $prop.Type) }} `json:"{{ $name }}" db:"{{ snake $name}}"`
+    {{ pascal $name }} {{ asReference (resolve $pkg $prop.Type) }} `json:"{{ $name }}" yaml:"{{ $name }}" db:"{{ snake $name}}"`
     {{  end -}}
 }
 

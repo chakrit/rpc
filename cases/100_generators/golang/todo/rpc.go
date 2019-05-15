@@ -14,8 +14,8 @@ var _ = math.Pi
 var _ = json.Marshal
 
 type User struct {
-	Ctime    time.Time `json:"ctime" db:"ctime"`
-	Username string    `json:"username" db:"username"`
+	Ctime    time.Time `json:"ctime" yaml:"ctime" db:"ctime"`
+	Username string    `json:"username" yaml:"username" db:"username"`
 }
 
 func (obj *User) MarshalJSON() ([]byte, error) {

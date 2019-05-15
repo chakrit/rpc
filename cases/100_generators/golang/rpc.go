@@ -12,8 +12,8 @@ var _ = math.Pi
 var _ = json.Marshal
 
 type Failure struct {
-	Code        string `json:"code" db:"code"`
-	Description string `json:"description" db:"description"`
+	Code        string `json:"code" yaml:"code" db:"code"`
+	Description string `json:"description" yaml:"description" db:"description"`
 }
 
 func (obj *Failure) MarshalJSON() ([]byte, error) {
