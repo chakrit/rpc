@@ -138,15 +138,22 @@ func (pkg *Pkg) resolvePaths(base, importBase string) {
 }
 
 func (pkg *Pkg) resolveImports() {
-	dependencies := map[*Pkg]bool{}
+	dependencies := map[*Pkg]struct{}{}
 	check := func(ref *spec.TypeRef) {
 		resolved := pkg.Registry.Resolve(pkg, ref)
+		if resolved == nil {
+			return
+		}
 
-		// TODO: Warn if resolved == nil
-		if resolved != nil &&
-			resolved.Pkg != nil &&
-			resolved.Pkg != pkg {
-			dependencies[resolved.Pkg] = true
+		if resolved.Pkg != nil && resolved.Pkg != pkg {
+			dependencies[resolved.Pkg] = struct{}{}
+		}
+		if resolved.Args != nil {
+			for _, arg := range resolved.Args {
+				if arg != nil && arg.Pkg != nil && arg.Pkg != pkg {
+					dependencies[arg.Pkg] = struct{}{}
+				}
+			}
 		}
 	}
 

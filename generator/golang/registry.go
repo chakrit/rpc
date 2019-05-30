@@ -135,7 +135,7 @@ func (r TypeRegistry) resolveUserDefinedType(pkg *Pkg, ref *spec.TypeRef) *Resol
 		}
 	}
 
-	// TODO: Emit a warning, can't find user-defind type
+	// TODO: Emit a warning, can't find user-defined type
 	return resolvedUnknownType
 }
 
