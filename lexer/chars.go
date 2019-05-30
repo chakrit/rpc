@@ -5,55 +5,23 @@ import (
 	"unicode"
 )
 
-var Keywords = []string{
-	// meta
-	"option",
-	"include",
-	"root", // unused, reserved as root ns identifier
+func IsEOF(r rune) bool { return r == 0 }
+func IsCR(r rune) bool  { return r == '\r' }
+func IsLF(r rune) bool  { return r == '\n' }
 
-	// definitions
-	"namespace",
-	"type",
-	"rpc",
+func IsNewLine(r rune) bool { return IsCR(r) || IsLF(r) }
+func IsSpace(r rune) bool   { return !IsNewLine(r) && unicode.IsSpace(r) }
+func IsBrace(r rune) bool   { return strings.ContainsRune("{}()<>", r) }
 
-	// built-in types
-	"string",
-	"bool",
-	"int",
-	"long",
-	"float",
-	"double",
-	"list",
-	"map",
-	"time",
-}
+func IsCommentMarker(r rune) bool      { return r == '/' }
+func IsStringMarker(r rune) bool       { return r == '"' }
+func IsStringEscapeMarker(r rune) bool { return r == '\\' }
 
-var (
-	IsEOF = func(r rune) bool { return r == 0 }
-	IsCR  = func(r rune) bool { return r == '\r' }
-	IsLF  = func(r rune) bool { return r == '\n' }
+func IsDigit(r rune) bool            { return unicode.IsDigit(r) }
+func IsDecimalSeparator(r rune) bool { return r == '.' }
+func IsArgSeparator(r rune) bool     { return r == ',' }
 
-	IsNewLine = func(r rune) bool { return IsCR(r) || IsLF(r) }
-	IsSpace   = func(r rune) bool { return !IsNewLine(r) && unicode.IsSpace(r) }
-	IsBrace   = func(r rune) bool { return strings.ContainsRune("{}()<>", r) }
-
-	IsCommentMarker      = func(r rune) bool { return r == '/' }
-	IsStringMarker       = func(r rune) bool { return r == '"' }
-	IsStringEscapeMarker = func(r rune) bool { return r == '\\' }
-
-	IsDigit            = func(r rune) bool { return unicode.IsDigit(r) }
-	IsDecimalSeparator = func(r rune) bool { return r == '.' }
-	IsArgSeparator     = func(r rune) bool { return r == ',' }
-
-	IsValidIdentFirstChar = func(r rune) bool { return unicode.IsLetter(r) || strings.ContainsRune("_-", r) }
-	IsValidIdent          = func(r rune) bool { return unicode.IsLetter(r) || unicode.IsDigit(r) || strings.ContainsRune("_-", r) }
-)
-
-func IsKeyword(word string) bool {
-	for _, str := range Keywords {
-		if str == word {
-			return true
-		}
-	}
-	return false
+func IsValidIdentFirstChar(r rune) bool { return unicode.IsLetter(r) || strings.ContainsRune("_-", r) }
+func IsValidIdent(r rune) bool {
+	return unicode.IsLetter(r) || unicode.IsDigit(r) || strings.ContainsRune("_-", r)
 }
