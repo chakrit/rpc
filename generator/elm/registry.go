@@ -25,6 +25,8 @@ func (r Registry) Resolve(ref *ElmTypeRef) *ElmTypeResolution {
 		return r.resolveBasic(ref)
 	case "list":
 		return r.resolveList(ref)
+	case "map":
+		return r.resolveMap(ref)
 	default:
 		return r.resolveUserDefined(ref)
 	}
@@ -82,6 +84,27 @@ func (r Registry) resolveList(ref *ElmTypeRef) *ElmTypeResolution {
 	})
 }
 
+func (r Registry) resolveMap(ref *ElmTypeRef) *ElmTypeResolution {
+    var keyType *ElmTypeResolution
+    var valueType *ElmTypeResolution
+    switch len(ref.Args) {
+	case 0:
+		keyType, valueType = r.resolveUnknown(), r.resolveUnknown()
+	case 1:
+		keyType, valueType = r.Resolve(ref.Args[0]), r.resolveUnknown()
+	default:
+		keyType, valueType = r.Resolve(ref.Args[0]), r.Resolve(ref.Args[1])
+	}
+
+    // TODO: Warn for non-string key types not supported. Currently this code
+    //   will not compile correctly if the key type is not a string
+    return r.resolveWithDefault("Dict.empty", &ElmTypeResolution{
+    	Name: "Dict (" + keyType.Name + ") (" + valueType.Name + ")",
+        Encode: "E.dict (" + keyType.Encode + ") (" + valueType.Encode + ")",
+        Decode: "D.dict (" + valueType.Decode + ")",
+	})
+}
+
 func (r Registry) resolveUserDefined(ref *ElmTypeRef) *ElmTypeResolution {
 	elmType := r.Lookup(ref.Module, ref.Name)
 	if elmType == nil {
@@ -104,6 +127,8 @@ func (r Registry) resolveUserDefined(ref *ElmTypeRef) *ElmTypeResolution {
 
 // tries to give a default value when `null` is received without having to define
 // all json-nullable fields as a Maybe
+//
+// TODO: Move this logic into the template and force all types to have defaults?
 func (r Registry) resolveWithDefault(defaultValue string, elementType *ElmTypeResolution) *ElmTypeResolution {
 	// i.e. D.map (Maybe.withDefault ([])) (D.maybe (D.list decodeSomething))
 	dec := "Maybe.withDefault (" + defaultValue + ")"

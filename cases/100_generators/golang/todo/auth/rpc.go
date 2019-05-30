@@ -51,25 +51,29 @@ func (obj *AuthRequest) UnmarshalJSON(buf []byte) error {
 }
 
 type AuthResponse struct {
-	Failure *rpc_root.Failure `json:"failure" yaml:"failure" db:"failure"`
-	User    *rpc_todo.User    `json:"user" yaml:"user" db:"user"`
+	Failure  *rpc_root.Failure `json:"failure" yaml:"failure" db:"failure"`
+	Metadata map[string]string `json:"metadata" yaml:"metadata" db:"metadata"`
+	User     *rpc_todo.User    `json:"user" yaml:"user" db:"user"`
 }
 
 func (obj *AuthResponse) MarshalJSON() ([]byte, error) {
 	outobj := struct {
-		Failure *rpc_root.Failure `json:"failure"`
-		User    *rpc_todo.User    `json:"user"`
+		Failure  *rpc_root.Failure `json:"failure"`
+		Metadata map[string]string `json:"metadata"`
+		User     *rpc_todo.User    `json:"user"`
 	}{
-		Failure: (obj.Failure),
-		User:    (obj.User),
+		Failure:  (obj.Failure),
+		Metadata: (obj.Metadata),
+		User:     (obj.User),
 	}
 	return json.Marshal(outobj)
 }
 
 func (obj *AuthResponse) UnmarshalJSON(buf []byte) error {
 	inobj := struct {
-		Failure *rpc_root.Failure `json:"failure"`
-		User    *rpc_todo.User    `json:"user"`
+		Failure  *rpc_root.Failure `json:"failure"`
+		Metadata map[string]string `json:"metadata"`
+		User     *rpc_todo.User    `json:"user"`
 	}{}
 
 	if err := json.Unmarshal(buf, &inobj); err != nil {
@@ -77,6 +81,7 @@ func (obj *AuthResponse) UnmarshalJSON(buf []byte) error {
 	}
 
 	obj.Failure = (inobj.Failure)
+	obj.Metadata = (inobj.Metadata)
 	obj.User = (inobj.User)
 	return nil
 }

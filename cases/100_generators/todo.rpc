@@ -22,6 +22,7 @@ namespace Todo {
         type AuthResponse {
             Failure failure
             User user
+            map<string, string> metadata
         }
 
         rpc Current() User

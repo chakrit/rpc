@@ -34,6 +34,7 @@ decodeAuthRequest =
 
 type alias AuthResponse =
     { failure : Rpc.Failure
+    , metadata : Dict (String) (String)
     , user : Rpc.Todo.User
     }
 
@@ -41,13 +42,15 @@ encodeAuthResponse : AuthResponse -> E.Value
 encodeAuthResponse obj =
     E.object
         [ ( "failure", Rpc.encodeFailure obj.failure )
+        , ( "metadata", E.dict (E.string) (E.string) obj.metadata )
         , ( "user", Rpc.Todo.encodeUser obj.user )
         ]
 
 decodeAuthResponse : D.Decoder AuthResponse
 decodeAuthResponse =
-    D.map2 AuthResponse
+    D.map3 AuthResponse
             (D.field "failure" (Rpc.decodeFailure))
+            (D.field "metadata" (D.map (Maybe.withDefault (Dict.empty)) (D.maybe (D.dict (D.string)))))
             (D.field "user" (Rpc.Todo.decodeUser))
     
 
