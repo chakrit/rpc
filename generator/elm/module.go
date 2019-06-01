@@ -129,18 +129,23 @@ func (m *Module) resolveImports() {
 		locals[typ.Name] = struct{}{}
 	}
 
-	check := func(ref *ElmTypeRef) {
-		if _, isLocal := locals[ref.Name]; !isLocal {
-			typ := m.Registry.Lookup(m, ref.Name)
-			if typ == nil {
-				// TODO: Emit a warning
-				return
-			}
+	var check func(ref *ElmTypeRef)
+	check = func(ref *ElmTypeRef) {
+		for _, arg := range ref.Args {
+			check(arg)
+		}
+		if _, isLocal := locals[ref.Name]; isLocal {
+			return // local type, no need to import
+		}
 
-			if _, imported := imports[typ.Module.Name]; !imported {
-				m.Imports = append(m.Imports, typ.Module)
-				imports[typ.Module.Name] = struct{}{}
-			}
+		typ := m.Registry.Lookup(m, ref.Name)
+		if typ == nil {
+			// TODO: Emit a warning
+			return
+		}
+		if _, imported := imports[typ.Module.Name]; !imported {
+			m.Imports = append(m.Imports, typ.Module)
+			imports[typ.Module.Name] = struct{}{}
 		}
 	}
 
