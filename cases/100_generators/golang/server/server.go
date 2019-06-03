@@ -85,7 +85,7 @@ func (s *Server) register_rpc_todo_auth(
 	handler Handler_rpc_todo_auth,
 ) *http.ServeMux {
 
-	mux.HandleFunc("/todo/auth/auth/Authenticate", func(resp http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/examples/todo/auth/Authenticate", func(resp http.ResponseWriter, req *http.Request) {
 		var err error
 		resp.Header().Set("Content-Type", "application/json")
 
@@ -121,7 +121,7 @@ func (s *Server) register_rpc_todo_auth(
 		_, _ = resp.Write(bytes)
 	})
 
-	mux.HandleFunc("/todo/auth/auth/Current", func(resp http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/examples/todo/auth/Current", func(resp http.ResponseWriter, req *http.Request) {
 		var err error
 		resp.Header().Set("Content-Type", "application/json")
 
@@ -152,7 +152,7 @@ func (s *Server) register_rpc_todo_system(
 	handler Handler_rpc_todo_system,
 ) *http.ServeMux {
 
-	mux.HandleFunc("/todo/system/system/Status", func(resp http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/examples/todo/system/Status", func(resp http.ResponseWriter, req *http.Request) {
 		var err error
 		resp.Header().Set("Content-Type", "application/json")
 

@@ -74,7 +74,7 @@ func (c Client_rpc_todo_auth) Authenticate(
 	}
 
 	var req *http.Request
-	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/todo/auth/auth/Authenticate", buf)
+	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/examples/todo/auth/Authenticate", buf)
 	if err != nil {
 		return
 	}
@@ -115,7 +115,7 @@ func (c Client_rpc_todo_auth) Current() (
 	}
 
 	var req *http.Request
-	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/todo/auth/auth/Current", buf)
+	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/examples/todo/auth/Current", buf)
 	if err != nil {
 		return
 	}
@@ -167,7 +167,7 @@ func (c Client_rpc_todo_system) Status() (
 	}
 
 	var req *http.Request
-	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/todo/system/system/Status", buf)
+	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/examples/todo/system/Status", buf)
 	if err != nil {
 		return
 	}

@@ -14,9 +14,9 @@ var _ = math.Pi
 var _ = json.Marshal
 
 type TodoItem struct {
-	Ctime       time.Time `json:"ctime" db:"ctime"`
-	Description string    `json:"description" db:"description"`
-	ID          int64     `json:"id" db:"id"`
+	Ctime       time.Time `json:"ctime" yaml:"ctime" db:"ctime"`
+	Description string    `json:"description" yaml:"description" db:"description"`
+	ID          int64     `json:"id" yaml:"id" db:"id"`
 }
 
 func (obj *TodoItem) MarshalJSON() ([]byte, error) {
