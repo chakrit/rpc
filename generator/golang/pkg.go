@@ -124,12 +124,13 @@ func (pkg *Pkg) resolvePaths(base, importBase string) {
 	}
 
 	pkg.BasePath = base
-	pkg.RPCPath = path.Join(base, internal.InflectSnake(pkg.Name))
 	pkg.FilePath = path.Join(base, OutName)
 	if pkg.Parent != nil {
 		pkg.ImportPath = path.Join(importBase, strings.ToLower(pkg.Name))
+		pkg.RPCPath = path.Join(pkg.Parent.RPCPath, internal.InflectSnake(pkg.Name))
 	} else {
 		pkg.ImportPath = importBase
+		pkg.RPCPath = path.Join(base, internal.InflectSnake(pkg.Name))
 	}
 
 	for _, child := range pkg.Children {
