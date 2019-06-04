@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 
@@ -48,8 +47,11 @@ func lexMain(opts Options, logger internal.Logger) {
 		return nil
 	})
 
+	encoder := json.NewEncoder(os.Stdout)
 	for _, token := range allTokens {
-		fmt.Fprintln(os.Stdout, token)
+		if err := encoder.Encode(token); err != nil {
+			logger.Fatal(errors.Wrap(err, "json encode failure"))
+		}
 	}
 }
 

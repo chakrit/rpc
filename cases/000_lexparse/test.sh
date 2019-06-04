@@ -6,14 +6,14 @@
 set -e
 
 RPC=$RT_RESULTS/rpc
-LEX_OUT=$RT_RESULTS/$RT_TEST_NAME/lex.txt
+LEX_OUT=$RT_RESULTS/$RT_TEST_NAME/lex.json
 PARSE_OUT=$RT_RESULTS/$RT_TEST_NAME/parse.json
 
 mkdir -p $RT_RESULTS/$RT_TEST_NAME/
 
 echo [info] Lexing...
 $RPC -lex complex.rpc > $LEX_OUT
-diff $LEX_OUT ./lex.txt 1>&2
+diff $LEX_OUT ./lex.json 1>&2
 
 echo [info] Parsing...
 $RPC -parse complex.rpc > $PARSE_OUT
