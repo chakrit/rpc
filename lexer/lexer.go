@@ -13,13 +13,13 @@ type lexFunc func(*lexer, rune) lexFunc
 type Options struct {
 	Input       io.Reader
 	Logger      internal.Logger
-	IgnoreTypes int
+	IgnoreTypes TokenType
 }
 
 type lexer struct {
 	logger  internal.Logger
 	reader  *bufio.Reader
-	ignores int
+	ignores TokenType
 	pos     internal.Pos
 
 	buffer string
@@ -122,8 +122,8 @@ func (c *lexer) Step() bool {
 	return c.state != nil && c.err == nil
 }
 
-func (c *lexer) Emit(typ int, value string) {
-	if c.ignores&typ > 0 {
+func (c *lexer) Emit(typ TokenType, value string) {
+	if c.ignores.Match(typ) {
 		return
 	}
 
