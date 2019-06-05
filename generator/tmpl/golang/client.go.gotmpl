@@ -5,13 +5,17 @@ package client
 
 import (
     "bytes"
+    "context"
     "encoding/json"
     "net/http"
     "time"
     {{ template "imports" . }}
 )
 
-var _ time.Time = time.Time{}
+var (
+    _ context.Context = nil
+    _ time.Time = time.Time{}
+)
 
 {{- define "rpc_receiver" -}}
     {{- with $pkg := .  }}
@@ -35,6 +39,7 @@ var _ time.Time = time.Time{}
 
         {{  range $rpc := .Namespace.RPCs.SortedByName -}}
             func (c Client_{{ $pkg.MangledName }}) {{ $rpc.Name }}(
+                ctx context.Context,
             {{  range $index, $arg := .InputTypes -}}
                 arg{{ $index }} {{ asReference (resolveAbs $pkg $arg) }},
             {{  end -}}
@@ -60,6 +65,8 @@ var _ time.Time = time.Time{}
                 if err != nil {
                     return
                 }
+
+                req = req.WithContext(ctx)
 
                 var resp *http.Response
                 resp, err = c.HTTPClient.Do(req)

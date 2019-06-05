@@ -4,6 +4,7 @@
 package auth
 
 import (
+	"context"
 	"encoding/json"
 	"math"
 
@@ -11,8 +12,11 @@ import (
 	rpc_todo "github.com/chakrit/rpc/examples/todo"
 )
 
-var _ = math.Pi
-var _ = json.Marshal
+var (
+	_ context.Context = nil
+	_                 = json.Marshal
+	_                 = math.Pi
+)
 
 type AuthRequest struct {
 	Provider string `json:"provider" yaml:"provider" db:"provider"`
@@ -87,8 +91,8 @@ func (obj *AuthResponse) UnmarshalJSON(buf []byte) error {
 }
 
 type Interface interface {
-	Authenticate(*AuthRequest) (*AuthResponse, error,
+	Authenticate(context.Context, *AuthRequest) (*AuthResponse, error,
 	)
-	Current() (*rpc_todo.User, error,
+	Current(context.Context) (*rpc_todo.User, error,
 	)
 }

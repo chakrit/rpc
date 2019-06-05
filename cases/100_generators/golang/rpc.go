@@ -4,12 +4,16 @@
 package examples
 
 import (
+	"context"
 	"encoding/json"
 	"math"
 )
 
-var _ = math.Pi
-var _ = json.Marshal
+var (
+	_ context.Context = nil
+	_                 = json.Marshal
+	_                 = math.Pi
+)
 
 type Failure struct {
 	Code        string `json:"code" yaml:"code" db:"code"`

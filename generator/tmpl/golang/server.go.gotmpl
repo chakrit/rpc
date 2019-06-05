@@ -91,6 +91,7 @@ func (s *Server) HTTPHandler() http.Handler {
                 out{{ $index }},
             {{- end -}}
             err = handler.Handler.{{ $rpc.Name }}(
+                req.Context(),
             {{- range $index, $_ := $rpc.InputTypes -}}
                 arg{{ $index }},
             {{- end -}}

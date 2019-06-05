@@ -103,7 +103,8 @@ func (s *Server) register_rpc_todo_auth(
 		}
 
 		var out0 *rpc_todo_auth.AuthResponse
-		out0, err = handler.Handler.Authenticate(arg0)
+		out0, err = handler.Handler.Authenticate(
+			req.Context(), arg0)
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{
@@ -126,7 +127,8 @@ func (s *Server) register_rpc_todo_auth(
 		resp.Header().Set("Content-Type", "application/json")
 
 		var out0 *rpc_todo.User
-		out0, err = handler.Handler.Current()
+		out0, err = handler.Handler.Current(
+			req.Context())
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{
@@ -157,7 +159,8 @@ func (s *Server) register_rpc_todo_system(
 		resp.Header().Set("Content-Type", "application/json")
 
 		var out0 *rpc_root.Failure
-		out0, err = handler.Handler.Status()
+		out0, err = handler.Handler.Status(
+			req.Context())
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{

@@ -5,6 +5,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -16,7 +17,10 @@ import (
 	rpc_todo_system "github.com/chakrit/rpc/examples/todo/system"
 )
 
-var _ time.Time = time.Time{}
+var (
+	_ context.Context = nil
+	_ time.Time       = time.Time{}
+)
 
 // github.com/chakrit/rpc/examples
 var _ rpc_root.Interface = Client_rpc_root{}
@@ -61,6 +65,7 @@ func (c *Client_rpc_todo_auth) initialize(client *Client) {
 }
 
 func (c Client_rpc_todo_auth) Authenticate(
+	ctx context.Context,
 	arg0 *rpc_todo_auth.AuthRequest,
 ) (
 	out0 *rpc_todo_auth.AuthResponse,
@@ -78,6 +83,8 @@ func (c Client_rpc_todo_auth) Authenticate(
 	if err != nil {
 		return
 	}
+
+	req = req.WithContext(ctx)
 
 	var resp *http.Response
 	resp, err = c.HTTPClient.Do(req)
@@ -103,7 +110,9 @@ func (c Client_rpc_todo_auth) Authenticate(
 	return
 }
 
-func (c Client_rpc_todo_auth) Current() (
+func (c Client_rpc_todo_auth) Current(
+	ctx context.Context,
+) (
 	out0 *rpc_todo.User,
 	err error,
 ) {
@@ -119,6 +128,8 @@ func (c Client_rpc_todo_auth) Current() (
 	if err != nil {
 		return
 	}
+
+	req = req.WithContext(ctx)
 
 	var resp *http.Response
 	resp, err = c.HTTPClient.Do(req)
@@ -155,7 +166,9 @@ func (c *Client_rpc_todo_system) initialize(client *Client) {
 	c.Client = client
 }
 
-func (c Client_rpc_todo_system) Status() (
+func (c Client_rpc_todo_system) Status(
+	ctx context.Context,
+) (
 	out0 *rpc_root.Failure,
 	err error,
 ) {
@@ -171,6 +184,8 @@ func (c Client_rpc_todo_system) Status() (
 	if err != nil {
 		return
 	}
+
+	req = req.WithContext(ctx)
 
 	var resp *http.Response
 	resp, err = c.HTTPClient.Do(req)

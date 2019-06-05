@@ -4,6 +4,7 @@ package main
 //go:generate go fmt ./api/...
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -34,48 +35,51 @@ func runServer(addr string) {
 }
 
 func runClient(addr string) {
-	opts := client.Options{Addr: addr}
-	cl := client.New(&opts)
+	var (
+		opts = client.Options{Addr: addr}
+		cl   = client.New(&opts)
+		ctx  = context.Background()
+	)
 
-	if items, err := cl.List(); err != nil {
+	if items, err := cl.List(ctx); err != nil {
 		log.Fatal(err)
 	} else {
 		logOutput("List", items...)
 	}
 
 	alpha := &api.TodoItem{Description: "alpha", Done: false}
-	if item, err := cl.Update("alpha", alpha); err != nil {
+	if item, err := cl.Update(ctx, "alpha", alpha); err != nil {
 		log.Fatal(err)
 	} else {
 		logOutput("Update", item)
 	}
 
 	beta := &api.TodoItem{Description: "beta", Done: true}
-	if item, err := cl.Update("beta", beta); err != nil {
+	if item, err := cl.Update(ctx, "beta", beta); err != nil {
 		log.Fatal(err)
 	} else {
 		logOutput("Update", item)
 	}
 
-	if items, err := cl.List(); err != nil {
+	if items, err := cl.List(ctx); err != nil {
 		log.Fatal(err)
 	} else {
 		logOutput("List", items...)
 	}
 
-	if item, err := cl.Destroy("alpha"); err != nil {
+	if item, err := cl.Destroy(ctx, "alpha"); err != nil {
 		log.Fatal(err)
 	} else {
 		logOutput("Destroy", item)
 	}
 
-	if item, err := cl.Destroy("beta"); err != nil {
+	if item, err := cl.Destroy(ctx, "beta"); err != nil {
 		log.Fatal(err)
 	} else {
 		logOutput("Destroy", item)
 	}
 
-	if items, err := cl.List(); err != nil {
+	if items, err := cl.List(ctx); err != nil {
 		log.Fatal(err)
 	} else {
 		logOutput("List", items...)

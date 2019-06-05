@@ -4,14 +4,18 @@
 package todo
 
 import (
+	"context"
 	"encoding/json"
 	"math"
 
 	time "time"
 )
 
-var _ = math.Pi
-var _ = json.Marshal
+var (
+	_ context.Context = nil
+	_                 = json.Marshal
+	_                 = math.Pi
+)
 
 type User struct {
 	Ctime    time.Time `json:"ctime" yaml:"ctime" db:"ctime"`

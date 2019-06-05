@@ -4,16 +4,20 @@
 package system
 
 import (
+	"context"
 	"encoding/json"
 	"math"
 
 	rpc_root "github.com/chakrit/rpc/examples"
 )
 
-var _ = math.Pi
-var _ = json.Marshal
+var (
+	_ context.Context = nil
+	_                 = json.Marshal
+	_                 = math.Pi
+)
 
 type Interface interface {
-	Status() (*rpc_root.Failure, error,
+	Status(context.Context) (*rpc_root.Failure, error,
 	)
 }

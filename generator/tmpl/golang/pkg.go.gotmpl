@@ -6,6 +6,7 @@ package {{ .Name }}
 {{ $pkg := . }}
 
 import (
+    "context"
     "encoding/json"
     "math"
 
@@ -16,8 +17,11 @@ import (
     {{- end  }}
 )
 
-var _ = math.Pi
-var _ = json.Marshal
+var (
+    _ context.Context = nil
+    _ = json.Marshal
+    _ = math.Pi
+)
 
 {{ range $name, $type := .Namespace.Types }}
 type {{ $name }} struct {
@@ -59,7 +63,7 @@ func (obj *{{$name}}) UnmarshalJSON(buf []byte) error {
 
 type Interface interface {
     {{  range $name, $rpc := .Namespace.RPCs -}}
-    {{ $name }}(
+    {{ $name }}(context.Context,
         {{- range $name, $arg := .InputTypes -}}
         {{ asReference (resolve $pkg $arg) }},
         {{- end -}}
