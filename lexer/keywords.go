@@ -21,7 +21,7 @@ var Keywords = map[string]struct{}{
 	"list":   {},
 	"map":    {},
 	"time":   {},
-	"bytes":  {},
+	"data":   {},
 }
 
 func IsKeyword(word string) bool {

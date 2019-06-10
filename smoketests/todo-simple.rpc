@@ -11,8 +11,9 @@ type Failure {
 type TodoItem {
     string uuid
     string description
-    time ctime
-    bool completed
+    time   ctime
+    bool   completed
+    data   metadata
 }
 
 rpc List() list<TodoItem>
