@@ -1742,3 +1742,54 @@
         - name: stderr
           data:
             - ""
+- name: ./smoketests.yml \ Client<->Server \ Go
+  commands:
+    - command: go generate -v ./...
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - handler.go
+            - main.go
+            - api/rpc.go
+            - api/client/client.go
+            - api/server/server.go
+    - command: go build -o ./bin/clientserver .
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
+    - command: ./bin/clientserver
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - List
+            - Update
+            - '[alpha] alpha'
+            - Update
+            - '[beta] beta !DONE!'
+            - List
+            - '[alpha] alpha'
+            - '[beta] beta !DONE!'
+            - Destroy
+            - '[alpha] alpha'
+            - Destroy
+            - '[beta] beta !DONE!'
+            - List
+        - name: stderr
+          data:
+            - ""

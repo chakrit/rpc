@@ -32,4 +32,13 @@ tests:
           - $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-simple.rpc
           - find /tmp/rpc/go -name *.go
           - find /tmp/rpc/elm -name *.go | xargs cat
+  - name: Client<->Server
+    config:
+      workdir: ./clientserver
+    tests:
+      - name: Go
+        commands:
+          - go generate -v ./...
+          - go build -o ./bin/clientserver .
+          - ./bin/clientserver # prints interaction output
 
