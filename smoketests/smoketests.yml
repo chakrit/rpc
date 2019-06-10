@@ -1,6 +1,6 @@
 ---
 config:
-  interpreter: /bin/sh
+  interpreter: /bin/bash
   timeout: 3s
 checks:
   - exitcode
@@ -8,14 +8,28 @@ checks:
   - stderr
 tests:
   - name: Basics
-    commands:
-      - go install -v ..
     tests:
-      - name: Lexing
+      - name: Install
+        commands:
+          - go install -v ..
+      - name: Lex
         commands:
           - $(go env GOPATH)/bin/rpc -lex todo-simple.rpc
           - $(go env GOPATH)/bin/rpc -lex todo-complex.rpc
-      - name: Parsing
+      - name: Parse
         commands:
           - $(go env GOPATH)/bin/rpc -parse todo-simple.rpc
           - $(go env GOPATH)/bin/rpc -parse todo-complex.rpc
+  - name: Generators
+    tests:
+      - name: Elm
+        commands:
+          - $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-simple.rpc
+          - find /tmp/rpc/elm -name *.elm
+          - find /tmp/rpc/elm -name *.elm | xargs cat
+      - name: Go
+        commands:
+          - $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-simple.rpc
+          - find /tmp/rpc/go -name *.go
+          - find /tmp/rpc/elm -name *.go | xargs cat
+

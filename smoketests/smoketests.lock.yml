@@ -1,4 +1,4 @@
-- name: ./smoketests.yml \ Basics
+- name: ./smoketests.yml \ Basics \ Install
   commands:
     - command: go install -v ..
       checks:
@@ -11,19 +11,8 @@
         - name: stderr
           data:
             - ""
-- name: ./smoketests.yml \ Basics \ Lexing
+- name: ./smoketests.yml \ Basics \ Lex
   commands:
-    - command: go install -v ..
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - ""
-        - name: stderr
-          data:
-            - ""
     - command: $(go env GOPATH)/bin/rpc -lex todo-simple.rpc
       checks:
         - name: exitcode
@@ -378,19 +367,8 @@
         - name: stderr
           data:
             - ""
-- name: ./smoketests.yml \ Basics \ Parsing
+- name: ./smoketests.yml \ Basics \ Parse
   commands:
-    - command: go install -v ..
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - ""
-        - name: stderr
-          data:
-            - ""
     - command: $(go env GOPATH)/bin/rpc -parse todo-simple.rpc
       checks:
         - name: exitcode
@@ -773,6 +751,993 @@
             - '    }'
             - '  },'
             - '  "rpcs": null'
+            - '}'
+        - name: stderr
+          data:
+            - ""
+- name: ./smoketests.yml \ Generators \ Elm
+  commands:
+    - command: $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-simple.rpc
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
+    - command: find /tmp/rpc/elm -name *.elm
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - /tmp/rpc/elm/Rpc.elm
+            - /tmp/rpc/elm/RpcUtil.elm
+        - name: stderr
+          data:
+            - ""
+    - command: find /tmp/rpc/elm -name *.elm | xargs cat
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - module Rpc exposing (..)
+            - ""
+            - import Http
+            - import Json.Decode as D
+            - import Json.Encode as E
+            - import Time
+            - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult)
+            - ""
+            - ""
+            - ""
+            - type alias Failure =
+            - '    { code : String'
+            - '    , description : String'
+            - '    }'
+            - ""
+            - 'encodeFailure : Failure -> E.Value'
+            - encodeFailure obj =
+            - '    E.object'
+            - '        [ ( "code", E.string obj.code )'
+            - '        , ( "description", E.string obj.description )'
+            - '        ]'
+            - ""
+            - 'decodeFailure : D.Decoder Failure'
+            - decodeFailure =
+            - '    D.map2 Failure'
+            - '            (D.field "code" (D.string))'
+            - '            (D.field "description" (D.string))'
+            - '    '
+            - ""
+            - type alias TodoItem =
+            - '    { completed : Bool'
+            - '    , ctime : Time.Posix'
+            - '    , description : String'
+            - '    , uuid : String'
+            - '    }'
+            - ""
+            - 'encodeTodoItem : TodoItem -> E.Value'
+            - encodeTodoItem obj =
+            - '    E.object'
+            - '        [ ( "completed", E.bool obj.completed )'
+            - '        , ( "ctime", (Time.posixToMillis >> toFloat >> (\f -> f/1000.0)
+              >> E.float) obj.ctime )'
+            - '        , ( "description", E.string obj.description )'
+            - '        , ( "uuid", E.string obj.uuid )'
+            - '        ]'
+            - ""
+            - 'decodeTodoItem : D.Decoder TodoItem'
+            - decodeTodoItem =
+            - '    D.map4 TodoItem'
+            - '            (D.field "completed" (D.bool))'
+            - '            (D.field "ctime" ((D.map ((\f -> f * 1000.0) >> round >>
+              Time.millisToPosix) D.float)))'
+            - '            (D.field "description" (D.string))'
+            - '            (D.field "uuid" (D.string))'
+            - '    '
+            - ""
+            - ""
+            - ""
+            - type alias InputForDelete =
+            - '    (String)'
+            - ""
+            - 'encodeInputForDelete : InputForDelete -> E.Value'
+            - encodeInputForDelete
+            - '    (arg0) ='
+            - '        E.list (identity)'
+            - '            [ E.string arg0'
+            - '            ]'
+            - ""
+            - 'decodeInputForDelete : D.Decoder InputForDelete'
+            - decodeInputForDelete =
+            - '        D.map (\a -> (a))'
+            - '            (D.index 0 (D.string))'
+            - ""
+            - type alias OutputForDelete =
+            - '    (TodoItem)'
+            - ""
+            - 'encodeOutputForDelete : OutputForDelete -> E.Value'
+            - encodeOutputForDelete
+            - '    (arg0) ='
+            - '        E.list (identity)'
+            - '            [ encodeTodoItem arg0'
+            - '            ]'
+            - ""
+            - 'decodeOutputForDelete : D.Decoder OutputForDelete'
+            - decodeOutputForDelete =
+            - '        D.map (\a -> (a))'
+            - '            (D.index 0 (decodeTodoItem))'
+            - ""
+            - type alias InputForGet =
+            - '    (String)'
+            - ""
+            - 'encodeInputForGet : InputForGet -> E.Value'
+            - encodeInputForGet
+            - '    (arg0) ='
+            - '        E.list (identity)'
+            - '            [ E.string arg0'
+            - '            ]'
+            - ""
+            - 'decodeInputForGet : D.Decoder InputForGet'
+            - decodeInputForGet =
+            - '        D.map (\a -> (a))'
+            - '            (D.index 0 (D.string))'
+            - ""
+            - type alias OutputForGet =
+            - '    (TodoItem)'
+            - ""
+            - 'encodeOutputForGet : OutputForGet -> E.Value'
+            - encodeOutputForGet
+            - '    (arg0) ='
+            - '        E.list (identity)'
+            - '            [ encodeTodoItem arg0'
+            - '            ]'
+            - ""
+            - 'decodeOutputForGet : D.Decoder OutputForGet'
+            - decodeOutputForGet =
+            - '        D.map (\a -> (a))'
+            - '            (D.index 0 (decodeTodoItem))'
+            - ""
+            - type alias InputForList =
+            - '    (())'
+            - ""
+            - 'encodeInputForList : InputForList -> E.Value'
+            - encodeInputForList
+            - '    () ='
+            - '        E.list (identity)'
+            - '            ['
+            - '            ]'
+            - ""
+            - 'decodeInputForList : D.Decoder InputForList'
+            - decodeInputForList =
+            - '        D.succeed ()'
+            - ""
+            - type alias OutputForList =
+            - '    (List (TodoItem))'
+            - ""
+            - 'encodeOutputForList : OutputForList -> E.Value'
+            - encodeOutputForList
+            - '    (arg0) ='
+            - '        E.list (identity)'
+            - '            [ E.list (encodeTodoItem) arg0'
+            - '            ]'
+            - ""
+            - 'decodeOutputForList : D.Decoder OutputForList'
+            - decodeOutputForList =
+            - '        D.map (\a -> (a))'
+            - '            (D.index 0 (D.map (Maybe.withDefault ([])) (D.maybe (D.list
+              (decodeTodoItem)))))'
+            - ""
+            - type alias InputForPut =
+            - '    (TodoItem)'
+            - ""
+            - 'encodeInputForPut : InputForPut -> E.Value'
+            - encodeInputForPut
+            - '    (arg0) ='
+            - '        E.list (identity)'
+            - '            [ encodeTodoItem arg0'
+            - '            ]'
+            - ""
+            - 'decodeInputForPut : D.Decoder InputForPut'
+            - decodeInputForPut =
+            - '        D.map (\a -> (a))'
+            - '            (D.index 0 (decodeTodoItem))'
+            - ""
+            - type alias OutputForPut =
+            - '    (TodoItem)'
+            - ""
+            - 'encodeOutputForPut : OutputForPut -> E.Value'
+            - encodeOutputForPut
+            - '    (arg0) ='
+            - '        E.list (identity)'
+            - '            [ encodeTodoItem arg0'
+            - '            ]'
+            - ""
+            - 'decodeOutputForPut : D.Decoder OutputForPut'
+            - decodeOutputForPut =
+            - '        D.map (\a -> (a))'
+            - '            (D.index 0 (decodeTodoItem))'
+            - ""
+            - ""
+            - ""
+            - 'callDelete : Config -> InputForDelete -> (CallResult OutputForDelete
+              -> a) -> Cmd a'
+            - callDelete config input mapResult =
+            - '    let'
+            - '        body = Http.jsonBody (encodeInputForDelete input)'
+            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+              decodeOutputForDelete)'
+            - '    in'
+            - '    Http.request'
+            - '        { method = "POST"'
+            - '        , headers = config.headers'
+            - '        , url = config.baseUrl ++ "/rpc/Delete"'
+            - '        , body = body'
+            - '        , expect = expect'
+            - '        , timeout = Nothing'
+            - '        , tracker = Nothing'
+            - '        }'
+            - ""
+            - 'callGet : Config -> InputForGet -> (CallResult OutputForGet -> a) ->
+              Cmd a'
+            - callGet config input mapResult =
+            - '    let'
+            - '        body = Http.jsonBody (encodeInputForGet input)'
+            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+              decodeOutputForGet)'
+            - '    in'
+            - '    Http.request'
+            - '        { method = "POST"'
+            - '        , headers = config.headers'
+            - '        , url = config.baseUrl ++ "/rpc/Get"'
+            - '        , body = body'
+            - '        , expect = expect'
+            - '        , timeout = Nothing'
+            - '        , tracker = Nothing'
+            - '        }'
+            - ""
+            - 'callList : Config -> InputForList -> (CallResult OutputForList -> a)
+              -> Cmd a'
+            - callList config input mapResult =
+            - '    let'
+            - '        body = Http.jsonBody (encodeInputForList input)'
+            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+              decodeOutputForList)'
+            - '    in'
+            - '    Http.request'
+            - '        { method = "POST"'
+            - '        , headers = config.headers'
+            - '        , url = config.baseUrl ++ "/rpc/List"'
+            - '        , body = body'
+            - '        , expect = expect'
+            - '        , timeout = Nothing'
+            - '        , tracker = Nothing'
+            - '        }'
+            - ""
+            - 'callPut : Config -> InputForPut -> (CallResult OutputForPut -> a) ->
+              Cmd a'
+            - callPut config input mapResult =
+            - '    let'
+            - '        body = Http.jsonBody (encodeInputForPut input)'
+            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+              decodeOutputForPut)'
+            - '    in'
+            - '    Http.request'
+            - '        { method = "POST"'
+            - '        , headers = config.headers'
+            - '        , url = config.baseUrl ++ "/rpc/Put"'
+            - '        , body = body'
+            - '        , expect = expect'
+            - '        , timeout = Nothing'
+            - '        , tracker = Nothing'
+            - '        }'
+            - module RpcUtil exposing (..)
+            - ""
+            - import Array exposing (Array)
+            - import Http exposing (Error(..))
+            - import Json.Decode as D
+            - ""
+            - ""
+            - type alias Config =
+            - '    { baseUrl : String'
+            - '    , headers : List Http.Header'
+            - '    }'
+            - ""
+            - ""
+            - 'decodeConfig : D.Decoder Config'
+            - decodeConfig =
+            - '    let'
+            - '        mapHeader : Array String -> Http.Header'
+            - '        mapHeader arr ='
+            - '            let'
+            - '                header ='
+            - '                    Array.get 0 arr |> Maybe.withDefault ""'
+            - ""
+            - '                content ='
+            - '                    Array.get 1 arr |> Maybe.withDefault ""'
+            - '            in'
+            - '            Http.header header content'
+            - ""
+            - '        mapHeaderArray : Array (Array String) -> List Http.Header'
+            - '        mapHeaderArray arr ='
+            - '            arr |> Array.map mapHeader |> Array.toList'
+            - '    in'
+            - '    D.map2 Config'
+            - '        (D.field "baseUrl" <| D.string)'
+            - '        (D.field "headers" <| D.map mapHeaderArray (D.array (D.array
+              D.string)))'
+            - ""
+            - ""
+            - type CallResult a
+            - '    = HttpError Http.Error'
+            - '    | ApiError String'
+            - '    | Success a'
+            - ""
+            - ""
+            - 'translateHttpError : Http.Error -> String'
+            - translateHttpError httpErr =
+            - '    case httpErr of'
+            - '        BadUrl str ->'
+            - '            "Bad URL: " ++ str'
+            - ""
+            - '        Timeout ->'
+            - '            "Network Timeout"'
+            - ""
+            - '        NetworkError ->'
+            - '            "Network Error"'
+            - ""
+            - '        BadStatus code ->'
+            - '            "Bad Status Code: " ++ String.fromInt code'
+            - ""
+            - '        BadBody str ->'
+            - '            "Malformed Response: " ++ str'
+            - ""
+            - ""
+            - 'mapResult : { onHttpErr : Http.Error -> msg, onApiErr : String -> msg,
+              onSuccess : a -> msg } -> CallResult a -> msg'
+            - mapResult mapper result =
+            - '    case result of'
+            - '        HttpError httpErr ->'
+            - '            mapper.onHttpErr httpErr'
+            - ""
+            - '        ApiError err ->'
+            - '            mapper.onApiErr err'
+            - ""
+            - '        Success obj ->'
+            - '            mapper.onSuccess obj'
+            - ""
+            - ""
+            - 'unwrapHttpResult : (Result Http.Error (CallResult a)) -> CallResult
+              a'
+            - unwrapHttpResult result =
+            - '    case result of'
+            - '        Ok callResult ->'
+            - '            callResult'
+            - ""
+            - '        Err httpErr ->'
+            - '            HttpError httpErr'
+            - ""
+            - ""
+            - 'decodeCallResult : D.Decoder a -> D.Decoder (CallResult a)'
+            - decodeCallResult decodeReturns =
+            - '    let'
+            - '        mapResultObj : Maybe String -> a -> CallResult a'
+            - '        mapResultObj err ret ='
+            - '            case err of'
+            - '                Just str ->'
+            - '                    ApiError str'
+            - ""
+            - '                Nothing ->'
+            - '                    Success ret'
+            - '    in'
+            - '    D.map2 (mapResultObj)'
+            - '        (D.field "error" (D.maybe D.string))'
+            - '        (D.field "returns" decodeReturns)'
+        - name: stderr
+          data:
+            - ""
+- name: ./smoketests.yml \ Generators \ Go
+  commands:
+    - command: $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-simple.rpc
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
+    - command: find /tmp/rpc/go -name *.go
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - /tmp/rpc/go/server/server.go
+            - /tmp/rpc/go/rpc.go
+            - /tmp/rpc/go/client/client.go
+        - name: stderr
+          data:
+            - ""
+    - command: find /tmp/rpc/elm -name *.go | xargs cat
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - // <auto-generated />
+            - //
+            - '// expected import: go.example.com/rpc/server'
+            - package server
+            - ""
+            - import (
+            - "\t\"encoding/json\""
+            - "\t\"net/http\""
+            - ""
+            - "\trpc_root \"go.example.com/rpc\""
+            - )
+            - ""
+            - type Handler_rpc_root struct {
+            - "\tHandler rpc_root.Interface"
+            - '}'
+            - ""
+            - type Result struct {
+            - "\tError   error         `json:\"error\"`"
+            - "\tReturns []interface{} `json:\"returns\"`"
+            - '}'
+            - ""
+            - type Server struct {
+            - "\tOptions"
+            - "\tHandler_rpc_root"
+            - '}'
+            - ""
+            - type Options struct {
+            - "\tAddr string"
+            - '}'
+            - ""
+            - func New(opts *Options) *Server {
+            - "\treturn &Server{Options: *opts}"
+            - '}'
+            - ""
+            - func (s *Server) Listen() error {
+            - "\treturn http.ListenAndServe(s.Options.Addr, s.HTTPHandler())"
+            - '}'
+            - ""
+            - func (s *Server) HTTPHandler() http.Handler {
+            - "\tmux := http.NewServeMux()"
+            - "\ts.register_rpc_root(mux, s.Handler_rpc_root)"
+            - "\treturn mux"
+            - '}'
+            - ""
+            - func (s *Server) register_rpc_root(
+            - "\tmux *http.ServeMux,"
+            - "\thandler Handler_rpc_root,"
+            - ) *http.ServeMux {
+            - ""
+            - "\tmux.HandleFunc(\"/minitodo/Delete\", func(resp http.ResponseWriter,
+              req *http.Request) {"
+            - "\t\tvar err error"
+            - "\t\tresp.Header().Set(\"Content-Type\", \"application/json\")"
+            - ""
+            - "\t\tvar arg0 string"
+            - "\t\targs := [1]interface{}{"
+            - "\t\t\t&arg0,"
+            - "\t\t}"
+            - ""
+            - "\t\tif req.Body != nil {"
+            - "\t\t\tif err := json.NewDecoder(req.Body).Decode(&args); err != nil
+              {"
+            - "\t\t\t\tresp.WriteHeader(400)"
+            - "\t\t\t\trenderError(resp, err)"
+            - "\t\t\t\treturn"
+            - "\t\t\t}"
+            - "\t\t}"
+            - ""
+            - "\t\tvar out0 *rpc_root.TodoItem"
+            - "\t\tout0, err = handler.Handler.Delete("
+            - "\t\t\treq.Context(), arg0)"
+            - "\t\tresult := &Result{"
+            - "\t\t\tError: err,"
+            - "\t\t\tReturns: []interface{}{"
+            - "\t\t\t\tout0,"
+            - "\t\t\t},"
+            - "\t\t}"
+            - ""
+            - "\t\tbytes, err := json.Marshal(result)"
+            - "\t\tif err != nil {"
+            - "\t\t\tresp.WriteHeader(500)"
+            - "\t\t\trenderError(resp, err)"
+            - "\t\t}"
+            - ""
+            - "\t\tresp.WriteHeader(200)"
+            - "\t\t_, _ = resp.Write(bytes)"
+            - "\t})"
+            - ""
+            - "\tmux.HandleFunc(\"/minitodo/Get\", func(resp http.ResponseWriter,
+              req *http.Request) {"
+            - "\t\tvar err error"
+            - "\t\tresp.Header().Set(\"Content-Type\", \"application/json\")"
+            - ""
+            - "\t\tvar arg0 string"
+            - "\t\targs := [1]interface{}{"
+            - "\t\t\t&arg0,"
+            - "\t\t}"
+            - ""
+            - "\t\tif req.Body != nil {"
+            - "\t\t\tif err := json.NewDecoder(req.Body).Decode(&args); err != nil
+              {"
+            - "\t\t\t\tresp.WriteHeader(400)"
+            - "\t\t\t\trenderError(resp, err)"
+            - "\t\t\t\treturn"
+            - "\t\t\t}"
+            - "\t\t}"
+            - ""
+            - "\t\tvar out0 *rpc_root.TodoItem"
+            - "\t\tout0, err = handler.Handler.Get("
+            - "\t\t\treq.Context(), arg0)"
+            - "\t\tresult := &Result{"
+            - "\t\t\tError: err,"
+            - "\t\t\tReturns: []interface{}{"
+            - "\t\t\t\tout0,"
+            - "\t\t\t},"
+            - "\t\t}"
+            - ""
+            - "\t\tbytes, err := json.Marshal(result)"
+            - "\t\tif err != nil {"
+            - "\t\t\tresp.WriteHeader(500)"
+            - "\t\t\trenderError(resp, err)"
+            - "\t\t}"
+            - ""
+            - "\t\tresp.WriteHeader(200)"
+            - "\t\t_, _ = resp.Write(bytes)"
+            - "\t})"
+            - ""
+            - "\tmux.HandleFunc(\"/minitodo/List\", func(resp http.ResponseWriter,
+              req *http.Request) {"
+            - "\t\tvar err error"
+            - "\t\tresp.Header().Set(\"Content-Type\", \"application/json\")"
+            - ""
+            - "\t\tvar out0 []*rpc_root.TodoItem"
+            - "\t\tout0, err = handler.Handler.List("
+            - "\t\t\treq.Context())"
+            - "\t\tresult := &Result{"
+            - "\t\t\tError: err,"
+            - "\t\t\tReturns: []interface{}{"
+            - "\t\t\t\tout0,"
+            - "\t\t\t},"
+            - "\t\t}"
+            - ""
+            - "\t\tbytes, err := json.Marshal(result)"
+            - "\t\tif err != nil {"
+            - "\t\t\tresp.WriteHeader(500)"
+            - "\t\t\trenderError(resp, err)"
+            - "\t\t}"
+            - ""
+            - "\t\tresp.WriteHeader(200)"
+            - "\t\t_, _ = resp.Write(bytes)"
+            - "\t})"
+            - ""
+            - "\tmux.HandleFunc(\"/minitodo/Put\", func(resp http.ResponseWriter,
+              req *http.Request) {"
+            - "\t\tvar err error"
+            - "\t\tresp.Header().Set(\"Content-Type\", \"application/json\")"
+            - ""
+            - "\t\tvar arg0 *rpc_root.TodoItem"
+            - "\t\targs := [1]interface{}{"
+            - "\t\t\t&arg0,"
+            - "\t\t}"
+            - ""
+            - "\t\tif req.Body != nil {"
+            - "\t\t\tif err := json.NewDecoder(req.Body).Decode(&args); err != nil
+              {"
+            - "\t\t\t\tresp.WriteHeader(400)"
+            - "\t\t\t\trenderError(resp, err)"
+            - "\t\t\t\treturn"
+            - "\t\t\t}"
+            - "\t\t}"
+            - ""
+            - "\t\tvar out0 *rpc_root.TodoItem"
+            - "\t\tout0, err = handler.Handler.Put("
+            - "\t\t\treq.Context(), arg0)"
+            - "\t\tresult := &Result{"
+            - "\t\t\tError: err,"
+            - "\t\t\tReturns: []interface{}{"
+            - "\t\t\t\tout0,"
+            - "\t\t\t},"
+            - "\t\t}"
+            - ""
+            - "\t\tbytes, err := json.Marshal(result)"
+            - "\t\tif err != nil {"
+            - "\t\t\tresp.WriteHeader(500)"
+            - "\t\t\trenderError(resp, err)"
+            - "\t\t}"
+            - ""
+            - "\t\tresp.WriteHeader(200)"
+            - "\t\t_, _ = resp.Write(bytes)"
+            - "\t})"
+            - ""
+            - "\treturn mux"
+            - '}'
+            - ""
+            - func renderError(resp http.ResponseWriter, e error) {
+            - "\tresult := &Result{"
+            - "\t\tError:   e,"
+            - "\t\tReturns: nil,"
+            - "\t}"
+            - ""
+            - "\tbytes, err := json.Marshal(result)"
+            - "\tif err != nil {"
+            - "\t\t_, _ = resp.Write([]byte(`{\"error\":\"json processing error\"}`))"
+            - "\t} else {"
+            - "\t\t_, _ = resp.Write(bytes)"
+            - "\t}"
+            - '}'
+            - // <auto-generated />
+            - //
+            - '// expected import: go.example.com/rpc'
+            - package minitodo
+            - ""
+            - import (
+            - "\t\"context\""
+            - "\t\"encoding/json\""
+            - "\t\"math\""
+            - ""
+            - "\ttime \"time\""
+            - )
+            - ""
+            - var (
+            - "\t_ context.Context = nil"
+            - "\t_                 = json.Marshal"
+            - "\t_                 = math.Pi"
+            - )
+            - ""
+            - type Failure struct {
+            - "\tCode        string `json:\"code\" yaml:\"code\" db:\"code\"`"
+            - "\tDescription string `json:\"description\" yaml:\"description\" db:\"description\"`"
+            - '}'
+            - ""
+            - func (obj *Failure) MarshalJSON() ([]byte, error) {
+            - "\toutobj := struct {"
+            - "\t\tCode        string `json:\"code\"`"
+            - "\t\tDescription string `json:\"description\"`"
+            - "\t}{"
+            - "\t\tCode:        (obj.Code),"
+            - "\t\tDescription: (obj.Description),"
+            - "\t}"
+            - "\treturn json.Marshal(outobj)"
+            - '}'
+            - ""
+            - func (obj *Failure) UnmarshalJSON(buf []byte) error {
+            - "\tinobj := struct {"
+            - "\t\tCode        string `json:\"code\"`"
+            - "\t\tDescription string `json:\"description\"`"
+            - "\t}{}"
+            - ""
+            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
+            - "\t\treturn err"
+            - "\t}"
+            - ""
+            - "\tobj.Code = (inobj.Code)"
+            - "\tobj.Description = (inobj.Description)"
+            - "\treturn nil"
+            - '}'
+            - ""
+            - type TodoItem struct {
+            - "\tCompleted   bool      `json:\"completed\" yaml:\"completed\" db:\"completed\"`"
+            - "\tCtime       time.Time `json:\"ctime\" yaml:\"ctime\" db:\"ctime\"`"
+            - "\tDescription string    `json:\"description\" yaml:\"description\"
+              db:\"description\"`"
+            - "\tUuid        string    `json:\"uuid\" yaml:\"uuid\" db:\"uuid\"`"
+            - '}'
+            - ""
+            - func (obj *TodoItem) MarshalJSON() ([]byte, error) {
+            - "\toutobj := struct {"
+            - "\t\tCompleted   bool    `json:\"completed\"`"
+            - "\t\tCtime       float64 `json:\"ctime\"`"
+            - "\t\tDescription string  `json:\"description\"`"
+            - "\t\tUuid        string  `json:\"uuid\"`"
+            - "\t}{"
+            - "\t\tCompleted: (obj.Completed),"
+            - "\t\tCtime: (func(t time.Time) float64 {"
+            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
+            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
+            - "\t\t})(obj.Ctime),"
+            - "\t\tDescription: (obj.Description),"
+            - "\t\tUuid:        (obj.Uuid),"
+            - "\t}"
+            - "\treturn json.Marshal(outobj)"
+            - '}'
+            - ""
+            - func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
+            - "\tinobj := struct {"
+            - "\t\tCompleted   bool    `json:\"completed\"`"
+            - "\t\tCtime       float64 `json:\"ctime\"`"
+            - "\t\tDescription string  `json:\"description\"`"
+            - "\t\tUuid        string  `json:\"uuid\"`"
+            - "\t}{}"
+            - ""
+            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
+            - "\t\treturn err"
+            - "\t}"
+            - ""
+            - "\tobj.Completed = (inobj.Completed)"
+            - "\tobj.Ctime = (func(t float64) time.Time {"
+            - "\t\tfsec, fnsec := math.Modf(t)"
+            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
+            - "\t\treturn time.Unix(sec, nsec)"
+            - "\t})(inobj.Ctime)"
+            - "\tobj.Description = (inobj.Description)"
+            - "\tobj.Uuid = (inobj.Uuid)"
+            - "\treturn nil"
+            - '}'
+            - ""
+            - type Interface interface {
+            - "\tDelete(context.Context, string) (*TodoItem, error,"
+            - "\t)"
+            - "\tGet(context.Context, string) (*TodoItem, error,"
+            - "\t)"
+            - "\tList(context.Context) ([]*TodoItem, error,"
+            - "\t)"
+            - "\tPut(context.Context, *TodoItem) (*TodoItem, error,"
+            - "\t)"
+            - '}'
+            - // <auto-generated />
+            - //
+            - '// expected import: go.example.com/rpc/client'
+            - package client
+            - ""
+            - import (
+            - "\t\"bytes\""
+            - "\t\"context\""
+            - "\t\"encoding/json\""
+            - "\t\"net/http\""
+            - "\t\"time\""
+            - ""
+            - "\trpc_root \"go.example.com/rpc\""
+            - )
+            - ""
+            - var (
+            - "\t_ context.Context = nil"
+            - "\t_ time.Time       = time.Time{}"
+            - )
+            - ""
+            - // go.example.com/rpc
+            - var _ rpc_root.Interface = Client_rpc_root{}
+            - ""
+            - type Client_rpc_root struct {
+            - "\t*Client"
+            - '}'
+            - ""
+            - func (c *Client_rpc_root) initialize(client *Client) {
+            - "\tc.Client = client"
+            - '}'
+            - ""
+            - func (c Client_rpc_root) Delete(
+            - "\tctx context.Context,"
+            - "\targ0 string,"
+            - ) (
+            - "\tout0 *rpc_root.TodoItem,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/Delete\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - ""
+            - func (c Client_rpc_root) Get(
+            - "\tctx context.Context,"
+            - "\targ0 string,"
+            - ) (
+            - "\tout0 *rpc_root.TodoItem,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/Get\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - ""
+            - func (c Client_rpc_root) List(
+            - "\tctx context.Context,"
+            - ) (
+            - "\tout0 []*rpc_root.TodoItem,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/List\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - ""
+            - func (c Client_rpc_root) Put(
+            - "\tctx context.Context,"
+            - "\targ0 *rpc_root.TodoItem,"
+            - ) (
+            - "\tout0 *rpc_root.TodoItem,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/Put\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - ""
+            - type Result struct {
+            - "\tError   error         `json:\"error\"`"
+            - "\tReturns []interface{} `json:\"returns\"`"
+            - '}'
+            - ""
+            - type Client struct {
+            - "\tOptions"
+            - "\tClient_rpc_root"
+            - ""
+            - "\tHTTPClient *http.Client"
+            - '}'
+            - ""
+            - type Options struct {
+            - "\tAddr string"
+            - '}'
+            - ""
+            - func New(opts *Options) *Client {
+            - "\tclient := &Client{"
+            - "\t\tOptions:         *opts,"
+            - "\t\tClient_rpc_root: Client_rpc_root{},"
+            - "\t\tHTTPClient:      &http.Client{},"
+            - "\t}"
+            - "\tclient.Client_rpc_root.initialize(client)"
+            - "\treturn client"
             - '}'
         - name: stderr
           data:
