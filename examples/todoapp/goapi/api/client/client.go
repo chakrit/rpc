@@ -5,6 +5,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -12,7 +13,10 @@ import (
 	rpc_root "github.com/chakrit/rpc/todo/api"
 )
 
-var _ time.Time = time.Time{}
+var (
+	_ context.Context = nil
+	_ time.Time       = time.Time{}
+)
 
 // github.com/chakrit/rpc/todo/api
 var _ rpc_root.Interface = Client_rpc_root{}
@@ -26,6 +30,7 @@ func (c *Client_rpc_root) initialize(client *Client) {
 }
 
 func (c Client_rpc_root) Create(
+	ctx context.Context,
 	arg0 string,
 ) (
 	out0 *rpc_root.TodoItem,
@@ -43,6 +48,8 @@ func (c Client_rpc_root) Create(
 	if err != nil {
 		return
 	}
+
+	req = req.WithContext(ctx)
 
 	var resp *http.Response
 	resp, err = c.HTTPClient.Do(req)
@@ -69,6 +76,7 @@ func (c Client_rpc_root) Create(
 }
 
 func (c Client_rpc_root) Destroy(
+	ctx context.Context,
 	arg0 int64,
 ) (
 	out0 *rpc_root.TodoItem,
@@ -86,6 +94,8 @@ func (c Client_rpc_root) Destroy(
 	if err != nil {
 		return
 	}
+
+	req = req.WithContext(ctx)
 
 	var resp *http.Response
 	resp, err = c.HTTPClient.Do(req)
@@ -111,7 +121,9 @@ func (c Client_rpc_root) Destroy(
 	return
 }
 
-func (c Client_rpc_root) List() (
+func (c Client_rpc_root) List(
+	ctx context.Context,
+) (
 	out0 []*rpc_root.TodoItem,
 	err error,
 ) {
@@ -127,6 +139,8 @@ func (c Client_rpc_root) List() (
 	if err != nil {
 		return
 	}
+
+	req = req.WithContext(ctx)
 
 	var resp *http.Response
 	resp, err = c.HTTPClient.Do(req)

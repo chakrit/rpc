@@ -4,14 +4,18 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"math"
 
 	time "time"
 )
 
-var _ = math.Pi
-var _ = json.Marshal
+var (
+	_ context.Context = nil
+	_                 = json.Marshal
+	_                 = math.Pi
+)
 
 type TodoItem struct {
 	Ctime       time.Time `json:"ctime" yaml:"ctime" db:"ctime"`
@@ -57,10 +61,10 @@ func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
 }
 
 type Interface interface {
-	Create(string) (*TodoItem, error,
+	Create(context.Context, string) (*TodoItem, error,
 	)
-	Destroy(int64) (*TodoItem, error,
+	Destroy(context.Context, int64) (*TodoItem, error,
 	)
-	List() ([]*TodoItem, error,
+	List(context.Context) ([]*TodoItem, error,
 	)
 }

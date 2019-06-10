@@ -4,6 +4,7 @@ package main
 //go:generate go fmt ./api/...
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -72,6 +73,7 @@ func runClientCmd(cmd *cobra.Command, args []string) {
 	var (
 		opts = client.Options(flags)
 		c    = client.New(&opts)
+		ctx  = context.Background()
 
 		check = func(err error) {
 			if err != nil {
@@ -80,31 +82,31 @@ func runClientCmd(cmd *cobra.Command, args []string) {
 		}
 	)
 
-	list, err := c.List()
+	list, err := c.List(ctx)
 	check(err)
 	logOutput("List", list...)
 
-	alpha, err := c.Create("alpha")
+	alpha, err := c.Create(ctx, "alpha")
 	check(err)
 	logOutput("Create", alpha)
 
-	list, err = c.List()
+	list, err = c.List(ctx)
 	check(err)
 	logOutput("List", list...)
 
-	beta, err := c.Create("beta")
+	beta, err := c.Create(ctx, "beta")
 	check(err)
 	logOutput("Create", beta)
 
-	list, err = c.List()
+	list, err = c.List(ctx)
 	check(err)
 	logOutput("List", list...)
 
-	alpha, err = c.Destroy(alpha.ID)
+	alpha, err = c.Destroy(ctx, alpha.ID)
 	check(err)
 	logOutput("Destroy", list...)
 
-	list, err = c.List()
+	list, err = c.List(ctx)
 	check(err)
 	logOutput("List", list...)
 }

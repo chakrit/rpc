@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"sync/atomic"
 	"time"
@@ -17,7 +18,7 @@ var errNotFound = errors.New("item not found")
 
 var _ api.Interface = &handler{}
 
-func (h *handler) Destroy(id int64) (*api.TodoItem, error) {
+func (h *handler) Destroy(ctx context.Context, id int64) (*api.TodoItem, error) {
 	for idx, item := range h.items {
 		if item.ID == id {
 			h.items = append(h.items[0:idx], h.items[idx+1:]...)
@@ -28,11 +29,11 @@ func (h *handler) Destroy(id int64) (*api.TodoItem, error) {
 	return nil, errNotFound
 }
 
-func (h *handler) List() ([]*api.TodoItem, error) {
+func (h *handler) List(ctx context.Context) ([]*api.TodoItem, error) {
 	return h.items, nil
 }
 
-func (h *handler) Create(desc string) (*api.TodoItem, error) {
+func (h *handler) Create(ctx context.Context, desc string) (*api.TodoItem, error) {
 	id := atomic.AddInt64(&h.counter, 1)
 	item := &api.TodoItem{
 		ID:          id,

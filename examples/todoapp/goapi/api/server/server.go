@@ -65,7 +65,8 @@ func (s *Server) register_rpc_root(
 		}
 
 		var out0 *rpc_root.TodoItem
-		out0, err = handler.Handler.Create(arg0)
+		out0, err = handler.Handler.Create(
+			req.Context(), arg0)
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{
@@ -101,7 +102,8 @@ func (s *Server) register_rpc_root(
 		}
 
 		var out0 *rpc_root.TodoItem
-		out0, err = handler.Handler.Destroy(arg0)
+		out0, err = handler.Handler.Destroy(
+			req.Context(), arg0)
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{
@@ -124,7 +126,8 @@ func (s *Server) register_rpc_root(
 		resp.Header().Set("Content-Type", "application/json")
 
 		var out0 []*rpc_root.TodoItem
-		out0, err = handler.Handler.List()
+		out0, err = handler.Handler.List(
+			req.Context())
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{
