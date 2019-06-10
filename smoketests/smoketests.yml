@@ -1,0 +1,21 @@
+---
+config:
+  interpreter: /bin/sh
+  timeout: 3s
+checks:
+  - exitcode
+  - stdout
+  - stderr
+tests:
+  - name: Basics
+    commands:
+      - go install -v ..
+    tests:
+      - name: Lexing
+        commands:
+          - $(go env GOPATH)/bin/rpc -lex todo-simple.rpc
+          - $(go env GOPATH)/bin/rpc -lex todo-complex.rpc
+      - name: Parsing
+        commands:
+          - $(go env GOPATH)/bin/rpc -parse todo-simple.rpc
+          - $(go env GOPATH)/bin/rpc -parse todo-complex.rpc

@@ -1,0 +1,43 @@
+option go_import "github.com/chakrit/rpc/examples"
+option go_package "examples"
+
+type Failure {
+    string code
+    string description
+}
+
+namespace System {
+    rpc Status() Failure
+
+    namespace Auth {
+        type User {
+            string username
+            string email
+            map<string, string> metadata
+        }
+
+        type AuthRequest {
+            string provider
+            string username
+            string authData // change to bytes type
+        }
+        type AuthResponse {
+            Failure failure
+            User user
+        }
+    }
+}
+
+namespace Todos {
+    type Item {
+        string id
+        string description
+        time ctime
+        bool completed
+    }
+
+    rpc List() list<Item>
+    rpc Get(string) Item
+    rpc Put(string) Item
+    rpc Delete(string) Item
+}
