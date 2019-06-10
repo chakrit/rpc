@@ -41,4 +41,12 @@ tests:
           - go generate -v ./...
           - go build -o ./bin/clientserver .
           - ./bin/clientserver # prints interaction output
+  - name: Examples
+    tests:
+      - name: todoapp
+        config:
+          workdir: ../examples/todoapp
+        commands:
+          - ./build.sh
+
 

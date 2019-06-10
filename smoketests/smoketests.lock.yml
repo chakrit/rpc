@@ -1793,3 +1793,19 @@
         - name: stderr
           data:
             - ""
+- name: ./smoketests.yml \ Examples \ todoapp
+  commands:
+    - command: ./build.sh
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - "[================                                  ] - 1 / 3\r[=================================
+              \                ] - 2 / 3\r[==================================================]
+              - 3 / 3\r                                                                     \rSuccess!
+              Compiled 3 modules."
+        - name: stderr
+          data:
+            - ""

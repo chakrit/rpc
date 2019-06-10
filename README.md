@@ -61,6 +61,7 @@ $ go get github.com/chakrit/rpc
 ```
 
 Run:
+
 ```sh
 $ rpc -gen go -out /api todo.rpc
 ```
@@ -73,8 +74,8 @@ Develop:
 
 ```sh
 $ # make edits
-$ go get -u github.com/linuxkit/rtf
-$ rtf -vvv run
+$ go get -v -u github.com/chakrit/smoke
+$ ./test.sh
 ```
 
 # Spec File
