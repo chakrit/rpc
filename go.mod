@@ -4,4 +4,5 @@ require (
 	github.com/gobuffalo/flect v0.0.0-20190117212819-a62e61d96794
 	github.com/pkg/errors v0.8.0
 	github.com/rakyll/statik v0.1.5
+	gopkg.in/yaml.v2 v2.2.2
 )

@@ -16,7 +16,7 @@ namespace Todo {
         type AuthRequest {
             string provider
             string username
-            string secret
+            bytes secret
         }
 
         type AuthResponse {

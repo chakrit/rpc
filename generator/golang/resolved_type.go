@@ -7,6 +7,7 @@ import (
 const (
 	TypeSimple = 1 << iota
 	TypeTime
+	TypeBytes
 	TypeMap
 	TypeList
 	TypeUserDefined
@@ -25,6 +26,7 @@ type ResolvedType struct {
 
 func (rt *ResolvedType) IsSimple() bool      { return (rt.Flags & TypeSimple) != 0 }
 func (rt *ResolvedType) IsTime() bool        { return (rt.Flags & TypeTime) != 0 }
+func (rt *ResolvedType) IsBytes() bool       { return (rt.Flags & TypeBytes) != 0 }
 func (rt *ResolvedType) IsMap() bool         { return (rt.Flags & TypeMap) != 0 }
 func (rt *ResolvedType) IsList() bool        { return (rt.Flags & TypeList) != 0 }
 func (rt *ResolvedType) IsUserDefined() bool { return (rt.Flags & TypeUserDefined) != 0 }

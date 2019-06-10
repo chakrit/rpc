@@ -78,6 +78,7 @@ func asMarshalTarget(rt *ResolvedType) string {
 	}
 }
 
+// TODO: Move into ResolvedType
 func marshaler(rt *ResolvedType) string {
 	if rt == nil {
 		return ""
@@ -89,6 +90,8 @@ func marshaler(rt *ResolvedType) string {
 			"sec, nsec := t.Unix(), t.Nanosecond();" +
 			"return float64(sec) + (float64(nsec)/float64(time.Second));" +
 			"})"
+	case rt.IsBytes():
+		return "(func (b []byte) string { return string(b) })"
 	default:
 		return ""
 	}
@@ -106,6 +109,8 @@ func unmarshaler(rt *ResolvedType) string {
 			"sec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)));" +
 			"return time.Unix(sec, nsec);" +
 			"})"
+	case rt.IsBytes():
+		return "(func (s string) []byte { return []byte(s) })"
 	default:
 		return ""
 	}
