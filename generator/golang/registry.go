@@ -14,7 +14,7 @@ import (
 	"list",
 	"map",
 	"time",
-	"bytes",
+	"data",
 */
 
 type TypeRegistry map[string]*ResolvedType
@@ -49,7 +49,7 @@ func (r TypeRegistry) RegisterAll(pkg *Pkg) {
 
 func (r TypeRegistry) Resolve(pkg *Pkg, ref *spec.TypeRef) *ResolvedType {
 	switch ref.Name {
-	case "string", "bool", "int", "long", "float", "double", "time", "bytes":
+	case "string", "bool", "int", "long", "float", "double", "time", "data":
 		return r.resolveSimpleType(pkg, ref)
 	case "list":
 		return r.resolveListType(pkg, ref)
@@ -70,8 +70,8 @@ func (r TypeRegistry) resolveSimpleType(pkg *Pkg, ref *spec.TypeRef) *ResolvedTy
 		return &ResolvedType{"float32", nil, nil, nil, TypeSimple | OriginBuiltin}
 	case "double":
 		return &ResolvedType{"float64", nil, nil, nil, TypeSimple | OriginBuiltin}
-	case "bytes":
-		return &ResolvedType{"[]byte", nil, nil, nil, TypeBytes | OriginBuiltin}
+	case "data":
+		return &ResolvedType{"[]byte", nil, nil, nil, TypeSimple | OriginBuiltin}
 	case "time":
 		return resolvedTimeType
 	default:

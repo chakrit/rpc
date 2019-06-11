@@ -19,8 +19,9 @@ namespace System {
         type AuthRequest {
             string provider
             string username
-            string authData // change to bytes type
+            data authData
         }
+
         type AuthResponse {
             Failure failure
             User user
