@@ -21,6 +21,7 @@ type TodoItem struct {
 	Ctime       time.Time `json:"ctime" yaml:"ctime" db:"ctime"`
 	Description string    `json:"description" yaml:"description" db:"description"`
 	ID          int64     `json:"id" yaml:"id" db:"id"`
+	Metadata    []byte    `json:"metadata" yaml:"metadata" db:"metadata"`
 }
 
 func (obj *TodoItem) MarshalJSON() ([]byte, error) {
@@ -28,6 +29,7 @@ func (obj *TodoItem) MarshalJSON() ([]byte, error) {
 		Ctime       float64 `json:"ctime"`
 		Description string  `json:"description"`
 		ID          int64   `json:"id"`
+		Metadata    []byte  `json:"metadata"`
 	}{
 		Ctime: (func(t time.Time) float64 {
 			sec, nsec := t.Unix(), t.Nanosecond()
@@ -35,6 +37,7 @@ func (obj *TodoItem) MarshalJSON() ([]byte, error) {
 		})(obj.Ctime),
 		Description: (obj.Description),
 		ID:          (obj.ID),
+		Metadata:    (obj.Metadata),
 	}
 	return json.Marshal(outobj)
 }
@@ -44,6 +47,7 @@ func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
 		Ctime       float64 `json:"ctime"`
 		Description string  `json:"description"`
 		ID          int64   `json:"id"`
+		Metadata    []byte  `json:"metadata"`
 	}{}
 
 	if err := json.Unmarshal(buf, &inobj); err != nil {
@@ -57,6 +61,7 @@ func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
 	})(inobj.Ctime)
 	obj.Description = (inobj.Description)
 	obj.ID = (inobj.ID)
+	obj.Metadata = (inobj.Metadata)
 	return nil
 }
 

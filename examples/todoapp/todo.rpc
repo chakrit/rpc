@@ -1,13 +1,14 @@
-option go_import "github.com/chakrit/rpc/todo/api"
+option go_import  "github.com/chakrit/rpc/todo/api"
 option go_package "api"
 option elm_module "Api"
 
 type TodoItem {
-    long id
+    long   id
     string description
-    time ctime
+    time   ctime
+    data   metadata
 }
 
-rpc List() list<TodoItem>
+rpc List()         list<TodoItem>
 rpc Create(string) TodoItem
-rpc Destroy(long) TodoItem
+rpc Destroy(long)  TodoItem
