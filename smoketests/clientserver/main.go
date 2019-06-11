@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/chakrit/rpc-todo/api"
 	"github.com/chakrit/rpc-todo/api/client"
@@ -22,6 +23,7 @@ func main() {
 
 	go runServer(addr)
 	runClient(addr)
+	time.Sleep(300 * time.Millisecond)
 	os.Exit(0) // also terminates server routine
 }
 
