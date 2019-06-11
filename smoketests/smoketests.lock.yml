@@ -1,5 +1,16 @@
 - name: ./smoketests.yml \ Basics \ Install
   commands:
+    - command: go generate ../...
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
     - command: go install -v ..
       checks:
         - name: exitcode

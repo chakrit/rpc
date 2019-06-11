@@ -11,6 +11,7 @@ tests:
     tests:
       - name: Install
         commands:
+          - go generate ../...
           - go install -v ..
       - name: Lex
         commands:
