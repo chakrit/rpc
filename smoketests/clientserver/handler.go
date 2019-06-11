@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/chakrit/rpc/todo/api"
+	"github.com/chakrit/rpc-todo/api"
 )
 
 type handler struct {

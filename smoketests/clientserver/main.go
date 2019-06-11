@@ -10,9 +10,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/chakrit/rpc/todo/api"
-	"github.com/chakrit/rpc/todo/api/client"
-	"github.com/chakrit/rpc/todo/api/server"
+	"github.com/chakrit/rpc-todo/api"
+	"github.com/chakrit/rpc-todo/api/client"
+	"github.com/chakrit/rpc-todo/api/server"
 )
 
 func main() {
