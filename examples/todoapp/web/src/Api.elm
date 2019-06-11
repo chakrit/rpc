@@ -3,15 +3,18 @@ module Api exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as E
-import Time
+import Time exposing (Posix)
+import Bytes exposing (Bytes)
+import Bytes.Encode
 import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult)
 
 
 
 type alias TodoItem =
-    { ctime : Time.Posix
+    { ctime : Posix
     , description : String
     , id : Int
+    , metadata : Bytes
     }
 
 encodeTodoItem : TodoItem -> E.Value
@@ -20,14 +23,16 @@ encodeTodoItem obj =
         [ ( "ctime", (Time.posixToMillis >> toFloat >> (\f -> f/1000.0) >> E.float) obj.ctime )
         , ( "description", E.string obj.description )
         , ( "id", E.int obj.id )
+        , ( "metadata", (RpcUtil.base64FromBytes >> Maybe.withDefault "" >> E.string) obj.metadata )
         ]
 
 decodeTodoItem : D.Decoder TodoItem
 decodeTodoItem =
-    D.map3 TodoItem
+    D.map4 TodoItem
             (D.field "ctime" ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)))
             (D.field "description" (D.string))
             (D.field "id" (D.int))
+            (D.field "metadata" ((D.map (Maybe.withDefault "" >> RpcUtil.base64ToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))))
     
 
 

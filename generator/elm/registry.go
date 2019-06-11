@@ -18,10 +18,9 @@ func (r Registry) Lookup(context *Module, name string) *ElmType {
 	}
 }
 
-// TODO: map as Dict k v
 func (r Registry) Resolve(ref *ElmTypeRef) *ElmTypeResolution {
 	switch ref.Name {
-	case "string", "bool", "int", "long", "float", "double", "time":
+	case "string", "bool", "int", "long", "float", "double", "time", "data":
 		return r.resolveBasic(ref)
 	case "list":
 		return r.resolveList(ref)
@@ -60,9 +59,15 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 		}
 	case "time":
 		return &ElmTypeResolution{
-			Name:   "Time.Posix",
+			Name:   "Posix",
 			Encode: `(Time.posixToMillis >> toFloat >> (\f -> f/1000.0) >> E.float)`,
 			Decode: `(D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)`,
+		}
+	case "data":
+		return &ElmTypeResolution{
+			Name:   "Bytes",
+			Encode: `(RpcUtil.base64FromBytes >> Maybe.withDefault "" >> E.string)`,
+			Decode: `(D.map (Maybe.withDefault "" >> RpcUtil.base64ToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))`,
 		}
 	default:
 		return r.resolveUnknown()
@@ -85,9 +90,9 @@ func (r Registry) resolveList(ref *ElmTypeRef) *ElmTypeResolution {
 }
 
 func (r Registry) resolveMap(ref *ElmTypeRef) *ElmTypeResolution {
-    var keyType *ElmTypeResolution
-    var valueType *ElmTypeResolution
-    switch len(ref.Args) {
+	var keyType *ElmTypeResolution
+	var valueType *ElmTypeResolution
+	switch len(ref.Args) {
 	case 0:
 		keyType, valueType = r.resolveUnknown(), r.resolveUnknown()
 	case 1:
@@ -96,12 +101,12 @@ func (r Registry) resolveMap(ref *ElmTypeRef) *ElmTypeResolution {
 		keyType, valueType = r.Resolve(ref.Args[0]), r.Resolve(ref.Args[1])
 	}
 
-    // TODO: Warn for non-string key types not supported. Currently this code
-    //   will not compile correctly if the key type is not a string
-    return r.resolveWithDefault("Dict.empty", &ElmTypeResolution{
-    	Name: "Dict (" + keyType.Name + ") (" + valueType.Name + ")",
-        Encode: "E.dict (" + keyType.Encode + ") (" + valueType.Encode + ")",
-        Decode: "D.dict (" + valueType.Decode + ")",
+	// TODO: Warn for non-string key types not supported. Currently this code
+	//   will not compile correctly if the key type is not a string
+	return r.resolveWithDefault("Dict.empty", &ElmTypeResolution{
+		Name:   "Dict (" + keyType.Name + ") (" + valueType.Name + ")",
+		Encode: "E.dict (" + keyType.Encode + ") (" + valueType.Encode + ")",
+		Decode: "D.dict (" + valueType.Decode + ")",
 	})
 }
 

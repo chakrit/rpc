@@ -39,6 +39,7 @@ func (h *handler) Create(ctx context.Context, desc string) (*api.TodoItem, error
 		ID:          id,
 		Description: desc,
 		Ctime:       time.Now(),
+		Metadata:    []byte(desc),
 	}
 
 	h.items = append(h.items, item)

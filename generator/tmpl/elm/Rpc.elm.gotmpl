@@ -3,7 +3,9 @@ module {{ .Name }} exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as E
-import Time
+import Time exposing (Posix)
+import Bytes exposing (Bytes)
+import Bytes.Encode
 import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult)
 {{- range $import := .Imports  }}
 import {{ $import.Name }}
