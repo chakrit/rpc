@@ -23,7 +23,7 @@ encodeTodoItem obj =
         [ ( "ctime", (Time.posixToMillis >> toFloat >> (\f -> f/1000.0) >> E.float) obj.ctime )
         , ( "description", E.string obj.description )
         , ( "id", E.int obj.id )
-        , ( "metadata", (RpcUtil.base64FromBytes >> Maybe.withDefault "" >> E.string) obj.metadata )
+        , ( "metadata", (RpcUtil.b64StringFromBytes >> Maybe.withDefault "" >> E.string) obj.metadata )
         ]
 
 decodeTodoItem : D.Decoder TodoItem
@@ -32,7 +32,7 @@ decodeTodoItem =
             (D.field "ctime" ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)))
             (D.field "description" (D.string))
             (D.field "id" (D.int))
-            (D.field "metadata" ((D.map (Maybe.withDefault "" >> RpcUtil.base64ToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))))
+            (D.field "metadata" ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))))
     
 
 

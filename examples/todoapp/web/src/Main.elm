@@ -11,7 +11,7 @@ import Html exposing (Html, div, text)
 import Html.Attributes exposing (value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode
-import RpcUtil as Rpc exposing (CallResult(..), base64FromBytes, mapResult, translateHttpError)
+import RpcUtil as Rpc exposing (CallResult(..), b64StringFromBytes, mapResult, translateHttpError)
 import Task
 import Time exposing (Month(..), utc)
 
@@ -282,7 +282,7 @@ viewTableBody model =
                         [ onClick (Delete todoItem.id) ]
                         [ text "Delete" ]
                     ]
-                , tableCell [] [ text (base64FromBytes todoItem.metadata |> Maybe.withDefault "(n/a)") ]
+                , tableCell [] [ text (b64StringFromBytes todoItem.metadata |> Maybe.withDefault "(n/a)") ]
                 ]
     in
     tableBody [] (List.map row model.list)

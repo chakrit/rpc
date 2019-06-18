@@ -1,14 +1,12 @@
 module {{ .Name }} exposing
     ( CallResult(..)
     , Config
-    , base64FromBytes
-    , base64ToBytes
+    , b64StringFromBytes
+    , b64StringToBytes
     , decodeCallResult
-    , decodeField
     , decodeConfig
-    , fromBase64String
+    , decodeField
     , mapResult
-    , toBase64String
     , translateHttpError
     , unwrapHttpResult
     )
@@ -51,9 +49,11 @@ decodeConfig =
         (JsonDec.field "baseUrl" <| JsonDec.string)
         (JsonDec.field "headers" <| JsonDec.map mapHeaderArray (JsonDec.array (JsonDec.array JsonDec.string)))
 
+
 decodeField : String -> JsonDec.Decoder a -> JsonDec.Decoder (a -> b) -> JsonDec.Decoder b
 decodeField key fieldDec partial =
     JsonDec.andThen (\p -> JsonDec.map p (JsonDec.field key fieldDec)) partial
+
 
 type CallResult a
     = HttpError Http.Error
@@ -120,53 +120,42 @@ decodeCallResult decodeReturns =
         (JsonDec.field "returns" decodeReturns)
 
 
-toBase64String : String -> Maybe String
-toBase64String =
-    stringToBytes >> base64FromBytes
-
-
-fromBase64String : String -> Maybe String
-fromBase64String =
-    base64ToBytes >> Maybe.map stringFromBytes
-
-
 stringToBytes : String -> Bytes
 stringToBytes str =
     BytesEnc.encode (BytesEnc.string str)
 
 
-stringFromBytes : Bytes -> String
+stringFromBytes : Bytes -> Maybe String
 stringFromBytes bytes =
     BytesDec.decode (BytesDec.string (Bytes.width bytes)) bytes
-        |> Maybe.withDefault "(string decode error)"
 
 
-base64ToBytes : String -> Maybe Bytes
-base64ToBytes str =
-    decode (String.toList str)
+b64StringToBytes : String -> Maybe Bytes
+b64StringToBytes str =
+    decodeB64Chars (String.toList str)
         |> Maybe.map (BytesEnc.sequence >> BytesEnc.encode)
 
 
-decode : List Char -> Maybe (List BytesEnc.Encoder)
-decode l =
+decodeB64Chars : List Char -> Maybe (List BytesEnc.Encoder)
+decodeB64Chars l =
     case l of
         [] ->
             Just []
 
         a :: b :: '=' :: '=' :: [] ->
-            dec2 a b |> Maybe.map List.singleton
+            b64Dec2 a b |> Maybe.map List.singleton
 
         a :: b :: [] ->
-            dec2 a b |> Maybe.map List.singleton
+            b64Dec2 a b |> Maybe.map List.singleton
 
         a :: b :: c :: '=' :: [] ->
-            dec3 a b c |> Maybe.map List.singleton
+            b64Dec3 a b c |> Maybe.map List.singleton
 
         a :: b :: c :: [] ->
-            dec3 a b c |> Maybe.map List.singleton
+            b64Dec3 a b c |> Maybe.map List.singleton
 
         a :: b :: c :: d :: tail ->
-            case ( dec4 a b c d, decode tail ) of
+            case ( b64Dec4 a b c d, decodeB64Chars tail ) of
                 ( Just e, Just list ) ->
                     Just <| e :: list
 
@@ -177,12 +166,49 @@ decode l =
             Nothing
 
 
+b64StringFromBytes : Bytes -> Maybe String
+b64StringFromBytes bytes =
+    let
+        get3 =
+            BytesDec.map3 b64Enc3 BytesDec.unsignedInt8 BytesDec.unsignedInt8 BytesDec.unsignedInt8
+
+        get2 =
+            BytesDec.map2 b64Enc2 BytesDec.unsignedInt8 BytesDec.unsignedInt8
+
+        get1 =
+            BytesDec.map b64Enc1 BytesDec.unsignedInt8
+
+        process : B64State -> BytesDec.Decoder (BytesDec.Step B64State (List Char))
+        process state =
+            if state.processed >= state.total then
+                BytesDec.succeed <| BytesDec.Done state.output
+
+            else
+                BytesDec.map BytesDec.Loop <|
+                    case state.total - state.processed of
+                        1 ->
+                            get1 |> BytesDec.map (appendB64State 1 state)
+
+                        2 ->
+                            get2 |> BytesDec.map (appendB64State 2 state)
+
+                        _ ->
+                            -- 3 or more
+                            get3 |> BytesDec.map (appendB64State 3 state)
+
+        decoder =
+            BytesDec.loop (initialB64State bytes) process
+                |> BytesDec.map String.fromList
+    in
+    BytesDec.decode decoder bytes
+
+
 {-| base64 1111 1122 2222 3333 3344 4444
 |||| bytes 1111 1111 2222 2222 3333 3333
 -}
-dec4 : Char -> Char -> Char -> Char -> Maybe BytesEnc.Encoder
-dec4 a b c d =
-    case [ b64byte a, b64byte b, b64byte c, b64byte d ] of
+b64Dec4 : Char -> Char -> Char -> Char -> Maybe BytesEnc.Encoder
+b64Dec4 a b c d =
+    case [ toB64byte a, toB64byte b, toB64byte c, toB64byte d ] of
         [ Just aa, Just bb, Just cc, Just dd ] ->
             Just <|
                 BytesEnc.sequence
@@ -198,9 +224,9 @@ dec4 a b c d =
 {-| base64 1111 1122 2222 3333 33
 |||| bytes 1111 1111 2222 2222 ..
 -}
-dec3 : Char -> Char -> Char -> Maybe BytesEnc.Encoder
-dec3 a b c =
-    case ( b64byte a, b64byte b, b64byte c ) of
+b64Dec3 : Char -> Char -> Char -> Maybe BytesEnc.Encoder
+b64Dec3 a b c =
+    case ( toB64byte a, toB64byte b, toB64byte c ) of
         ( Just aa, Just bb, Just cc ) ->
             Just <|
                 BytesEnc.sequence
@@ -215,9 +241,9 @@ dec3 a b c =
 {-| base64 1111 1122 2222 ....
 |||| bytes 1111 1111 .... ....
 -}
-dec2 : Char -> Char -> Maybe BytesEnc.Encoder
-dec2 a b =
-    case ( b64byte a, b64byte b ) of
+b64Dec2 : Char -> Char -> Maybe BytesEnc.Encoder
+b64Dec2 a b =
+    case ( toB64byte a, toB64byte b ) of
         ( Just aa, Just bb ) ->
             Just <| BytesEnc.unsignedInt8 ((aa |> Bits.shiftLeftBy 2) + (bb |> Bits.shiftRightZfBy 4))
 
@@ -225,63 +251,26 @@ dec2 a b =
             Nothing
 
 
-base64FromBytes : Bytes -> Maybe String
-base64FromBytes bytes =
-    let
-        get3 =
-            BytesDec.map3 enc3 BytesDec.unsignedInt8 BytesDec.unsignedInt8 BytesDec.unsignedInt8
-
-        get2 =
-            BytesDec.map2 enc2 BytesDec.unsignedInt8 BytesDec.unsignedInt8
-
-        get1 =
-            BytesDec.map enc1 BytesDec.unsignedInt8
-
-        process : DecoderState -> BytesDec.Decoder (BytesDec.Step DecoderState (List Char))
-        process state =
-            if state.processed >= state.total then
-                BytesDec.succeed <| BytesDec.Done state.output
-
-            else
-                BytesDec.map BytesDec.Loop <|
-                    case state.total - state.processed of
-                        1 ->
-                            get1 |> BytesDec.map (appendState 1 state)
-
-                        2 ->
-                            get2 |> BytesDec.map (appendState 2 state)
-
-                        _ ->
-                            -- 3 or more
-                            get3 |> BytesDec.map (appendState 3 state)
-
-        decoder =
-            BytesDec.loop (initialState bytes) process
-                |> BytesDec.map String.fromList
-    in
-    BytesDec.decode decoder bytes
-
-
 {-| bytes 1111 1111 2222 2222 3333 3333
 || base64 1111 1122 2222 3333 3344 4444
 -}
-enc3 : Int -> Int -> Int -> List Char
-enc3 a b c =
-    [ Bits.shiftRightBy 2 a |> Bits.and 0x3F |> b64char
-    , (Bits.shiftLeftBy 4 a + Bits.shiftRightBy 4 b) |> Bits.and 0x3F |> b64char
-    , (Bits.shiftLeftBy 2 b + Bits.shiftRightBy 6 c) |> Bits.and 0x3F |> b64char
-    , c |> Bits.and 0x3F |> b64char
+b64Enc3 : Int -> Int -> Int -> List Char
+b64Enc3 a b c =
+    [ Bits.shiftRightBy 2 a |> Bits.and 0x3F |> toB64char
+    , (Bits.shiftLeftBy 4 a + Bits.shiftRightBy 4 b) |> Bits.and 0x3F |> toB64char
+    , (Bits.shiftLeftBy 2 b + Bits.shiftRightBy 6 c) |> Bits.and 0x3F |> toB64char
+    , c |> Bits.and 0x3F |> toB64char
     ]
 
 
 {-| bytes 1111 1111 2222 2222 .... ....
 || base64 1111 1122 2222 3333 33.. ....
 -}
-enc2 : Int -> Int -> List Char
-enc2 a b =
-    [ Bits.shiftRightBy 2 a |> Bits.and 0x3F |> b64char
-    , (Bits.shiftLeftBy 4 a + Bits.shiftRightBy 4 b) |> Bits.and 0x3F |> b64char
-    , Bits.shiftLeftBy 2 b |> Bits.and 0x3F |> b64char
+b64Enc2 : Int -> Int -> List Char
+b64Enc2 a b =
+    [ Bits.shiftRightBy 2 a |> Bits.and 0x3F |> toB64char
+    , (Bits.shiftLeftBy 4 a + Bits.shiftRightBy 4 b) |> Bits.and 0x3F |> toB64char
+    , Bits.shiftLeftBy 2 b |> Bits.and 0x3F |> toB64char
     , '='
     ]
 
@@ -289,51 +278,51 @@ enc2 a b =
 {-| bytes 1111 1111 .... ....
 || base64 1111 1122 2222 ....
 -}
-enc1 : Int -> List Char
-enc1 a =
-    [ Bits.shiftRightBy 2 a |> Bits.and 0x3F |> b64char
-    , Bits.shiftLeftBy 4 a |> Bits.and 0x3F |> b64char
+b64Enc1 : Int -> List Char
+b64Enc1 a =
+    [ Bits.shiftRightBy 2 a |> Bits.and 0x3F |> toB64char
+    , Bits.shiftLeftBy 4 a |> Bits.and 0x3F |> toB64char
     , '='
     , '='
     ]
 
 
-type alias DecoderState =
+type alias B64State =
     { total : Int
     , processed : Int
     , output : List Char
     }
 
 
-initialState : Bytes -> DecoderState
-initialState bytes =
+initialB64State : Bytes -> B64State
+initialB64State bytes =
     { total = Bytes.width bytes
     , processed = 0
     , output = []
     }
 
 
-appendState : Int -> DecoderState -> List Char -> DecoderState
-appendState count state chars =
+appendB64State : Int -> B64State -> List Char -> B64State
+appendB64State count state chars =
     { state
         | processed = state.processed + count
         , output = List.append state.output chars
     }
 
 
-b64byte : Char -> Maybe Int
-b64byte c =
-    Dict.get c backwardTable
+toB64byte : Char -> Maybe Int
+toB64byte c =
+    Dict.get c b64BackwardTable
 
 
-b64char : Int -> Char
-b64char n =
-    Dict.get n forwardTable
+toB64char : Int -> Char
+toB64char n =
+    Dict.get n b64ForwardTable
         |> Maybe.withDefault '?'
 
 
-backwardTable : Dict Char Int
-backwardTable =
+b64BackwardTable : Dict Char Int
+b64BackwardTable =
     Dict.fromList
         [ ( 'A', 0 )
         , ( 'B', 1 )
@@ -402,8 +391,8 @@ backwardTable =
         ]
 
 
-forwardTable : Dict Int Char
-forwardTable =
+b64ForwardTable : Dict Int Char
+b64ForwardTable =
     Dict.fromList
         [ ( 0, 'A' )
         , ( 1, 'B' )
@@ -470,4 +459,3 @@ forwardTable =
         , ( 62, '-' )
         , ( 63, '_' )
         ]
-

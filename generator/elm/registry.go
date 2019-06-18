@@ -66,8 +66,8 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 	case "data":
 		return &ElmTypeResolution{
 			Name:   "Bytes",
-			Encode: `(RpcUtil.base64FromBytes >> Maybe.withDefault "" >> E.string)`,
-			Decode: `(D.map (Maybe.withDefault "" >> RpcUtil.base64ToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))`,
+			Encode: `(RpcUtil.b64StringFromBytes >> Maybe.withDefault "" >> E.string)`,
+			Decode: `(D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))`,
 		}
 	default:
 		return r.resolveUnknown()
