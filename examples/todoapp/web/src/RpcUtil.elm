@@ -4,6 +4,7 @@ module RpcUtil exposing
     , base64FromBytes
     , base64ToBytes
     , decodeCallResult
+    , decodeField
     , decodeConfig
     , fromBase64String
     , mapResult
@@ -50,6 +51,9 @@ decodeConfig =
         (JsonDec.field "baseUrl" <| JsonDec.string)
         (JsonDec.field "headers" <| JsonDec.map mapHeaderArray (JsonDec.array (JsonDec.array JsonDec.string)))
 
+decodeField : String -> JsonDec.Decoder a -> JsonDec.Decoder (a -> b) -> JsonDec.Decoder b
+decodeField key fieldDec partial =
+    JsonDec.andThen (\p -> JsonDec.map p (JsonDec.field key fieldDec)) partial
 
 type CallResult a
     = HttpError Http.Error

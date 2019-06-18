@@ -35,6 +35,12 @@ namespace Todos {
         string description
         time ctime
         bool completed
+
+        string author
+        string assignee
+        time dueDate
+        string category
+        list<string> tags
     }
 
     rpc List() list<Item>

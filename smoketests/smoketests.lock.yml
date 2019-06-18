@@ -21,7 +21,10 @@
             - ""
         - name: stderr
           data:
-            - ""
+            - github.com/chakrit/rpc/generator/tmpldata
+            - github.com/chakrit/rpc/generator/ruby
+            - github.com/chakrit/rpc/generator/elm
+            - github.com/chakrit/rpc/generator/golang
 - name: ./smoketests.yml \ Basics \ Lex
   commands:
     - command: $(go env GOPATH)/bin/rpc -lex todo-simple.rpc
@@ -330,55 +333,84 @@
             - '{"type":"whitespace","value":" ","pos":{"byte_no":657,"line_no":36,"col_no":13}}'
             - '{"type":"identifier","value":"completed","pos":{"byte_no":666,"line_no":36,"col_no":22}}'
             - '{"type":"end-of-line","value":"\n","pos":{"byte_no":667,"line_no":36,"col_no":23}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":671,"line_no":37,"col_no":4}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":672,"line_no":37,"col_no":5}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":673,"line_no":37,"col_no":6}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":674,"line_no":38,"col_no":1}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":678,"line_no":39,"col_no":4}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":681,"line_no":39,"col_no":7}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":682,"line_no":39,"col_no":8}}'
-            - '{"type":"identifier","value":"List","pos":{"byte_no":686,"line_no":39,"col_no":12}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":687,"line_no":39,"col_no":13}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":688,"line_no":39,"col_no":14}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":689,"line_no":39,"col_no":15}}'
-            - '{"type":"keyword","value":"list","pos":{"byte_no":693,"line_no":39,"col_no":19}}'
-            - '{"type":"type-arg-list-start","value":"\u003c","pos":{"byte_no":694,"line_no":39,"col_no":20}}'
-            - '{"type":"identifier","value":"Item","pos":{"byte_no":698,"line_no":39,"col_no":24}}'
-            - '{"type":"type-arg-list-end","value":"\u003e","pos":{"byte_no":699,"line_no":39,"col_no":25}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":700,"line_no":39,"col_no":26}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":704,"line_no":40,"col_no":4}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":707,"line_no":40,"col_no":7}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":708,"line_no":40,"col_no":8}}'
-            - '{"type":"identifier","value":"Get","pos":{"byte_no":711,"line_no":40,"col_no":11}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":712,"line_no":40,"col_no":12}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":718,"line_no":40,"col_no":18}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":719,"line_no":40,"col_no":19}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":720,"line_no":40,"col_no":20}}'
-            - '{"type":"identifier","value":"Item","pos":{"byte_no":724,"line_no":40,"col_no":24}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":725,"line_no":40,"col_no":25}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":729,"line_no":41,"col_no":4}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":732,"line_no":41,"col_no":7}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":733,"line_no":41,"col_no":8}}'
-            - '{"type":"identifier","value":"Put","pos":{"byte_no":736,"line_no":41,"col_no":11}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":737,"line_no":41,"col_no":12}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":743,"line_no":41,"col_no":18}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":744,"line_no":41,"col_no":19}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":745,"line_no":41,"col_no":20}}'
-            - '{"type":"identifier","value":"Item","pos":{"byte_no":749,"line_no":41,"col_no":24}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":750,"line_no":41,"col_no":25}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":754,"line_no":42,"col_no":4}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":757,"line_no":42,"col_no":7}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":758,"line_no":42,"col_no":8}}'
-            - '{"type":"identifier","value":"Delete","pos":{"byte_no":764,"line_no":42,"col_no":14}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":765,"line_no":42,"col_no":15}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":771,"line_no":42,"col_no":21}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":772,"line_no":42,"col_no":22}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":773,"line_no":42,"col_no":23}}'
-            - '{"type":"identifier","value":"Item","pos":{"byte_no":777,"line_no":42,"col_no":27}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":778,"line_no":42,"col_no":28}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":779,"line_no":43,"col_no":1}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":780,"line_no":43,"col_no":2}}'
-            - '{"type":"end-of-file","value":"","pos":{"byte_no":780,"line_no":44,"col_no":0}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":668,"line_no":37,"col_no":1}}'
+            - '{"type":"whitespace","value":"        ","pos":{"byte_no":676,"line_no":38,"col_no":8}}'
+            - '{"type":"keyword","value":"string","pos":{"byte_no":682,"line_no":38,"col_no":14}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":683,"line_no":38,"col_no":15}}'
+            - '{"type":"identifier","value":"author","pos":{"byte_no":689,"line_no":38,"col_no":21}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":690,"line_no":38,"col_no":22}}'
+            - '{"type":"whitespace","value":"        ","pos":{"byte_no":698,"line_no":39,"col_no":8}}'
+            - '{"type":"keyword","value":"string","pos":{"byte_no":704,"line_no":39,"col_no":14}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":705,"line_no":39,"col_no":15}}'
+            - '{"type":"identifier","value":"assignee","pos":{"byte_no":713,"line_no":39,"col_no":23}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":714,"line_no":39,"col_no":24}}'
+            - '{"type":"whitespace","value":"        ","pos":{"byte_no":722,"line_no":40,"col_no":8}}'
+            - '{"type":"keyword","value":"time","pos":{"byte_no":726,"line_no":40,"col_no":12}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":727,"line_no":40,"col_no":13}}'
+            - '{"type":"identifier","value":"dueDate","pos":{"byte_no":734,"line_no":40,"col_no":20}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":735,"line_no":40,"col_no":21}}'
+            - '{"type":"whitespace","value":"        ","pos":{"byte_no":743,"line_no":41,"col_no":8}}'
+            - '{"type":"keyword","value":"string","pos":{"byte_no":749,"line_no":41,"col_no":14}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":750,"line_no":41,"col_no":15}}'
+            - '{"type":"identifier","value":"category","pos":{"byte_no":758,"line_no":41,"col_no":23}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":759,"line_no":41,"col_no":24}}'
+            - '{"type":"whitespace","value":"        ","pos":{"byte_no":767,"line_no":42,"col_no":8}}'
+            - '{"type":"keyword","value":"list","pos":{"byte_no":771,"line_no":42,"col_no":12}}'
+            - '{"type":"type-arg-list-start","value":"\u003c","pos":{"byte_no":772,"line_no":42,"col_no":13}}'
+            - '{"type":"keyword","value":"string","pos":{"byte_no":778,"line_no":42,"col_no":19}}'
+            - '{"type":"type-arg-list-end","value":"\u003e","pos":{"byte_no":779,"line_no":42,"col_no":20}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":780,"line_no":42,"col_no":21}}'
+            - '{"type":"identifier","value":"tags","pos":{"byte_no":784,"line_no":42,"col_no":25}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":785,"line_no":42,"col_no":26}}'
+            - '{"type":"whitespace","value":"    ","pos":{"byte_no":789,"line_no":43,"col_no":4}}'
+            - '{"type":"block-end","value":"}","pos":{"byte_no":790,"line_no":43,"col_no":5}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":791,"line_no":43,"col_no":6}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":792,"line_no":44,"col_no":1}}'
+            - '{"type":"whitespace","value":"    ","pos":{"byte_no":796,"line_no":45,"col_no":4}}'
+            - '{"type":"keyword","value":"rpc","pos":{"byte_no":799,"line_no":45,"col_no":7}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":800,"line_no":45,"col_no":8}}'
+            - '{"type":"identifier","value":"List","pos":{"byte_no":804,"line_no":45,"col_no":12}}'
+            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":805,"line_no":45,"col_no":13}}'
+            - '{"type":"arg-list-end","value":")","pos":{"byte_no":806,"line_no":45,"col_no":14}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":807,"line_no":45,"col_no":15}}'
+            - '{"type":"keyword","value":"list","pos":{"byte_no":811,"line_no":45,"col_no":19}}'
+            - '{"type":"type-arg-list-start","value":"\u003c","pos":{"byte_no":812,"line_no":45,"col_no":20}}'
+            - '{"type":"identifier","value":"Item","pos":{"byte_no":816,"line_no":45,"col_no":24}}'
+            - '{"type":"type-arg-list-end","value":"\u003e","pos":{"byte_no":817,"line_no":45,"col_no":25}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":818,"line_no":45,"col_no":26}}'
+            - '{"type":"whitespace","value":"    ","pos":{"byte_no":822,"line_no":46,"col_no":4}}'
+            - '{"type":"keyword","value":"rpc","pos":{"byte_no":825,"line_no":46,"col_no":7}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":826,"line_no":46,"col_no":8}}'
+            - '{"type":"identifier","value":"Get","pos":{"byte_no":829,"line_no":46,"col_no":11}}'
+            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":830,"line_no":46,"col_no":12}}'
+            - '{"type":"keyword","value":"string","pos":{"byte_no":836,"line_no":46,"col_no":18}}'
+            - '{"type":"arg-list-end","value":")","pos":{"byte_no":837,"line_no":46,"col_no":19}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":838,"line_no":46,"col_no":20}}'
+            - '{"type":"identifier","value":"Item","pos":{"byte_no":842,"line_no":46,"col_no":24}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":843,"line_no":46,"col_no":25}}'
+            - '{"type":"whitespace","value":"    ","pos":{"byte_no":847,"line_no":47,"col_no":4}}'
+            - '{"type":"keyword","value":"rpc","pos":{"byte_no":850,"line_no":47,"col_no":7}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":851,"line_no":47,"col_no":8}}'
+            - '{"type":"identifier","value":"Put","pos":{"byte_no":854,"line_no":47,"col_no":11}}'
+            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":855,"line_no":47,"col_no":12}}'
+            - '{"type":"keyword","value":"string","pos":{"byte_no":861,"line_no":47,"col_no":18}}'
+            - '{"type":"arg-list-end","value":")","pos":{"byte_no":862,"line_no":47,"col_no":19}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":863,"line_no":47,"col_no":20}}'
+            - '{"type":"identifier","value":"Item","pos":{"byte_no":867,"line_no":47,"col_no":24}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":868,"line_no":47,"col_no":25}}'
+            - '{"type":"whitespace","value":"    ","pos":{"byte_no":872,"line_no":48,"col_no":4}}'
+            - '{"type":"keyword","value":"rpc","pos":{"byte_no":875,"line_no":48,"col_no":7}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":876,"line_no":48,"col_no":8}}'
+            - '{"type":"identifier","value":"Delete","pos":{"byte_no":882,"line_no":48,"col_no":14}}'
+            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":883,"line_no":48,"col_no":15}}'
+            - '{"type":"keyword","value":"string","pos":{"byte_no":889,"line_no":48,"col_no":21}}'
+            - '{"type":"arg-list-end","value":")","pos":{"byte_no":890,"line_no":48,"col_no":22}}'
+            - '{"type":"whitespace","value":" ","pos":{"byte_no":891,"line_no":48,"col_no":23}}'
+            - '{"type":"identifier","value":"Item","pos":{"byte_no":895,"line_no":48,"col_no":27}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":896,"line_no":48,"col_no":28}}'
+            - '{"type":"block-end","value":"}","pos":{"byte_no":897,"line_no":49,"col_no":1}}'
+            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":898,"line_no":49,"col_no":2}}'
+            - '{"type":"end-of-file","value":"","pos":{"byte_no":898,"line_no":50,"col_no":0}}'
         - name: stderr
           data:
             - ""
@@ -652,6 +684,27 @@
             - '        "Item": {'
             - '          "name": "Item",'
             - '          "properties": {'
+            - '            "assignee": {'
+            - '              "name": "assignee",'
+            - '              "type": {'
+            - '                "name": "string",'
+            - '                "arguments": null'
+            - '              }'
+            - '            },'
+            - '            "author": {'
+            - '              "name": "author",'
+            - '              "type": {'
+            - '                "name": "string",'
+            - '                "arguments": null'
+            - '              }'
+            - '            },'
+            - '            "category": {'
+            - '              "name": "category",'
+            - '              "type": {'
+            - '                "name": "string",'
+            - '                "arguments": null'
+            - '              }'
+            - '            },'
             - '            "completed": {'
             - '              "name": "completed",'
             - '              "type": {'
@@ -673,11 +726,30 @@
             - '                "arguments": null'
             - '              }'
             - '            },'
+            - '            "dueDate": {'
+            - '              "name": "dueDate",'
+            - '              "type": {'
+            - '                "name": "time",'
+            - '                "arguments": null'
+            - '              }'
+            - '            },'
             - '            "id": {'
             - '              "name": "id",'
             - '              "type": {'
             - '                "name": "string",'
             - '                "arguments": null'
+            - '              }'
+            - '            },'
+            - '            "tags": {'
+            - '              "name": "tags",'
+            - '              "type": {'
+            - '                "name": "list",'
+            - '                "arguments": ['
+            - '                  {'
+            - '                    "name": "string",'
+            - '                    "arguments": null'
+            - '                  }'
+            - '                ]'
             - '              }'
             - '            }'
             - '          }'
@@ -841,7 +913,8 @@
             - import Time exposing (Posix)
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
-            - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult)
+            - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
+              decodeField)
             - ""
             - ""
             - ""
@@ -1098,6 +1171,7 @@
             - '    , base64FromBytes'
             - '    , base64ToBytes'
             - '    , decodeCallResult'
+            - '    , decodeField'
             - '    , decodeConfig'
             - '    , fromBase64String'
             - '    , mapResult'
@@ -1145,6 +1219,11 @@
             - '        (JsonDec.field "headers" <| JsonDec.map mapHeaderArray (JsonDec.array
               (JsonDec.array JsonDec.string)))'
             - ""
+            - 'decodeField : String -> JsonDec.Decoder a -> JsonDec.Decoder (a ->
+              b) -> JsonDec.Decoder b'
+            - decodeField key fieldDec partial =
+            - '    JsonDec.andThen (\p -> JsonDec.map p (JsonDec.field key fieldDec))
+              partial'
             - ""
             - type CallResult a
             - '    = HttpError Http.Error'
@@ -2224,14 +2303,25 @@
       checks:
         - name: exitcode
           data:
-            - "1"
+            - "0"
         - name: stdout
           data:
-            - ""
+            - List
+            - Update
+            - '[alpha] alpha'
+            - Update
+            - '[beta] beta !DONE!'
+            - List
+            - '[alpha] alpha'
+            - '[beta] beta !DONE!'
+            - Destroy
+            - '[alpha] alpha'
+            - Destroy
+            - '[beta] beta !DONE!'
+            - List
         - name: stderr
           data:
-            - '2019/06/18 11:26:18 Post http://0.0.0.0:9999/api/List: dial tcp 0.0.0.0:9999:
-              connect: connection refused'
+            - ""
 - name: ./smoketests.yml \ Examples \ todoapp
   commands:
     - command: ./build.sh

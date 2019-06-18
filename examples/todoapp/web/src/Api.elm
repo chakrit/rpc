@@ -6,7 +6,7 @@ import Json.Encode as E
 import Time exposing (Posix)
 import Bytes exposing (Bytes)
 import Bytes.Encode
-import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult)
+import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult, decodeField)
 
 
 
