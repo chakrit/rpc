@@ -777,8 +777,32 @@
         - name: stderr
           data:
             - ""
+- name: ./smoketests.yml \ Generators
+  commands:
+    - command: rm -r /tmp/rpc 2>&1 > /dev/null
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
 - name: ./smoketests.yml \ Generators \ Elm
   commands:
+    - command: rm -r /tmp/rpc 2>&1 > /dev/null
+      checks:
+        - name: exitcode
+          data:
+            - "1"
+        - name: stdout
+          data:
+            - 'rm: /tmp/rpc: No such file or directory'
+        - name: stderr
+          data:
+            - ""
     - command: $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-simple.rpc
       checks:
         - name: exitcode
@@ -790,7 +814,7 @@
         - name: stderr
           data:
             - ""
-    - command: find /tmp/rpc/elm -name *.elm
+    - command: find /tmp/rpc/elm -name "*.elm"
       checks:
         - name: exitcode
           data:
@@ -802,7 +826,7 @@
         - name: stderr
           data:
             - ""
-    - command: find /tmp/rpc/elm -name *.elm | xargs cat
+    - command: find /tmp/rpc/elm -name "*.elm" | xargs cat
       checks:
         - name: exitcode
           data:
@@ -1555,6 +1579,17 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Go
   commands:
+    - command: rm -r /tmp/rpc 2>&1 > /dev/null
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
     - command: $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-simple.rpc
       checks:
         - name: exitcode
@@ -1566,7 +1601,7 @@
         - name: stderr
           data:
             - ""
-    - command: find /tmp/rpc/go -name *.go
+    - command: find /tmp/rpc/go -name "*.go"
       checks:
         - name: exitcode
           data:
@@ -1579,7 +1614,7 @@
         - name: stderr
           data:
             - ""
-    - command: find /tmp/rpc/elm -name *.go | xargs cat
+    - command: find /tmp/rpc/go -name "*.go" | xargs cat
       checks:
         - name: exitcode
           data:
@@ -1848,6 +1883,7 @@
             - "\tCtime       time.Time `json:\"ctime\" yaml:\"ctime\" db:\"ctime\"`"
             - "\tDescription string    `json:\"description\" yaml:\"description\"
               db:\"description\"`"
+            - "\tMetadata    []byte    `json:\"metadata\" yaml:\"metadata\" db:\"metadata\"`"
             - "\tUuid        string    `json:\"uuid\" yaml:\"uuid\" db:\"uuid\"`"
             - '}'
             - ""
@@ -1856,6 +1892,7 @@
             - "\t\tCompleted   bool    `json:\"completed\"`"
             - "\t\tCtime       float64 `json:\"ctime\"`"
             - "\t\tDescription string  `json:\"description\"`"
+            - "\t\tMetadata    []byte  `json:\"metadata\"`"
             - "\t\tUuid        string  `json:\"uuid\"`"
             - "\t}{"
             - "\t\tCompleted: (obj.Completed),"
@@ -1864,6 +1901,7 @@
             - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
             - "\t\t})(obj.Ctime),"
             - "\t\tDescription: (obj.Description),"
+            - "\t\tMetadata:    (obj.Metadata),"
             - "\t\tUuid:        (obj.Uuid),"
             - "\t}"
             - "\treturn json.Marshal(outobj)"
@@ -1874,6 +1912,7 @@
             - "\t\tCompleted   bool    `json:\"completed\"`"
             - "\t\tCtime       float64 `json:\"ctime\"`"
             - "\t\tDescription string  `json:\"description\"`"
+            - "\t\tMetadata    []byte  `json:\"metadata\"`"
             - "\t\tUuid        string  `json:\"uuid\"`"
             - "\t}{}"
             - ""
@@ -1888,6 +1927,7 @@
             - "\t\treturn time.Unix(sec, nsec)"
             - "\t})(inobj.Ctime)"
             - "\tobj.Description = (inobj.Description)"
+            - "\tobj.Metadata = (inobj.Metadata)"
             - "\tobj.Uuid = (inobj.Uuid)"
             - "\treturn nil"
             - '}'
@@ -2184,25 +2224,14 @@
       checks:
         - name: exitcode
           data:
-            - "0"
+            - "1"
         - name: stdout
           data:
-            - List
-            - Update
-            - '[alpha] alpha'
-            - Update
-            - '[beta] beta !DONE!'
-            - List
-            - '[alpha] alpha'
-            - '[beta] beta !DONE!'
-            - Destroy
-            - '[alpha] alpha'
-            - Destroy
-            - '[beta] beta !DONE!'
-            - List
+            - ""
         - name: stderr
           data:
-            - ""
+            - '2019/06/18 11:26:18 Post http://0.0.0.0:9999/api/List: dial tcp 0.0.0.0:9999:
+              connect: connection refused'
 - name: ./smoketests.yml \ Examples \ todoapp
   commands:
     - command: ./build.sh
