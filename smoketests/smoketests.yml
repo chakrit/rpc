@@ -23,7 +23,7 @@ tests:
           - $(go env GOPATH)/bin/rpc -parse todo-complex.rpc
   - name: Generators
     commands:
-      - rm -r /tmp/rpc 2>&1 > /dev/null
+      - rm -r /tmp/rpc 2>&1 > /dev/null || true
     tests:
       - name: Elm
         commands:
@@ -48,6 +48,7 @@ tests:
     tests:
       - name: todoapp
         config:
+          timeout: 20s
           workdir: ../examples/todoapp
         commands:
           - ./build.sh

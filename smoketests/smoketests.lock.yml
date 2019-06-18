@@ -21,10 +21,7 @@
             - ""
         - name: stderr
           data:
-            - github.com/chakrit/rpc/generator/tmpldata
-            - github.com/chakrit/rpc/generator/ruby
-            - github.com/chakrit/rpc/generator/elm
-            - github.com/chakrit/rpc/generator/golang
+            - ""
 - name: ./smoketests.yml \ Basics \ Lex
   commands:
     - command: $(go env GOPATH)/bin/rpc -lex todo-simple.rpc
@@ -851,7 +848,7 @@
             - ""
 - name: ./smoketests.yml \ Generators
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null
+    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
       checks:
         - name: exitcode
           data:
@@ -864,11 +861,11 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Elm
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null
+    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
       checks:
         - name: exitcode
           data:
-            - "1"
+            - "0"
         - name: stdout
           data:
             - 'rm: /tmp/rpc: No such file or directory'
@@ -1658,7 +1655,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Go
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null
+    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
       checks:
         - name: exitcode
           data:

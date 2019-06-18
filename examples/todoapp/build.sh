@@ -10,6 +10,6 @@ go build -o ./bin/rpc ../.. # rpc itself
 cd goapi && go build -o ../bin/goapi . \
   && cd ..
 
-cd web && elm make src/Main.elm \
+cd web && elm make --optimize src/Main.elm \
   && cd ..
 
