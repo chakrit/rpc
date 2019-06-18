@@ -1162,6 +1162,7 @@
             - '        , timeout = Nothing'
             - '        , tracker = Nothing'
             - '        }'
+            - ""
             - module RpcUtil exposing
             - '    ( CallResult(..)'
             - '    , Config'

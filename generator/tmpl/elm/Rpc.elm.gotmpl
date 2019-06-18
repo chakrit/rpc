@@ -41,7 +41,7 @@ decode{{ $type.Name }} =
             {{- end  }}
     {{  else -}}
         D.succeed {{ $type.Name }}
-            {{  range $idx, $field := $type.Fields -}}
+            {{- range $idx, $field := $type.Fields  }}
             |> decodeField "{{ $field.Name }}" ({{ (resolve $field.Type).Decode }})
             {{- end  }}
     {{  end  }}
