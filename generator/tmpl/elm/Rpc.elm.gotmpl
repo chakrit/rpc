@@ -6,7 +6,7 @@ import Json.Encode as E
 import Time exposing (Posix)
 import Bytes exposing (Bytes)
 import Bytes.Encode
-import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult)
+import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult, decodeField)
 {{- range $import := .Imports  }}
 import {{ $import.Name }}
 {{- end  }}
@@ -34,11 +34,16 @@ decode{{ $type.Name }} =
     {{  else if (eq (len $type.Fields) 1) -}}
         D.map {{ $type.Name }}
             (D.field "{{ (index $type.Fields 0).Name }}" ({{ (resolve (index $type.Fields 0).Type).Decode }}))
-    {{  else -}}
+    {{  else if (le (len $type.Fields) 8) -}}
         D.map{{ len $type.Fields }} {{ $type.Name }}
             {{- range $idx, $field := $type.Fields  }}
             (D.field "{{ $field.Name }}" ({{ (resolve $field.Type).Decode }}))
-            {{- end }}
+            {{- end  }}
+    {{  else -}}
+        D.succeed {{ $type.Name }}
+            {{  range $idx, $field := $type.Fields -}}
+            |> decodeField "{{ $field.Name }}" ({{ (resolve $field.Type).Decode }})
+            {{- end  }}
     {{  end  }}
 {{  end  }}
 
