@@ -76,14 +76,13 @@ func (s *Server) register_rpc_root(
 			},
 		}
 
-		buf, err := json.Marshal(result)
-		if err != nil {
+		if buf, err := json.Marshal(result); err != nil {
 			resp.WriteHeader(500)
 			renderError(resp, err)
+		} else {
+			resp.WriteHeader(200)
+			_, _ = io.Copy(resp, bytes.NewBuffer(buf))
 		}
-
-		resp.WriteHeader(200)
-		_, _ = io.Copy(resp, bytes.NewBuffer(buf))
 	})
 
 	mux.HandleFunc("/api/Destroy", func(resp http.ResponseWriter, req *http.Request) {
@@ -113,14 +112,13 @@ func (s *Server) register_rpc_root(
 			},
 		}
 
-		buf, err := json.Marshal(result)
-		if err != nil {
+		if buf, err := json.Marshal(result); err != nil {
 			resp.WriteHeader(500)
 			renderError(resp, err)
+		} else {
+			resp.WriteHeader(200)
+			_, _ = io.Copy(resp, bytes.NewBuffer(buf))
 		}
-
-		resp.WriteHeader(200)
-		_, _ = io.Copy(resp, bytes.NewBuffer(buf))
 	})
 
 	mux.HandleFunc("/api/List", func(resp http.ResponseWriter, req *http.Request) {
@@ -137,14 +135,13 @@ func (s *Server) register_rpc_root(
 			},
 		}
 
-		buf, err := json.Marshal(result)
-		if err != nil {
+		if buf, err := json.Marshal(result); err != nil {
 			resp.WriteHeader(500)
 			renderError(resp, err)
+		} else {
+			resp.WriteHeader(200)
+			_, _ = io.Copy(resp, bytes.NewBuffer(buf))
 		}
-
-		resp.WriteHeader(200)
-		_, _ = io.Copy(resp, bytes.NewBuffer(buf))
 	})
 
 	return mux

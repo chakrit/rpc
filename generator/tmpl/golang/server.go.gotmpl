@@ -108,14 +108,13 @@ func (s *Server) HTTPHandler() http.Handler {
                 },
             }
 
-            buf, err := json.Marshal(result)
-            if err != nil {
+            if buf, err := json.Marshal(result); err != nil {
                 resp.WriteHeader(500)
                 renderError(resp, err)
+            } else {
+                resp.WriteHeader(200)
+                _, _ = io.Copy(resp, bytes.NewBuffer(buf))
             }
-
-            resp.WriteHeader(200)
-            _, _ = io.Copy(resp, bytes.NewBuffer(buf))
         })
 
     {{  end -}}
