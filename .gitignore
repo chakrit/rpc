@@ -1,3 +1,4 @@
 .idea
 _results
 dev.sh
+*.tmp
