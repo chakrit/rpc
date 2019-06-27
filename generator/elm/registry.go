@@ -105,7 +105,7 @@ func (r Registry) resolveMap(ref *ElmTypeRef) *ElmTypeResolution {
 	//   will not compile correctly if the key type is not a string
 	return r.resolveWithDefault("Dict.empty", &ElmTypeResolution{
 		Name:   "Dict (" + keyType.Name + ") (" + valueType.Name + ")",
-		Encode: "E.dict (" + keyType.Encode + ") (" + valueType.Encode + ")",
+		Encode: "E.dict (identity) (" + valueType.Encode + ")",
 		Decode: "D.dict (" + valueType.Decode + ")",
 	})
 }

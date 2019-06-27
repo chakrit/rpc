@@ -3,6 +3,7 @@ module {{ .Name }} exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as E
+import Dict exposing (Dict)
 import Time exposing (Posix)
 import Bytes exposing (Bytes)
 import Bytes.Encode
@@ -89,7 +90,7 @@ decode{{ $tuple.Name }} =
         {{- end -}}
         ))
         {{- range $idx, $arg := $tuple.Args  }}
-            (D.index {{ $idx }} {{ (resolve $arg).Decode }})
+            (D.index {{ $idx }} ({{ (resolve $arg).Decode }}))
         {{- end  }}
     {{  end  }}
 {{  end  }}
