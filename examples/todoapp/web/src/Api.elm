@@ -3,6 +3,7 @@ module Api exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as E
+import Dict exposing (Dict)
 import Time exposing (Posix)
 import Bytes exposing (Bytes)
 import Bytes.Encode

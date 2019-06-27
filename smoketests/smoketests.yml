@@ -26,15 +26,29 @@ tests:
       - rm -r /tmp/rpc 2>&1 > /dev/null || true
     tests:
       - name: Elm
-        commands:
-          - $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-simple.rpc
-          - find /tmp/rpc/elm -name "*.elm"
-          - find /tmp/rpc/elm -name "*.elm" | xargs cat
+        tests:
+          - name: Simple
+            commands:
+              - $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-simple.rpc
+              - find /tmp/rpc/elm -name "*.elm"
+              - find /tmp/rpc/elm -name "*.elm" | xargs cat
+          - name: Complex
+            commands:
+              - $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-complex.rpc
+              - find /tmp/rpc/elm -name "*.elm"
+              - find /tmp/rpc/elm -name "*.elm" | xargs cat
       - name: Go
-        commands:
-          - $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-simple.rpc
-          - find /tmp/rpc/go -name "*.go"
-          - find /tmp/rpc/go -name "*.go" | xargs cat
+        tests:
+          - name: Simple
+            commands:
+              - $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-simple.rpc
+              - find /tmp/rpc/go -name "*.go"
+              - find /tmp/rpc/go -name "*.go" | xargs cat
+          - name: Complex
+            commands:
+              - $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-complex.rpc
+              - find /tmp/rpc/go -name "*.go"
+              - find /tmp/rpc/go -name "*.go" | xargs cat
   - name: Client<->Server
     config:
       workdir: ./clientserver
