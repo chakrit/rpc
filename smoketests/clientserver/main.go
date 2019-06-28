@@ -22,9 +22,11 @@ func main() {
 	flag.Parse()
 
 	go runServer(addr)
+	time.Sleep(100 * time.Millisecond) // wait for server to be ready
 	runClient(addr)
-	time.Sleep(300 * time.Millisecond)
-	os.Exit(0) // also terminates server routine
+	time.Sleep(300 * time.Millisecond) // wait for server to cleanup
+
+	os.Exit(0) // also kills server routine
 }
 
 func runServer(addr string) {
