@@ -7,7 +7,7 @@ import Dict exposing (Dict)
 import Time exposing (Posix)
 import Bytes exposing (Bytes)
 import Bytes.Encode
-import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult, decodeField)
+import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult, decodeApply)
 
 
 
@@ -16,6 +16,14 @@ type alias TodoItem =
     , description : String
     , id : Int
     , metadata : Bytes
+    }
+
+defaultTodoItem : TodoItem
+defaultTodoItem =
+    { ctime = Time.millisToPosix 0
+    , description = ""
+    , id = 0
+    , metadata = RpcUtil.emptyBytes
     }
 
 encodeTodoItem : TodoItem -> E.Value
@@ -30,10 +38,26 @@ encodeTodoItem obj =
 decodeTodoItem : D.Decoder TodoItem
 decodeTodoItem =
     D.map4 TodoItem
-            (D.field "ctime" ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)))
-            (D.field "description" (D.string))
-            (D.field "id" (D.int))
-            (D.field "metadata" ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))))
+                ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)
+                    |> D.field "ctime"
+                    |> D.maybe
+                    |> D.map (Maybe.withDefault (Time.millisToPosix 0))
+                )
+                (D.string
+                    |> D.field "description"
+                    |> D.maybe
+                    |> D.map (Maybe.withDefault (""))
+                )
+                (D.int
+                    |> D.field "id"
+                    |> D.maybe
+                    |> D.map (Maybe.withDefault (0))
+                )
+                ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))
+                    |> D.field "metadata"
+                    |> D.maybe
+                    |> D.map (Maybe.withDefault (RpcUtil.emptyBytes))
+                )
     
 
 
@@ -50,8 +74,11 @@ encodeInputForCreate
 
 decodeInputForCreate : D.Decoder InputForCreate
 decodeInputForCreate =
-        D.map (\a -> (a))
-            (D.index 0 (D.string))
+        D.string
+            |> D.index 0
+            |> D.maybe
+            |> D.map (Maybe.withDefault (""))
+            |> D.map (\a -> (a))
 
 type alias OutputForCreate =
     (TodoItem)
@@ -65,8 +92,11 @@ encodeOutputForCreate
 
 decodeOutputForCreate : D.Decoder OutputForCreate
 decodeOutputForCreate =
-        D.map (\a -> (a))
-            (D.index 0 (decodeTodoItem))
+        decodeTodoItem
+            |> D.index 0
+            |> D.maybe
+            |> D.map (Maybe.withDefault (defaultTodoItem))
+            |> D.map (\a -> (a))
 
 type alias InputForDestroy =
     (Int)
@@ -80,8 +110,11 @@ encodeInputForDestroy
 
 decodeInputForDestroy : D.Decoder InputForDestroy
 decodeInputForDestroy =
-        D.map (\a -> (a))
-            (D.index 0 (D.int))
+        D.int
+            |> D.index 0
+            |> D.maybe
+            |> D.map (Maybe.withDefault (0))
+            |> D.map (\a -> (a))
 
 type alias OutputForDestroy =
     (TodoItem)
@@ -95,8 +128,11 @@ encodeOutputForDestroy
 
 decodeOutputForDestroy : D.Decoder OutputForDestroy
 decodeOutputForDestroy =
-        D.map (\a -> (a))
-            (D.index 0 (decodeTodoItem))
+        decodeTodoItem
+            |> D.index 0
+            |> D.maybe
+            |> D.map (Maybe.withDefault (defaultTodoItem))
+            |> D.map (\a -> (a))
 
 type alias InputForList =
     (())
@@ -124,8 +160,11 @@ encodeOutputForList
 
 decodeOutputForList : D.Decoder OutputForList
 decodeOutputForList =
-        D.map (\a -> (a))
-            (D.index 0 (D.map (Maybe.withDefault ([])) (D.maybe (D.list (decodeTodoItem)))))
+        D.list (decodeTodoItem)
+            |> D.index 0
+            |> D.maybe
+            |> D.map (Maybe.withDefault ([]))
+            |> D.map (\a -> (a))
 
 
 

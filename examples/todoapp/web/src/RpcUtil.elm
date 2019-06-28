@@ -3,9 +3,10 @@ module RpcUtil exposing
     , Config
     , b64StringFromBytes
     , b64StringToBytes
+    , decodeApply
     , decodeCallResult
     , decodeConfig
-    , decodeField
+    , emptyBytes
     , mapResult
     , translateHttpError
     , unwrapHttpResult
@@ -50,9 +51,9 @@ decodeConfig =
         (JsonDec.field "headers" <| JsonDec.map mapHeaderArray (JsonDec.array (JsonDec.array JsonDec.string)))
 
 
-decodeField : String -> JsonDec.Decoder a -> JsonDec.Decoder (a -> b) -> JsonDec.Decoder b
-decodeField key fieldDec partial =
-    JsonDec.andThen (\p -> JsonDec.map p (JsonDec.field key fieldDec)) partial
+decodeApply : JsonDec.Decoder a -> JsonDec.Decoder (a -> b) -> JsonDec.Decoder b
+decodeApply fieldDec partial =
+    JsonDec.andThen (\p -> JsonDec.map p fieldDec) partial
 
 
 type CallResult a
@@ -118,6 +119,11 @@ decodeCallResult decodeReturns =
     JsonDec.map2 mapResultObj
         (JsonDec.field "error" (JsonDec.maybe JsonDec.string))
         (JsonDec.field "returns" decodeReturns)
+
+
+emptyBytes : Bytes
+emptyBytes =
+    BytesEnc.encode (BytesEnc.sequence [])
 
 
 stringToBytes : String -> Bytes

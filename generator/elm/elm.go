@@ -35,9 +35,10 @@ type ElmTypeRef struct {
 }
 
 type ElmTypeResolution struct {
-	Name   string
-	Encode string
-	Decode string
+	Name    string
+	Encode  string
+	Decode  string
+	Default string
 }
 
 type ElmTuple struct {

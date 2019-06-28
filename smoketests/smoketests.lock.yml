@@ -925,13 +925,19 @@
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
             - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeField)
+              decodeApply)
             - ""
             - ""
             - ""
             - type alias Failure =
             - '    { code : String'
             - '    , description : String'
+            - '    }'
+            - ""
+            - 'defaultFailure : Failure'
+            - defaultFailure =
+            - '    { code = ""'
+            - '    , description = ""'
             - '    }'
             - ""
             - 'encodeFailure : Failure -> E.Value'
@@ -944,8 +950,16 @@
             - 'decodeFailure : D.Decoder Failure'
             - decodeFailure =
             - '    D.map2 Failure'
-            - '            (D.field "code" (D.string))'
-            - '            (D.field "description" (D.string))'
+            - '                (D.string'
+            - '                    |> D.field "code"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
+            - '                (D.string'
+            - '                    |> D.field "description"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
             - '    '
             - ""
             - type alias TodoItem =
@@ -954,6 +968,15 @@
             - '    , description : String'
             - '    , metadata : Bytes'
             - '    , uuid : String'
+            - '    }'
+            - ""
+            - 'defaultTodoItem : TodoItem'
+            - defaultTodoItem =
+            - '    { completed = False'
+            - '    , ctime = Time.millisToPosix 0'
+            - '    , description = ""'
+            - '    , metadata = RpcUtil.emptyBytes'
+            - '    , uuid = ""'
             - '    }'
             - ""
             - 'encodeTodoItem : TodoItem -> E.Value'
@@ -971,14 +994,35 @@
             - 'decodeTodoItem : D.Decoder TodoItem'
             - decodeTodoItem =
             - '    D.map5 TodoItem'
-            - '            (D.field "completed" (D.bool))'
-            - '            (D.field "ctime" ((D.map ((\f -> f * 1000.0) >> round >>
-              Time.millisToPosix) D.float)))'
-            - '            (D.field "description" (D.string))'
-            - '            (D.field "metadata" ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes
+            - '                (D.bool'
+            - '                    |> D.field "completed"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (False))'
+            - '                )'
+            - '                ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix)
+              D.float)'
+            - '                    |> D.field "ctime"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (Time.millisToPosix
+              0))'
+            - '                )'
+            - '                (D.string'
+            - '                    |> D.field "description"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
+            - '                ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes
               >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string "")))
-              (D.maybe D.string))))'
-            - '            (D.field "uuid" (D.string))'
+              (D.maybe D.string))'
+            - '                    |> D.field "metadata"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (RpcUtil.emptyBytes))'
+            - '                )'
+            - '                (D.string'
+            - '                    |> D.field "uuid"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
             - '    '
             - ""
             - ""
@@ -995,8 +1039,11 @@
             - ""
             - 'decodeInputForDelete : D.Decoder InputForDelete'
             - decodeInputForDelete =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (D.string))'
+            - '        D.string'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (""))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias OutputForDelete =
             - '    (TodoItem)'
@@ -1010,8 +1057,11 @@
             - ""
             - 'decodeOutputForDelete : D.Decoder OutputForDelete'
             - decodeOutputForDelete =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (decodeTodoItem))'
+            - '        decodeTodoItem'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (defaultTodoItem))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias InputForGet =
             - '    (String)'
@@ -1025,8 +1075,11 @@
             - ""
             - 'decodeInputForGet : D.Decoder InputForGet'
             - decodeInputForGet =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (D.string))'
+            - '        D.string'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (""))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias OutputForGet =
             - '    (TodoItem)'
@@ -1040,8 +1093,11 @@
             - ""
             - 'decodeOutputForGet : D.Decoder OutputForGet'
             - decodeOutputForGet =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (decodeTodoItem))'
+            - '        decodeTodoItem'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (defaultTodoItem))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias InputForList =
             - '    (())'
@@ -1069,9 +1125,11 @@
             - ""
             - 'decodeOutputForList : D.Decoder OutputForList'
             - decodeOutputForList =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (D.map (Maybe.withDefault ([])) (D.maybe (D.list
-              (decodeTodoItem)))))'
+            - '        D.list (decodeTodoItem)'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault ([]))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias InputForPut =
             - '    (TodoItem)'
@@ -1085,8 +1143,11 @@
             - ""
             - 'decodeInputForPut : D.Decoder InputForPut'
             - decodeInputForPut =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (decodeTodoItem))'
+            - '        decodeTodoItem'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (defaultTodoItem))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias OutputForPut =
             - '    (TodoItem)'
@@ -1100,8 +1161,11 @@
             - ""
             - 'decodeOutputForPut : D.Decoder OutputForPut'
             - decodeOutputForPut =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (decodeTodoItem))'
+            - '        decodeTodoItem'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (defaultTodoItem))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - ""
             - ""
@@ -1182,9 +1246,10 @@
             - '    , Config'
             - '    , b64StringFromBytes'
             - '    , b64StringToBytes'
+            - '    , decodeApply'
             - '    , decodeCallResult'
             - '    , decodeConfig'
-            - '    , decodeField'
+            - '    , emptyBytes'
             - '    , mapResult'
             - '    , translateHttpError'
             - '    , unwrapHttpResult'
@@ -1230,11 +1295,10 @@
               (JsonDec.array JsonDec.string)))'
             - ""
             - ""
-            - 'decodeField : String -> JsonDec.Decoder a -> JsonDec.Decoder (a ->
-              b) -> JsonDec.Decoder b'
-            - decodeField key fieldDec partial =
-            - '    JsonDec.andThen (\p -> JsonDec.map p (JsonDec.field key fieldDec))
-              partial'
+            - 'decodeApply : JsonDec.Decoder a -> JsonDec.Decoder (a -> b) -> JsonDec.Decoder
+              b'
+            - decodeApply fieldDec partial =
+            - '    JsonDec.andThen (\p -> JsonDec.map p fieldDec) partial'
             - ""
             - ""
             - type CallResult a
@@ -1302,6 +1366,11 @@
             - '    JsonDec.map2 mapResultObj'
             - '        (JsonDec.field "error" (JsonDec.maybe JsonDec.string))'
             - '        (JsonDec.field "returns" decodeReturns)'
+            - ""
+            - ""
+            - 'emptyBytes : Bytes'
+            - emptyBytes =
+            - '    BytesEnc.encode (BytesEnc.sequence [])'
             - ""
             - ""
             - 'stringToBytes : String -> Bytes'
@@ -1716,13 +1785,19 @@
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
             - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeField)
+              decodeApply)
             - ""
             - ""
             - ""
             - type alias Failure =
             - '    { code : String'
             - '    , description : String'
+            - '    }'
+            - ""
+            - 'defaultFailure : Failure'
+            - defaultFailure =
+            - '    { code = ""'
+            - '    , description = ""'
             - '    }'
             - ""
             - 'encodeFailure : Failure -> E.Value'
@@ -1735,8 +1810,16 @@
             - 'decodeFailure : D.Decoder Failure'
             - decodeFailure =
             - '    D.map2 Failure'
-            - '            (D.field "code" (D.string))'
-            - '            (D.field "description" (D.string))'
+            - '                (D.string'
+            - '                    |> D.field "code"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
+            - '                (D.string'
+            - '                    |> D.field "description"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
             - '    '
             - ""
             - ""
@@ -1753,7 +1836,7 @@
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
             - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeField)
+              decodeApply)
             - ""
             - ""
             - ""
@@ -1767,6 +1850,19 @@
             - '    , dueDate : Posix'
             - '    , id : String'
             - '    , tags : List (String)'
+            - '    }'
+            - ""
+            - 'defaultItem : Item'
+            - defaultItem =
+            - '    { assignee = ""'
+            - '    , author = ""'
+            - '    , category = ""'
+            - '    , completed = False'
+            - '    , ctime = Time.millisToPosix 0'
+            - '    , description = ""'
+            - '    , dueDate = Time.millisToPosix 0'
+            - '    , id = ""'
+            - '    , tags = []'
             - '    }'
             - ""
             - 'encodeItem : Item -> E.Value'
@@ -1788,18 +1884,53 @@
             - 'decodeItem : D.Decoder Item'
             - decodeItem =
             - '    D.succeed Item'
-            - '            |> decodeField "assignee" (D.string)'
-            - '            |> decodeField "author" (D.string)'
-            - '            |> decodeField "category" (D.string)'
-            - '            |> decodeField "completed" (D.bool)'
-            - '            |> decodeField "ctime" ((D.map ((\f -> f * 1000.0) >> round
-              >> Time.millisToPosix) D.float))'
-            - '            |> decodeField "description" (D.string)'
-            - '            |> decodeField "dueDate" ((D.map ((\f -> f * 1000.0) >>
-              round >> Time.millisToPosix) D.float))'
-            - '            |> decodeField "id" (D.string)'
-            - '            |> decodeField "tags" (D.map (Maybe.withDefault ([])) (D.maybe
-              (D.list (D.string))))'
+            - '            |> (D.string'
+            - '                |> D.field "assignee"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (""))'
+            - '                |> decodeApply)'
+            - '            |> (D.string'
+            - '                |> D.field "author"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (""))'
+            - '                |> decodeApply)'
+            - '            |> (D.string'
+            - '                |> D.field "category"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (""))'
+            - '                |> decodeApply)'
+            - '            |> (D.bool'
+            - '                |> D.field "completed"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (False))'
+            - '                |> decodeApply)'
+            - '            |> ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix)
+              D.float)'
+            - '                |> D.field "ctime"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (Time.millisToPosix 0))'
+            - '                |> decodeApply)'
+            - '            |> (D.string'
+            - '                |> D.field "description"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (""))'
+            - '                |> decodeApply)'
+            - '            |> ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix)
+              D.float)'
+            - '                |> D.field "dueDate"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (Time.millisToPosix 0))'
+            - '                |> decodeApply)'
+            - '            |> (D.string'
+            - '                |> D.field "id"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (""))'
+            - '                |> decodeApply)'
+            - '            |> (D.list (D.string)'
+            - '                |> D.field "tags"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault ([]))'
+            - '                |> decodeApply)'
             - '    '
             - ""
             - ""
@@ -1816,8 +1947,11 @@
             - ""
             - 'decodeInputForDelete : D.Decoder InputForDelete'
             - decodeInputForDelete =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (D.string))'
+            - '        D.string'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (""))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias OutputForDelete =
             - '    (Item)'
@@ -1831,8 +1965,11 @@
             - ""
             - 'decodeOutputForDelete : D.Decoder OutputForDelete'
             - decodeOutputForDelete =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (decodeItem))'
+            - '        decodeItem'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (defaultItem))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias InputForGet =
             - '    (String)'
@@ -1846,8 +1983,11 @@
             - ""
             - 'decodeInputForGet : D.Decoder InputForGet'
             - decodeInputForGet =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (D.string))'
+            - '        D.string'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (""))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias OutputForGet =
             - '    (Item)'
@@ -1861,8 +2001,11 @@
             - ""
             - 'decodeOutputForGet : D.Decoder OutputForGet'
             - decodeOutputForGet =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (decodeItem))'
+            - '        decodeItem'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (defaultItem))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias InputForList =
             - '    (())'
@@ -1890,9 +2033,11 @@
             - ""
             - 'decodeOutputForList : D.Decoder OutputForList'
             - decodeOutputForList =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (D.map (Maybe.withDefault ([])) (D.maybe (D.list
-              (decodeItem)))))'
+            - '        D.list (decodeItem)'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault ([]))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias InputForPut =
             - '    (String)'
@@ -1906,8 +2051,11 @@
             - ""
             - 'decodeInputForPut : D.Decoder InputForPut'
             - decodeInputForPut =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (D.string))'
+            - '        D.string'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (""))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - type alias OutputForPut =
             - '    (Item)'
@@ -1921,8 +2069,11 @@
             - ""
             - 'decodeOutputForPut : D.Decoder OutputForPut'
             - decodeOutputForPut =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (decodeItem))'
+            - '        decodeItem'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (defaultItem))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - ""
             - ""
@@ -2008,7 +2159,7 @@
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
             - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeField)
+              decodeApply)
             - import Rpc
             - ""
             - ""
@@ -2041,8 +2192,11 @@
             - ""
             - 'decodeOutputForStatus : D.Decoder OutputForStatus'
             - decodeOutputForStatus =
-            - '        D.map (\a -> (a))'
-            - '            (D.index 0 (Rpc.decodeFailure))'
+            - '        Rpc.decodeFailure'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (Rpc.defaultFailure))'
+            - '            |> D.map (\a -> (a))'
             - ""
             - ""
             - ""
@@ -2074,7 +2228,7 @@
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
             - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeField)
+              decodeApply)
             - import Rpc
             - ""
             - ""
@@ -2083,6 +2237,13 @@
             - '    { authData : Bytes'
             - '    , provider : String'
             - '    , username : String'
+            - '    }'
+            - ""
+            - 'defaultAuthRequest : AuthRequest'
+            - defaultAuthRequest =
+            - '    { authData = RpcUtil.emptyBytes'
+            - '    , provider = ""'
+            - '    , username = ""'
             - '    }'
             - ""
             - 'encodeAuthRequest : AuthRequest -> E.Value'
@@ -2097,16 +2258,34 @@
             - 'decodeAuthRequest : D.Decoder AuthRequest'
             - decodeAuthRequest =
             - '    D.map3 AuthRequest'
-            - '            (D.field "authData" ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes
+            - '                ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes
               >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string "")))
-              (D.maybe D.string))))'
-            - '            (D.field "provider" (D.string))'
-            - '            (D.field "username" (D.string))'
+              (D.maybe D.string))'
+            - '                    |> D.field "authData"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (RpcUtil.emptyBytes))'
+            - '                )'
+            - '                (D.string'
+            - '                    |> D.field "provider"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
+            - '                (D.string'
+            - '                    |> D.field "username"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
             - '    '
             - ""
             - type alias AuthResponse =
             - '    { failure : Rpc.Failure'
             - '    , user : User'
+            - '    }'
+            - ""
+            - 'defaultAuthResponse : AuthResponse'
+            - defaultAuthResponse =
+            - '    { failure = Rpc.defaultFailure'
+            - '    , user = defaultUser'
             - '    }'
             - ""
             - 'encodeAuthResponse : AuthResponse -> E.Value'
@@ -2119,14 +2298,29 @@
             - 'decodeAuthResponse : D.Decoder AuthResponse'
             - decodeAuthResponse =
             - '    D.map2 AuthResponse'
-            - '            (D.field "failure" (Rpc.decodeFailure))'
-            - '            (D.field "user" (decodeUser))'
+            - '                (Rpc.decodeFailure'
+            - '                    |> D.field "failure"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (Rpc.defaultFailure))'
+            - '                )'
+            - '                (decodeUser'
+            - '                    |> D.field "user"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (defaultUser))'
+            - '                )'
             - '    '
             - ""
             - type alias User =
             - '    { email : String'
             - '    , metadata : Dict (String) (String)'
             - '    , username : String'
+            - '    }'
+            - ""
+            - 'defaultUser : User'
+            - defaultUser =
+            - '    { email = ""'
+            - '    , metadata = Dict.empty'
+            - '    , username = ""'
             - '    }'
             - ""
             - 'encodeUser : User -> E.Value'
@@ -2140,10 +2334,21 @@
             - 'decodeUser : D.Decoder User'
             - decodeUser =
             - '    D.map3 User'
-            - '            (D.field "email" (D.string))'
-            - '            (D.field "metadata" (D.map (Maybe.withDefault (Dict.empty))
-              (D.maybe (D.dict (D.string)))))'
-            - '            (D.field "username" (D.string))'
+            - '                (D.string'
+            - '                    |> D.field "email"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
+            - '                (D.dict (D.string)'
+            - '                    |> D.field "metadata"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (Dict.empty))'
+            - '                )'
+            - '                (D.string'
+            - '                    |> D.field "username"'
+            - '                    |> D.maybe'
+            - '                    |> D.map (Maybe.withDefault (""))'
+            - '                )'
             - '    '
             - ""
             - ""
@@ -2155,9 +2360,10 @@
             - '    , Config'
             - '    , b64StringFromBytes'
             - '    , b64StringToBytes'
+            - '    , decodeApply'
             - '    , decodeCallResult'
             - '    , decodeConfig'
-            - '    , decodeField'
+            - '    , emptyBytes'
             - '    , mapResult'
             - '    , translateHttpError'
             - '    , unwrapHttpResult'
@@ -2203,11 +2409,10 @@
               (JsonDec.array JsonDec.string)))'
             - ""
             - ""
-            - 'decodeField : String -> JsonDec.Decoder a -> JsonDec.Decoder (a ->
-              b) -> JsonDec.Decoder b'
-            - decodeField key fieldDec partial =
-            - '    JsonDec.andThen (\p -> JsonDec.map p (JsonDec.field key fieldDec))
-              partial'
+            - 'decodeApply : JsonDec.Decoder a -> JsonDec.Decoder (a -> b) -> JsonDec.Decoder
+              b'
+            - decodeApply fieldDec partial =
+            - '    JsonDec.andThen (\p -> JsonDec.map p fieldDec) partial'
             - ""
             - ""
             - type CallResult a
@@ -2275,6 +2480,11 @@
             - '    JsonDec.map2 mapResultObj'
             - '        (JsonDec.field "error" (JsonDec.maybe JsonDec.string))'
             - '        (JsonDec.field "returns" decodeReturns)'
+            - ""
+            - ""
+            - 'emptyBytes : Bytes'
+            - emptyBytes =
+            - '    BytesEnc.encode (BytesEnc.sequence [])'
             - ""
             - ""
             - 'stringToBytes : String -> Bytes'

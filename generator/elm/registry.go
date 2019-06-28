@@ -35,39 +35,45 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 	switch ref.Name {
 	case "string":
 		return &ElmTypeResolution{
-			Name:   "String",
-			Encode: "E.string",
-			Decode: "D.string",
+			Name:    "String",
+			Encode:  "E.string",
+			Decode:  "D.string",
+			Default: `""`,
 		}
 	case "bool":
 		return &ElmTypeResolution{
-			Name:   "Bool",
-			Encode: "E.bool",
-			Decode: "D.bool",
+			Name:    "Bool",
+			Encode:  "E.bool",
+			Decode:  "D.bool",
+			Default: "False",
 		}
 	case "int", "long":
 		return &ElmTypeResolution{
-			Name:   "Int",
-			Encode: "E.int",
-			Decode: "D.int",
+			Name:    "Int",
+			Encode:  "E.int",
+			Decode:  "D.int",
+			Default: "0",
 		}
 	case "float", "double":
 		return &ElmTypeResolution{
-			Name:   "float",
-			Encode: "E.float",
-			Decode: "D.float",
+			Name:    "float",
+			Encode:  "E.float",
+			Decode:  "D.float",
+			Default: "0.0",
 		}
 	case "time":
 		return &ElmTypeResolution{
-			Name:   "Posix",
-			Encode: `(Time.posixToMillis >> toFloat >> (\f -> f/1000.0) >> E.float)`,
-			Decode: `(D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)`,
+			Name:    "Posix",
+			Encode:  `(Time.posixToMillis >> toFloat >> (\f -> f/1000.0) >> E.float)`,
+			Decode:  `(D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)`,
+			Default: `Time.millisToPosix 0`,
 		}
 	case "data":
 		return &ElmTypeResolution{
-			Name:   "Bytes",
-			Encode: `(RpcUtil.b64StringFromBytes >> Maybe.withDefault "" >> E.string)`,
-			Decode: `(D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))`,
+			Name:    "Bytes",
+			Encode:  `(RpcUtil.b64StringFromBytes >> Maybe.withDefault "" >> E.string)`,
+			Decode:  `(D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))`,
+			Default: `RpcUtil.emptyBytes`,
 		}
 	default:
 		return r.resolveUnknown()
@@ -82,11 +88,12 @@ func (r Registry) resolveList(ref *ElmTypeRef) *ElmTypeResolution {
 		elementType = r.resolveUnknown()
 	}
 
-	return r.resolveWithDefault("[]", &ElmTypeResolution{
-		Name:   "List (" + elementType.Name + ")",
-		Encode: "E.list (" + elementType.Encode + ")",
-		Decode: "D.list (" + elementType.Decode + ")",
-	})
+	return &ElmTypeResolution{
+		Name:    "List (" + elementType.Name + ")",
+		Encode:  "E.list (" + elementType.Encode + ")",
+		Decode:  "D.list (" + elementType.Decode + ")",
+		Default: "[]",
+	}
 }
 
 func (r Registry) resolveMap(ref *ElmTypeRef) *ElmTypeResolution {
@@ -103,11 +110,12 @@ func (r Registry) resolveMap(ref *ElmTypeRef) *ElmTypeResolution {
 
 	// TODO: Warn for non-string key types not supported. Currently this code
 	//   will not compile correctly if the key type is not a string
-	return r.resolveWithDefault("Dict.empty", &ElmTypeResolution{
-		Name:   "Dict (" + keyType.Name + ") (" + valueType.Name + ")",
-		Encode: "E.dict (identity) (" + valueType.Encode + ")",
-		Decode: "D.dict (" + valueType.Decode + ")",
-	})
+	return &ElmTypeResolution{
+		Name:    "Dict (" + keyType.Name + ") (" + valueType.Name + ")",
+		Encode:  "E.dict (identity) (" + valueType.Encode + ")",
+		Decode:  "D.dict (" + valueType.Decode + ")",
+		Default: "Dict.empty",
+	}
 }
 
 func (r Registry) resolveUserDefined(ref *ElmTypeRef) *ElmTypeResolution {
@@ -117,34 +125,19 @@ func (r Registry) resolveUserDefined(ref *ElmTypeRef) *ElmTypeResolution {
 	}
 
 	resolved := &ElmTypeResolution{
-		Name:   ref.Name,
-		Encode: "encode" + ref.Name,
-		Decode: "decode" + ref.Name,
+		Name:    ref.Name,
+		Encode:  "encode" + ref.Name,
+		Decode:  "decode" + ref.Name,
+		Default: "default" + ref.Name,
 	}
 	if elmType.Module != ref.Module { // imported type, add module prefix
 		resolved.Name = elmType.Module.Name + "." + resolved.Name
 		resolved.Encode = elmType.Module.Name + "." + resolved.Encode
 		resolved.Decode = elmType.Module.Name + "." + resolved.Decode
+		resolved.Default = elmType.Module.Name + "." + resolved.Default
 	}
 
 	return resolved
-}
-
-// tries to give a default value when `null` is received without having to define
-// all json-nullable fields as a Maybe
-//
-// TODO: Move this logic into the template and force all types to have defaults?
-func (r Registry) resolveWithDefault(defaultValue string, elementType *ElmTypeResolution) *ElmTypeResolution {
-	// i.e. D.map (Maybe.withDefault ([])) (D.maybe (D.list decodeSomething))
-	dec := "Maybe.withDefault (" + defaultValue + ")"
-	dec = "D.map (" + dec + ")"
-	dec = dec + " (D.maybe (" + elementType.Decode + "))"
-
-	return &ElmTypeResolution{
-		Name:   elementType.Name,
-		Encode: elementType.Encode,
-		Decode: dec,
-	}
 }
 
 func (r Registry) resolveUnknown() *ElmTypeResolution {
