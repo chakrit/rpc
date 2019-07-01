@@ -10,9 +10,11 @@ tests:
   - name: Basics
     tests:
       - name: Install
+        config:
+          timeout: 10s
         commands:
           - go generate ../...
-          - go install -v ..
+          - go install -a ..
       - name: Lex
         commands:
           - $(go env GOPATH)/bin/rpc -lex todo-simple.rpc
@@ -23,7 +25,7 @@ tests:
           - $(go env GOPATH)/bin/rpc -parse todo-complex.rpc
   - name: Generators
     commands:
-      - rm -r /tmp/rpc 2>&1 > /dev/null || true
+      - rm -r /tmp/rpc >/dev/null 2>&1  || true
     tests:
       - name: Elm
         tests:

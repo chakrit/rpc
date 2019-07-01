@@ -11,7 +11,7 @@
         - name: stderr
           data:
             - ""
-    - command: go install -v ..
+    - command: go install -a ..
       checks:
         - name: exitcode
           data:
@@ -848,7 +848,7 @@
             - ""
 - name: ./smoketests.yml \ Generators
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
       checks:
         - name: exitcode
           data:
@@ -861,27 +861,27 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Elm
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
       checks:
         - name: exitcode
           data:
             - "0"
         - name: stdout
           data:
-            - 'rm: /tmp/rpc: No such file or directory'
+            - ""
         - name: stderr
           data:
             - ""
 - name: ./smoketests.yml \ Generators \ Elm \ Simple
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
       checks:
         - name: exitcode
           data:
             - "0"
         - name: stdout
           data:
-            - 'rm: /tmp/rpc: No such file or directory'
+            - ""
         - name: stderr
           data:
             - ""
@@ -1731,7 +1731,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Elm \ Complex
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
       checks:
         - name: exitcode
           data:
@@ -2845,7 +2845,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Go
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
       checks:
         - name: exitcode
           data:
@@ -2858,14 +2858,14 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Go \ Simple
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
       checks:
         - name: exitcode
           data:
             - "0"
         - name: stdout
           data:
-            - 'rm: /tmp/rpc: No such file or directory'
+            - ""
         - name: stderr
           data:
             - ""
@@ -3471,7 +3471,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Go \ Complex
   commands:
-    - command: rm -r /tmp/rpc 2>&1 > /dev/null || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
       checks:
         - name: exitcode
           data:
