@@ -5,6 +5,7 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -22,20 +23,34 @@ type Result struct {
 }
 
 type Server struct {
-	Options
+	options Options
 	Handler_rpc_root
 }
 
 type Options struct {
-	Addr string
+	Addr      string
+	CtxFilter func(req *http.Request, method string) context.Context
+	ErrFilter func(req *http.Request, method string, err error) error
+	ErrLog    func(req *http.Request, method string, err error)
 }
 
 func New(opts *Options) *Server {
-	return &Server{Options: *opts}
+	srv := &Server{options: *opts}
+	if srv.options.CtxFilter == nil {
+		srv.options.CtxFilter = func(req *http.Request, _ string) context.Context {
+			return req.Context()
+		}
+	}
+	if srv.options.ErrFilter == nil {
+		srv.options.ErrFilter = func(_ *http.Request, _ string, err error) error {
+			return err
+		}
+	}
+	return srv
 }
 
 func (s *Server) Listen() error {
-	return http.ListenAndServe(s.Options.Addr, s.HTTPHandler())
+	return http.ListenAndServe(s.options.Addr, s.HTTPHandler())
 }
 
 func (s *Server) HTTPHandler() http.Handler {
@@ -50,7 +65,14 @@ func (s *Server) register_rpc_root(
 ) *http.ServeMux {
 
 	mux.HandleFunc("/api/Create", func(resp http.ResponseWriter, req *http.Request) {
-		var err error
+		var (
+			err error
+			ctx context.Context
+		)
+
+		ctx = s.options.CtxFilter(req, "api/Create")
+		req = req.WithContext(ctx)
+
 		resp.Header().Set("Content-Type", "application/json")
 
 		var arg0 string
@@ -66,9 +88,18 @@ func (s *Server) register_rpc_root(
 			}
 		}
 
-		var out0 *rpc_root.TodoItem
+		var (
+			out0 *rpc_root.TodoItem
+		)
+
 		out0, err = handler.Handler.Create(
-			req.Context(), arg0)
+			ctx, arg0)
+
+		if err != nil {
+			err = s.options.ErrFilter(req, "api/Create", err)
+			s.options.ErrLog(req, "api/Create", err)
+		}
+
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{
@@ -86,7 +117,14 @@ func (s *Server) register_rpc_root(
 	})
 
 	mux.HandleFunc("/api/Destroy", func(resp http.ResponseWriter, req *http.Request) {
-		var err error
+		var (
+			err error
+			ctx context.Context
+		)
+
+		ctx = s.options.CtxFilter(req, "api/Destroy")
+		req = req.WithContext(ctx)
+
 		resp.Header().Set("Content-Type", "application/json")
 
 		var arg0 int64
@@ -102,9 +140,18 @@ func (s *Server) register_rpc_root(
 			}
 		}
 
-		var out0 *rpc_root.TodoItem
+		var (
+			out0 *rpc_root.TodoItem
+		)
+
 		out0, err = handler.Handler.Destroy(
-			req.Context(), arg0)
+			ctx, arg0)
+
+		if err != nil {
+			err = s.options.ErrFilter(req, "api/Destroy", err)
+			s.options.ErrLog(req, "api/Destroy", err)
+		}
+
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{
@@ -122,12 +169,28 @@ func (s *Server) register_rpc_root(
 	})
 
 	mux.HandleFunc("/api/List", func(resp http.ResponseWriter, req *http.Request) {
-		var err error
+		var (
+			err error
+			ctx context.Context
+		)
+
+		ctx = s.options.CtxFilter(req, "api/List")
+		req = req.WithContext(ctx)
+
 		resp.Header().Set("Content-Type", "application/json")
 
-		var out0 []*rpc_root.TodoItem
+		var (
+			out0 []*rpc_root.TodoItem
+		)
+
 		out0, err = handler.Handler.List(
-			req.Context())
+			ctx)
+
+		if err != nil {
+			err = s.options.ErrFilter(req, "api/List", err)
+			s.options.ErrLog(req, "api/List", err)
+		}
+
 		result := &Result{
 			Error: err,
 			Returns: []interface{}{

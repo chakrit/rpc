@@ -5,6 +5,7 @@ package server
 
 import (
     "bytes"
+    "context"
     "encoding/json"
     "io"
     "net/http"
@@ -33,20 +34,34 @@ type Result struct {
 }
 
 type Server struct {
-    Options
+    options Options
     Handler_{{ .MangledName }}
 }
 
 type Options struct {
-    Addr string
+    Addr      string
+    CtxFilter func(req *http.Request, method string) context.Context
+    ErrFilter func(req *http.Request, method string, err error) error
+    ErrLog    func(req *http.Request, method string, err error)
 }
 
 func New(opts *Options) *Server {
-    return &Server{Options: *opts}
+    srv := &Server{options: *opts}
+    if srv.options.CtxFilter == nil {
+        srv.options.CtxFilter = func(req *http.Request, _ string) context.Context {
+            return req.Context()
+        }
+    }
+    if srv.options.ErrFilter == nil {
+        srv.options.ErrFilter = func(_ *http.Request, _ string, err error) error {
+            return err
+        }
+    }
+    return srv
 }
 
 func (s *Server) Listen() error {
-    return http.ListenAndServe(s.Options.Addr, s.HTTPHandler())
+    return http.ListenAndServe(s.options.Addr, s.HTTPHandler())
 }
 
 func (s *Server) HTTPHandler() http.Handler {
@@ -65,7 +80,14 @@ func (s *Server) HTTPHandler() http.Handler {
 
     {{  range $rpc := .Namespace.RPCs -}}
         mux.HandleFunc("/{{ $pkg.RPCPath }}/{{ $rpc.Name }}", func(resp http.ResponseWriter, req *http.Request) {
-            var err error
+            var (
+                err error
+                ctx context.Context
+            )
+
+            ctx = s.options.CtxFilter(req, "{{ $pkg.RPCPath }}/{{ $rpc.Name }}")
+            req = req.WithContext(ctx)
+
             resp.Header().Set("Content-Type", "application/json")
 
             {{  range $index, $type := $rpc.InputTypes  }}
@@ -87,18 +109,27 @@ func (s *Server) HTTPHandler() http.Handler {
                 }
             {{- end  }}
 
+            var (
             {{  range $index, $type := $rpc.OutputTypes  }}
-                var out{{ $index }} {{ asReference (resolveAbs $pkg $type) }}
+                out{{ $index }} {{ asReference (resolveAbs $pkg $type) }}
             {{- end  }}
+            )
+
             {{  range $index, $_ := $rpc.OutputTypes -}}
                 out{{ $index }},
             {{- end -}}
             err = handler.Handler.{{ $rpc.Name }}(
-                req.Context(),
+                ctx,
             {{- range $index, $_ := $rpc.InputTypes -}}
                 arg{{ $index }},
             {{- end -}}
             )
+
+            if err != nil {
+                err = s.options.ErrFilter(req, "{{ $pkg.RPCPath }}/{{ $rpc.Name }}", err)
+                s.options.ErrLog(req, "{{ $pkg.RPCPath }}/{{ $rpc.Name }}", err)
+            }
+
             result := &Result{
                 Error: err,
                 Returns: []interface{}{

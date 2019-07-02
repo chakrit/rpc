@@ -55,7 +55,7 @@ func main() {
 }
 
 func runServerCmd(cmd *cobra.Command, args []string) {
-	opts := server.Options(flags)
+	opts := server.Options{Addr: flags.Addr}
 	srv := server.New(&opts)
 	srv.Handler = &handler{}
 
