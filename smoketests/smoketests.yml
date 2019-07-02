@@ -11,7 +11,7 @@ tests:
     tests:
       - name: Install
         config:
-          timeout: 10s
+          timeout: 15s
         commands:
           - go generate ../...
           - go install -a ..
