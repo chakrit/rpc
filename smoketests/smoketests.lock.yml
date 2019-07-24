@@ -2869,7 +2869,7 @@
         - name: stderr
           data:
             - ""
-    - command: $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-simple.rpc
+    - command: $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-simple.rpc
       checks:
         - name: exitcode
           data:
@@ -3563,7 +3563,7 @@
         - name: stderr
           data:
             - ""
-    - command: $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-complex.rpc
+    - command: $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-complex.rpc
       checks:
         - name: exitcode
           data:

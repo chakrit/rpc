@@ -25,7 +25,7 @@ tests:
           - $(go env GOPATH)/bin/rpc -parse todo-complex.rpc
   - name: Generators
     commands:
-      - rm -r /tmp/rpc >/dev/null 2>&1  || true
+      - rm -r /tmp/rpc >/dev/null 2>&1 || true
     tests:
       - name: Elm
         tests:
@@ -43,12 +43,12 @@ tests:
         tests:
           - name: Simple
             commands:
-              - $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-simple.rpc
+              - $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-simple.rpc
               - find /tmp/rpc/go -name "*.go"
               - find /tmp/rpc/go -name "*.go" | xargs cat
           - name: Complex
             commands:
-              - $(go env GOPATH)/bin/rpc -gen go  -out /tmp/rpc/go todo-complex.rpc
+              - $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-complex.rpc
               - find /tmp/rpc/go -name "*.go"
               - find /tmp/rpc/go -name "*.go" | xargs cat
   - name: Client<->Server
