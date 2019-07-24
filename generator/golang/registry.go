@@ -49,7 +49,7 @@ func (r TypeRegistry) RegisterAll(pkg *Pkg) {
 
 func (r TypeRegistry) Resolve(pkg *Pkg, ref *spec.TypeRef) *ResolvedType {
 	switch ref.Name {
-	case "string", "bool", "int", "long", "float", "double", "time", "data":
+	case "unit", "string", "bool", "int", "long", "float", "double", "time", "data":
 		return r.resolveSimpleType(pkg, ref)
 	case "list":
 		return r.resolveListType(pkg, ref)
@@ -62,6 +62,8 @@ func (r TypeRegistry) Resolve(pkg *Pkg, ref *spec.TypeRef) *ResolvedType {
 
 func (r TypeRegistry) resolveSimpleType(pkg *Pkg, ref *spec.TypeRef) *ResolvedType {
 	switch ref.Name {
+	case "unit":
+		return &ResolvedType{"struct{}", nil, nil, nil, TypeSimple | OriginBuiltin}
 	case "string", "bool", "int":
 		return &ResolvedType{ref.Name, nil, nil, nil, TypeSimple | OriginBuiltin}
 	case "long":
