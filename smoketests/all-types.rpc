@@ -1,0 +1,36 @@
+type Things {
+    string ofCharacters
+    bool   truthOrDare
+    int    ellij
+    long   island
+    float  ingCastle
+    double espresso
+    time   travelling
+    data   soongType
+}
+
+type Containers {
+    list<string> ofCharactersList
+    list<bool>   truthOrDareList
+    list<int>    ellijList
+    list<long>   islandList
+    list<float>  ingCastleList
+    list<double> espressoList
+    list<time>   travellingList
+    list<data>   soongTypeList
+
+    map<string, string> ofCharactersMap
+    map<string, bool>   truthOrDareMap
+    map<string, int>    ellijMap
+    map<string, long>   islandMap
+    map<string, float>  ingCastleMap
+    map<string, double> espressoMap
+    map<string, time>   travellingMap
+    map<string, data>   soongTypeMap
+}
+
+rpc AllThe(Things) Things
+rpc CatIn(Containers) Containers
+
+// list of containers are not trivial to do in some languages
+rpc MixEmUp(Things, Containers, list<Things>) unit

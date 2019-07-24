@@ -51,6 +51,11 @@ tests:
               - $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-complex.rpc
               - find /tmp/rpc/go -name "*.go"
               - find /tmp/rpc/go -name "*.go" | xargs cat
+          - name: Types
+            commands:
+              - $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go all-types.rpc
+              - find /tmp/rpc/go -name "*.go"
+              - find /tmp/rpc/go -name "*.go" | xargs cat
   - name: Client<->Server
     config:
       workdir: ./clientserver

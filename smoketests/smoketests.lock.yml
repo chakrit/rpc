@@ -848,7 +848,7 @@
             - ""
 - name: ./smoketests.yml \ Generators
   commands:
-    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
       checks:
         - name: exitcode
           data:
@@ -861,7 +861,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Elm
   commands:
-    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
       checks:
         - name: exitcode
           data:
@@ -874,7 +874,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Elm \ Simple
   commands:
-    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
       checks:
         - name: exitcode
           data:
@@ -1731,7 +1731,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Elm \ Complex
   commands:
-    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
       checks:
         - name: exitcode
           data:
@@ -2845,7 +2845,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Go
   commands:
-    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
       checks:
         - name: exitcode
           data:
@@ -2858,7 +2858,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Go \ Simple
   commands:
-    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
       checks:
         - name: exitcode
           data:
@@ -3552,7 +3552,7 @@
             - ""
 - name: ./smoketests.yml \ Generators \ Go \ Complex
   commands:
-    - command: rm -r /tmp/rpc >/dev/null 2>&1  || true
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
       checks:
         - name: exitcode
           data:
@@ -4559,6 +4559,720 @@
             - ""
             - "\tvar req *http.Request"
             - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/todos/Put\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - ""
+            - type Result struct {
+            - "\tError   error         `json:\"error\"`"
+            - "\tReturns []interface{} `json:\"returns\"`"
+            - '}'
+            - ""
+            - type Client struct {
+            - "\tOptions"
+            - "\tClient_rpc_root"
+            - ""
+            - "\tHTTPClient *http.Client"
+            - '}'
+            - ""
+            - type Options struct {
+            - "\tAddr string"
+            - '}'
+            - ""
+            - func New(opts *Options) *Client {
+            - "\tclient := &Client{"
+            - "\t\tOptions:         *opts,"
+            - "\t\tClient_rpc_root: Client_rpc_root{},"
+            - "\t\tHTTPClient:      &http.Client{},"
+            - "\t}"
+            - "\tclient.Client_rpc_root.initialize(client)"
+            - "\treturn client"
+            - '}'
+        - name: stderr
+          data:
+            - ""
+- name: ./smoketests.yml \ Generators \ Go \ Types
+  commands:
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
+    - command: $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go all-types.rpc
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
+    - command: find /tmp/rpc/go -name "*.go"
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - /tmp/rpc/go/server/server.go
+            - /tmp/rpc/go/rpc.go
+            - /tmp/rpc/go/client/client.go
+        - name: stderr
+          data:
+            - ""
+    - command: find /tmp/rpc/go -name "*.go" | xargs cat
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - // <auto-generated />
+            - //
+            - '// expected import: go.example.com/rpc/server'
+            - package server
+            - ""
+            - import (
+            - "\t\"bytes\""
+            - "\t\"context\""
+            - "\t\"encoding/json\""
+            - "\t\"io\""
+            - "\t\"net/http\""
+            - ""
+            - "\trpc_root \"go.example.com/rpc\""
+            - )
+            - ""
+            - type Handler_rpc_root struct {
+            - "\tHandler rpc_root.Interface"
+            - '}'
+            - ""
+            - type Result struct {
+            - "\tError   error         `json:\"error\"`"
+            - "\tReturns []interface{} `json:\"returns\"`"
+            - '}'
+            - ""
+            - type Server struct {
+            - "\toptions Options"
+            - "\tHandler_rpc_root"
+            - '}'
+            - ""
+            - type Options struct {
+            - "\tAddr      string"
+            - "\tCtxFilter func(req *http.Request, method string) context.Context"
+            - "\tErrFilter func(req *http.Request, method string, err error) error"
+            - "\tErrLog    func(req *http.Request, method string, err error)"
+            - '}'
+            - ""
+            - func New(opts *Options) *Server {
+            - "\tsrv := &Server{options: *opts}"
+            - "\tif srv.options.CtxFilter == nil {"
+            - "\t\tsrv.options.CtxFilter = func(req *http.Request, _ string) context.Context
+              {"
+            - "\t\t\treturn req.Context()"
+            - "\t\t}"
+            - "\t}"
+            - "\tif srv.options.ErrFilter == nil {"
+            - "\t\tsrv.options.ErrFilter = func(_ *http.Request, _ string, err error)
+              error {"
+            - "\t\t\treturn err"
+            - "\t\t}"
+            - "\t}"
+            - "\treturn srv"
+            - '}'
+            - ""
+            - func (s *Server) Listen() error {
+            - "\treturn http.ListenAndServe(s.options.Addr, s.HTTPHandler())"
+            - '}'
+            - ""
+            - func (s *Server) HTTPHandler() http.Handler {
+            - "\tmux := http.NewServeMux()"
+            - "\ts.register_rpc_root(mux, s.Handler_rpc_root)"
+            - "\treturn mux"
+            - '}'
+            - ""
+            - func (s *Server) register_rpc_root(
+            - "\tmux *http.ServeMux,"
+            - "\thandler Handler_rpc_root,"
+            - ) *http.ServeMux {
+            - ""
+            - "\tmux.HandleFunc(\"/rpc/AllThe\", func(resp http.ResponseWriter, req
+              *http.Request) {"
+            - "\t\tvar ("
+            - "\t\t\terr error"
+            - "\t\t\tctx context.Context"
+            - "\t\t)"
+            - ""
+            - "\t\tctx = s.options.CtxFilter(req, \"rpc/AllThe\")"
+            - "\t\treq = req.WithContext(ctx)"
+            - ""
+            - "\t\tresp.Header().Set(\"Content-Type\", \"application/json\")"
+            - ""
+            - "\t\tvar arg0 *rpc_root.Things"
+            - "\t\targs := [1]interface{}{"
+            - "\t\t\t&arg0,"
+            - "\t\t}"
+            - ""
+            - "\t\tif req.Body != nil {"
+            - "\t\t\tif err := json.NewDecoder(req.Body).Decode(&args); err != nil
+              {"
+            - "\t\t\t\tresp.WriteHeader(400)"
+            - "\t\t\t\trenderError(resp, err)"
+            - "\t\t\t\treturn"
+            - "\t\t\t}"
+            - "\t\t}"
+            - ""
+            - "\t\tvar ("
+            - "\t\t\tout0 *rpc_root.Things"
+            - "\t\t)"
+            - ""
+            - "\t\tout0, err = handler.Handler.AllThe("
+            - "\t\t\tctx, arg0)"
+            - ""
+            - "\t\tif err != nil {"
+            - "\t\t\terr = s.options.ErrFilter(req, \"rpc/AllThe\", err)"
+            - "\t\t\ts.options.ErrLog(req, \"rpc/AllThe\", err)"
+            - "\t\t}"
+            - ""
+            - "\t\tresult := &Result{"
+            - "\t\t\tError: err,"
+            - "\t\t\tReturns: []interface{}{"
+            - "\t\t\t\tout0,"
+            - "\t\t\t},"
+            - "\t\t}"
+            - ""
+            - "\t\tif buf, err := json.Marshal(result); err != nil {"
+            - "\t\t\tresp.WriteHeader(500)"
+            - "\t\t\trenderError(resp, err)"
+            - "\t\t} else {"
+            - "\t\t\tresp.WriteHeader(200)"
+            - "\t\t\t_, _ = io.Copy(resp, bytes.NewBuffer(buf))"
+            - "\t\t}"
+            - "\t})"
+            - ""
+            - "\tmux.HandleFunc(\"/rpc/CatIn\", func(resp http.ResponseWriter, req
+              *http.Request) {"
+            - "\t\tvar ("
+            - "\t\t\terr error"
+            - "\t\t\tctx context.Context"
+            - "\t\t)"
+            - ""
+            - "\t\tctx = s.options.CtxFilter(req, \"rpc/CatIn\")"
+            - "\t\treq = req.WithContext(ctx)"
+            - ""
+            - "\t\tresp.Header().Set(\"Content-Type\", \"application/json\")"
+            - ""
+            - "\t\tvar arg0 *rpc_root.Containers"
+            - "\t\targs := [1]interface{}{"
+            - "\t\t\t&arg0,"
+            - "\t\t}"
+            - ""
+            - "\t\tif req.Body != nil {"
+            - "\t\t\tif err := json.NewDecoder(req.Body).Decode(&args); err != nil
+              {"
+            - "\t\t\t\tresp.WriteHeader(400)"
+            - "\t\t\t\trenderError(resp, err)"
+            - "\t\t\t\treturn"
+            - "\t\t\t}"
+            - "\t\t}"
+            - ""
+            - "\t\tvar ("
+            - "\t\t\tout0 *rpc_root.Containers"
+            - "\t\t)"
+            - ""
+            - "\t\tout0, err = handler.Handler.CatIn("
+            - "\t\t\tctx, arg0)"
+            - ""
+            - "\t\tif err != nil {"
+            - "\t\t\terr = s.options.ErrFilter(req, \"rpc/CatIn\", err)"
+            - "\t\t\ts.options.ErrLog(req, \"rpc/CatIn\", err)"
+            - "\t\t}"
+            - ""
+            - "\t\tresult := &Result{"
+            - "\t\t\tError: err,"
+            - "\t\t\tReturns: []interface{}{"
+            - "\t\t\t\tout0,"
+            - "\t\t\t},"
+            - "\t\t}"
+            - ""
+            - "\t\tif buf, err := json.Marshal(result); err != nil {"
+            - "\t\t\tresp.WriteHeader(500)"
+            - "\t\t\trenderError(resp, err)"
+            - "\t\t} else {"
+            - "\t\t\tresp.WriteHeader(200)"
+            - "\t\t\t_, _ = io.Copy(resp, bytes.NewBuffer(buf))"
+            - "\t\t}"
+            - "\t})"
+            - ""
+            - "\tmux.HandleFunc(\"/rpc/MixEmUp\", func(resp http.ResponseWriter, req
+              *http.Request) {"
+            - "\t\tvar ("
+            - "\t\t\terr error"
+            - "\t\t\tctx context.Context"
+            - "\t\t)"
+            - ""
+            - "\t\tctx = s.options.CtxFilter(req, \"rpc/MixEmUp\")"
+            - "\t\treq = req.WithContext(ctx)"
+            - ""
+            - "\t\tresp.Header().Set(\"Content-Type\", \"application/json\")"
+            - ""
+            - "\t\tvar arg0 *rpc_root.Things"
+            - "\t\tvar arg1 *rpc_root.Containers"
+            - "\t\tvar arg2 []*rpc_root.Things"
+            - "\t\targs := [3]interface{}{"
+            - "\t\t\t&arg0,"
+            - "\t\t\t&arg1,"
+            - "\t\t\t&arg2,"
+            - "\t\t}"
+            - ""
+            - "\t\tif req.Body != nil {"
+            - "\t\t\tif err := json.NewDecoder(req.Body).Decode(&args); err != nil
+              {"
+            - "\t\t\t\tresp.WriteHeader(400)"
+            - "\t\t\t\trenderError(resp, err)"
+            - "\t\t\t\treturn"
+            - "\t\t\t}"
+            - "\t\t}"
+            - ""
+            - "\t\tvar ("
+            - "\t\t\tout0 interface{}"
+            - "\t\t)"
+            - ""
+            - "\t\tout0, err = handler.Handler.MixEmUp("
+            - "\t\t\tctx, arg0, arg1, arg2)"
+            - ""
+            - "\t\tif err != nil {"
+            - "\t\t\terr = s.options.ErrFilter(req, \"rpc/MixEmUp\", err)"
+            - "\t\t\ts.options.ErrLog(req, \"rpc/MixEmUp\", err)"
+            - "\t\t}"
+            - ""
+            - "\t\tresult := &Result{"
+            - "\t\t\tError: err,"
+            - "\t\t\tReturns: []interface{}{"
+            - "\t\t\t\tout0,"
+            - "\t\t\t},"
+            - "\t\t}"
+            - ""
+            - "\t\tif buf, err := json.Marshal(result); err != nil {"
+            - "\t\t\tresp.WriteHeader(500)"
+            - "\t\t\trenderError(resp, err)"
+            - "\t\t} else {"
+            - "\t\t\tresp.WriteHeader(200)"
+            - "\t\t\t_, _ = io.Copy(resp, bytes.NewBuffer(buf))"
+            - "\t\t}"
+            - "\t})"
+            - ""
+            - "\treturn mux"
+            - '}'
+            - ""
+            - func renderError(resp http.ResponseWriter, e error) {
+            - "\tresult := &Result{"
+            - "\t\tError:   e,"
+            - "\t\tReturns: nil,"
+            - "\t}"
+            - ""
+            - "\tbytes, err := json.Marshal(result)"
+            - "\tif err != nil {"
+            - "\t\t_, _ = resp.Write([]byte(`{\"error\":\"json processing error\"}`))"
+            - "\t} else {"
+            - "\t\t_, _ = resp.Write(bytes)"
+            - "\t}"
+            - '}'
+            - // <auto-generated />
+            - //
+            - '// expected import: go.example.com/rpc'
+            - package rpc
+            - ""
+            - import (
+            - "\t\"context\""
+            - "\t\"encoding/json\""
+            - "\t\"math\""
+            - ""
+            - "\ttime \"time\""
+            - )
+            - ""
+            - var (
+            - "\t_ context.Context = nil"
+            - "\t_                 = json.Marshal"
+            - "\t_                 = math.Pi"
+            - )
+            - ""
+            - type Containers struct {
+            - "\tEllijList        []int                `json:\"ellijList\" yaml:\"ellijList\"
+              db:\"ellij_list\"`"
+            - "\tEllijMap         map[string]int       `json:\"ellijMap\" yaml:\"ellijMap\"
+              db:\"ellij_map\"`"
+            - "\tEspressoList     []float64            `json:\"espressoList\" yaml:\"espressoList\"
+              db:\"espresso_list\"`"
+            - "\tEspressoMap      map[string]float64   `json:\"espressoMap\" yaml:\"espressoMap\"
+              db:\"espresso_map\"`"
+            - "\tIngCastleList    []float32            `json:\"ingCastleList\" yaml:\"ingCastleList\"
+              db:\"ing_castle_list\"`"
+            - "\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\" yaml:\"ingCastleMap\"
+              db:\"ing_castle_map\"`"
+            - "\tIslandList       []int64              `json:\"islandList\" yaml:\"islandList\"
+              db:\"island_list\"`"
+            - "\tIslandMap        map[string]int64     `json:\"islandMap\" yaml:\"islandMap\"
+              db:\"island_map\"`"
+            - "\tOfCharactersList []string             `json:\"ofCharactersList\"
+              yaml:\"ofCharactersList\" db:\"of_characters_list\"`"
+            - "\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\" yaml:\"ofCharactersMap\"
+              db:\"of_characters_map\"`"
+            - "\tSoongTypeList    [][]byte             `json:\"soongTypeList\" yaml:\"soongTypeList\"
+              db:\"soong_type_list\"`"
+            - "\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\" yaml:\"soongTypeMap\"
+              db:\"soong_type_map\"`"
+            - "\tTravellingList   []time.Time          `json:\"travellingList\" yaml:\"travellingList\"
+              db:\"travelling_list\"`"
+            - "\tTravellingMap    map[string]time.Time `json:\"travellingMap\" yaml:\"travellingMap\"
+              db:\"travelling_map\"`"
+            - "\tTruthOrDareList  []bool               `json:\"truthOrDareList\" yaml:\"truthOrDareList\"
+              db:\"truth_or_dare_list\"`"
+            - "\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\" yaml:\"truthOrDareMap\"
+              db:\"truth_or_dare_map\"`"
+            - '}'
+            - ""
+            - func (obj *Containers) MarshalJSON() ([]byte, error) {
+            - "\toutobj := struct {"
+            - "\t\tEllijList        []int                `json:\"ellijList\"`"
+            - "\t\tEllijMap         map[string]int       `json:\"ellijMap\"`"
+            - "\t\tEspressoList     []float64            `json:\"espressoList\"`"
+            - "\t\tEspressoMap      map[string]float64   `json:\"espressoMap\"`"
+            - "\t\tIngCastleList    []float32            `json:\"ingCastleList\"`"
+            - "\t\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\"`"
+            - "\t\tIslandList       []int64              `json:\"islandList\"`"
+            - "\t\tIslandMap        map[string]int64     `json:\"islandMap\"`"
+            - "\t\tOfCharactersList []string             `json:\"ofCharactersList\"`"
+            - "\t\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\"`"
+            - "\t\tSoongTypeList    [][]byte             `json:\"soongTypeList\"`"
+            - "\t\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\"`"
+            - "\t\tTravellingList   []time.Time          `json:\"travellingList\"`"
+            - "\t\tTravellingMap    map[string]time.Time `json:\"travellingMap\"`"
+            - "\t\tTruthOrDareList  []bool               `json:\"truthOrDareList\"`"
+            - "\t\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\"`"
+            - "\t}{"
+            - "\t\tEllijList:        (obj.EllijList),"
+            - "\t\tEllijMap:         (obj.EllijMap),"
+            - "\t\tEspressoList:     (obj.EspressoList),"
+            - "\t\tEspressoMap:      (obj.EspressoMap),"
+            - "\t\tIngCastleList:    (obj.IngCastleList),"
+            - "\t\tIngCastleMap:     (obj.IngCastleMap),"
+            - "\t\tIslandList:       (obj.IslandList),"
+            - "\t\tIslandMap:        (obj.IslandMap),"
+            - "\t\tOfCharactersList: (obj.OfCharactersList),"
+            - "\t\tOfCharactersMap:  (obj.OfCharactersMap),"
+            - "\t\tSoongTypeList:    (obj.SoongTypeList),"
+            - "\t\tSoongTypeMap:     (obj.SoongTypeMap),"
+            - "\t\tTravellingList:   (obj.TravellingList),"
+            - "\t\tTravellingMap:    (obj.TravellingMap),"
+            - "\t\tTruthOrDareList:  (obj.TruthOrDareList),"
+            - "\t\tTruthOrDareMap:   (obj.TruthOrDareMap),"
+            - "\t}"
+            - "\treturn json.Marshal(outobj)"
+            - '}'
+            - ""
+            - func (obj *Containers) UnmarshalJSON(buf []byte) error {
+            - "\tinobj := struct {"
+            - "\t\tEllijList        []int                `json:\"ellijList\"`"
+            - "\t\tEllijMap         map[string]int       `json:\"ellijMap\"`"
+            - "\t\tEspressoList     []float64            `json:\"espressoList\"`"
+            - "\t\tEspressoMap      map[string]float64   `json:\"espressoMap\"`"
+            - "\t\tIngCastleList    []float32            `json:\"ingCastleList\"`"
+            - "\t\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\"`"
+            - "\t\tIslandList       []int64              `json:\"islandList\"`"
+            - "\t\tIslandMap        map[string]int64     `json:\"islandMap\"`"
+            - "\t\tOfCharactersList []string             `json:\"ofCharactersList\"`"
+            - "\t\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\"`"
+            - "\t\tSoongTypeList    [][]byte             `json:\"soongTypeList\"`"
+            - "\t\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\"`"
+            - "\t\tTravellingList   []time.Time          `json:\"travellingList\"`"
+            - "\t\tTravellingMap    map[string]time.Time `json:\"travellingMap\"`"
+            - "\t\tTruthOrDareList  []bool               `json:\"truthOrDareList\"`"
+            - "\t\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\"`"
+            - "\t}{}"
+            - ""
+            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
+            - "\t\treturn err"
+            - "\t}"
+            - ""
+            - "\tobj.EllijList = (inobj.EllijList)"
+            - "\tobj.EllijMap = (inobj.EllijMap)"
+            - "\tobj.EspressoList = (inobj.EspressoList)"
+            - "\tobj.EspressoMap = (inobj.EspressoMap)"
+            - "\tobj.IngCastleList = (inobj.IngCastleList)"
+            - "\tobj.IngCastleMap = (inobj.IngCastleMap)"
+            - "\tobj.IslandList = (inobj.IslandList)"
+            - "\tobj.IslandMap = (inobj.IslandMap)"
+            - "\tobj.OfCharactersList = (inobj.OfCharactersList)"
+            - "\tobj.OfCharactersMap = (inobj.OfCharactersMap)"
+            - "\tobj.SoongTypeList = (inobj.SoongTypeList)"
+            - "\tobj.SoongTypeMap = (inobj.SoongTypeMap)"
+            - "\tobj.TravellingList = (inobj.TravellingList)"
+            - "\tobj.TravellingMap = (inobj.TravellingMap)"
+            - "\tobj.TruthOrDareList = (inobj.TruthOrDareList)"
+            - "\tobj.TruthOrDareMap = (inobj.TruthOrDareMap)"
+            - "\treturn nil"
+            - '}'
+            - ""
+            - type Things struct {
+            - "\tEllij        int       `json:\"ellij\" yaml:\"ellij\" db:\"ellij\"`"
+            - "\tEspresso     float64   `json:\"espresso\" yaml:\"espresso\" db:\"espresso\"`"
+            - "\tIngCastle    float32   `json:\"ingCastle\" yaml:\"ingCastle\" db:\"ing_castle\"`"
+            - "\tIsland       int64     `json:\"island\" yaml:\"island\" db:\"island\"`"
+            - "\tOfCharacters string    `json:\"ofCharacters\" yaml:\"ofCharacters\"
+              db:\"of_characters\"`"
+            - "\tSoongType    []byte    `json:\"soongType\" yaml:\"soongType\" db:\"soong_type\"`"
+            - "\tTravelling   time.Time `json:\"travelling\" yaml:\"travelling\" db:\"travelling\"`"
+            - "\tTruthOrDare  bool      `json:\"truthOrDare\" yaml:\"truthOrDare\"
+              db:\"truth_or_dare\"`"
+            - '}'
+            - ""
+            - func (obj *Things) MarshalJSON() ([]byte, error) {
+            - "\toutobj := struct {"
+            - "\t\tEllij        int     `json:\"ellij\"`"
+            - "\t\tEspresso     float64 `json:\"espresso\"`"
+            - "\t\tIngCastle    float32 `json:\"ingCastle\"`"
+            - "\t\tIsland       int64   `json:\"island\"`"
+            - "\t\tOfCharacters string  `json:\"ofCharacters\"`"
+            - "\t\tSoongType    []byte  `json:\"soongType\"`"
+            - "\t\tTravelling   float64 `json:\"travelling\"`"
+            - "\t\tTruthOrDare  bool    `json:\"truthOrDare\"`"
+            - "\t}{"
+            - "\t\tEllij:        (obj.Ellij),"
+            - "\t\tEspresso:     (obj.Espresso),"
+            - "\t\tIngCastle:    (obj.IngCastle),"
+            - "\t\tIsland:       (obj.Island),"
+            - "\t\tOfCharacters: (obj.OfCharacters),"
+            - "\t\tSoongType:    (obj.SoongType),"
+            - "\t\tTravelling: (func(t time.Time) float64 {"
+            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
+            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
+            - "\t\t})(obj.Travelling),"
+            - "\t\tTruthOrDare: (obj.TruthOrDare),"
+            - "\t}"
+            - "\treturn json.Marshal(outobj)"
+            - '}'
+            - ""
+            - func (obj *Things) UnmarshalJSON(buf []byte) error {
+            - "\tinobj := struct {"
+            - "\t\tEllij        int     `json:\"ellij\"`"
+            - "\t\tEspresso     float64 `json:\"espresso\"`"
+            - "\t\tIngCastle    float32 `json:\"ingCastle\"`"
+            - "\t\tIsland       int64   `json:\"island\"`"
+            - "\t\tOfCharacters string  `json:\"ofCharacters\"`"
+            - "\t\tSoongType    []byte  `json:\"soongType\"`"
+            - "\t\tTravelling   float64 `json:\"travelling\"`"
+            - "\t\tTruthOrDare  bool    `json:\"truthOrDare\"`"
+            - "\t}{}"
+            - ""
+            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
+            - "\t\treturn err"
+            - "\t}"
+            - ""
+            - "\tobj.Ellij = (inobj.Ellij)"
+            - "\tobj.Espresso = (inobj.Espresso)"
+            - "\tobj.IngCastle = (inobj.IngCastle)"
+            - "\tobj.Island = (inobj.Island)"
+            - "\tobj.OfCharacters = (inobj.OfCharacters)"
+            - "\tobj.SoongType = (inobj.SoongType)"
+            - "\tobj.Travelling = (func(t float64) time.Time {"
+            - "\t\tfsec, fnsec := math.Modf(t)"
+            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
+            - "\t\treturn time.Unix(sec, nsec)"
+            - "\t})(inobj.Travelling)"
+            - "\tobj.TruthOrDare = (inobj.TruthOrDare)"
+            - "\treturn nil"
+            - '}'
+            - ""
+            - type Interface interface {
+            - "\tAllThe(context.Context, *Things) (*Things, error,"
+            - "\t)"
+            - "\tCatIn(context.Context, *Containers) (*Containers, error,"
+            - "\t)"
+            - "\tMixEmUp(context.Context, *Things, *Containers, []*Things) (interface{},
+              error,"
+            - "\t)"
+            - '}'
+            - // <auto-generated />
+            - //
+            - '// expected import: go.example.com/rpc/client'
+            - package client
+            - ""
+            - import (
+            - "\t\"bytes\""
+            - "\t\"context\""
+            - "\t\"encoding/json\""
+            - "\t\"net/http\""
+            - "\t\"time\""
+            - ""
+            - "\trpc_root \"go.example.com/rpc\""
+            - )
+            - ""
+            - var (
+            - "\t_ context.Context = nil"
+            - "\t_ time.Time       = time.Time{}"
+            - )
+            - ""
+            - // go.example.com/rpc
+            - var _ rpc_root.Interface = Client_rpc_root{}
+            - ""
+            - type Client_rpc_root struct {
+            - "\t*Client"
+            - '}'
+            - ""
+            - func (c *Client_rpc_root) initialize(client *Client) {
+            - "\tc.Client = client"
+            - '}'
+            - ""
+            - func (c Client_rpc_root) AllThe(
+            - "\tctx context.Context,"
+            - "\targ0 *rpc_root.Things,"
+            - ) (
+            - "\tout0 *rpc_root.Things,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/rpc/AllThe\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - ""
+            - func (c Client_rpc_root) CatIn(
+            - "\tctx context.Context,"
+            - "\targ0 *rpc_root.Containers,"
+            - ) (
+            - "\tout0 *rpc_root.Containers,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/rpc/CatIn\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - ""
+            - func (c Client_rpc_root) MixEmUp(
+            - "\tctx context.Context,"
+            - "\targ0 *rpc_root.Things,"
+            - "\targ1 *rpc_root.Containers,"
+            - "\targ2 []*rpc_root.Things,"
+            - ) (
+            - "\tout0 interface{},"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0, arg1, arg2}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/rpc/MixEmUp\",
               buf)"
             - "\tif err != nil {"
             - "\t\treturn"
