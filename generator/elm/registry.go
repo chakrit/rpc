@@ -56,7 +56,7 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 		}
 	case "float", "double":
 		return &ElmTypeResolution{
-			Name:    "float",
+			Name:    "Float",
 			Encode:  "E.float",
 			Decode:  "D.float",
 			Default: "0.0",

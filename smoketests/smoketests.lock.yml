@@ -2903,10 +2903,10 @@
             - type alias Containers =
             - '    { ellijList : List (Int)'
             - '    , ellijMap : Dict (String) (Int)'
-            - '    , espressoList : List (float)'
-            - '    , espressoMap : Dict (String) (float)'
-            - '    , ingCastleList : List (float)'
-            - '    , ingCastleMap : Dict (String) (float)'
+            - '    , espressoList : List (Float)'
+            - '    , espressoMap : Dict (String) (Float)'
+            - '    , ingCastleList : List (Float)'
+            - '    , ingCastleMap : Dict (String) (Float)'
             - '    , islandList : List (Int)'
             - '    , islandMap : Dict (String) (Int)'
             - '    , ofCharactersList : List (String)'
@@ -3063,8 +3063,8 @@
             - ""
             - type alias Things =
             - '    { ellij : Int'
-            - '    , espresso : float'
-            - '    , ingCastle : float'
+            - '    , espresso : Float'
+            - '    , ingCastle : Float'
             - '    , island : Int'
             - '    , ofCharacters : String'
             - '    , soongType : Bytes'
