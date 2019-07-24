@@ -12,6 +12,7 @@ var Keywords = map[string]struct{}{
 	"rpc":       {},
 
 	// built-in types
+	"unit":   {},
 	"string": {},
 	"bool":   {},
 	"int":    {},

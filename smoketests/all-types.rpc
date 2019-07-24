@@ -1,4 +1,5 @@
 type Things {
+    unit   ology
     string ofCharacters
     bool   truthOrDare
     int    ellij
@@ -10,6 +11,7 @@ type Things {
 }
 
 type Containers {
+    list<unit>   ologyList
     list<string> ofCharactersList
     list<bool>   truthOrDareList
     list<int>    ellijList
@@ -19,6 +21,7 @@ type Containers {
     list<time>   travellingList
     list<data>   soongTypeList
 
+    map<string, unit>   ologyMap
     map<string, string> ofCharactersMap
     map<string, bool>   truthOrDareMap
     map<string, int>    ellijMap

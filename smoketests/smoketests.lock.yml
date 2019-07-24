@@ -2911,6 +2911,8 @@
             - '    , islandMap : Dict (String) (Int)'
             - '    , ofCharactersList : List (String)'
             - '    , ofCharactersMap : Dict (String) (String)'
+            - '    , ologyList : List (())'
+            - '    , ologyMap : Dict (String) (())'
             - '    , soongTypeList : List (Bytes)'
             - '    , soongTypeMap : Dict (String) (Bytes)'
             - '    , travellingList : List (Posix)'
@@ -2931,6 +2933,8 @@
             - '    , islandMap = Dict.empty'
             - '    , ofCharactersList = []'
             - '    , ofCharactersMap = Dict.empty'
+            - '    , ologyList = []'
+            - '    , ologyMap = Dict.empty'
             - '    , soongTypeList = []'
             - '    , soongTypeMap = Dict.empty'
             - '    , travellingList = []'
@@ -2955,6 +2959,9 @@
             - '        , ( "ofCharactersList", E.list (E.string) obj.ofCharactersList
               )'
             - '        , ( "ofCharactersMap", E.dict (identity) (E.string) obj.ofCharactersMap
+              )'
+            - '        , ( "ologyList", E.list ((\_ -> E.null)) obj.ologyList )'
+            - '        , ( "ologyMap", E.dict (identity) ((\_ -> E.null)) obj.ologyMap
               )'
             - '        , ( "soongTypeList", E.list ((RpcUtil.b64StringFromBytes >>
               Maybe.withDefault "" >> E.string)) obj.soongTypeList )'
@@ -3023,6 +3030,16 @@
             - '                |> D.maybe'
             - '                |> D.map (Maybe.withDefault (Dict.empty))'
             - '                |> decodeApply)'
+            - '            |> (D.list ((D.succeed ()))'
+            - '                |> D.field "ologyList"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault ([]))'
+            - '                |> decodeApply)'
+            - '            |> (D.dict ((D.succeed ()))'
+            - '                |> D.field "ologyMap"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (Dict.empty))'
+            - '                |> decodeApply)'
             - '            |> (D.list ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes
               >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string "")))
               (D.maybe D.string)))'
@@ -3067,6 +3084,7 @@
             - '    , ingCastle : Float'
             - '    , island : Int'
             - '    , ofCharacters : String'
+            - '    , ology : ()'
             - '    , soongType : Bytes'
             - '    , travelling : Posix'
             - '    , truthOrDare : Bool'
@@ -3079,6 +3097,7 @@
             - '    , ingCastle = 0.0'
             - '    , island = 0'
             - '    , ofCharacters = ""'
+            - '    , ology = '
             - '    , soongType = RpcUtil.emptyBytes'
             - '    , travelling = Time.millisToPosix 0'
             - '    , truthOrDare = False'
@@ -3092,6 +3111,7 @@
             - '        , ( "ingCastle", E.float obj.ingCastle )'
             - '        , ( "island", E.int obj.island )'
             - '        , ( "ofCharacters", E.string obj.ofCharacters )'
+            - '        , ( "ology", (\_ -> E.null) obj.ology )'
             - '        , ( "soongType", (RpcUtil.b64StringFromBytes >> Maybe.withDefault
               "" >> E.string) obj.soongType )'
             - '        , ( "travelling", (Time.posixToMillis >> toFloat >> (\f ->
@@ -3101,51 +3121,55 @@
             - ""
             - 'decodeThings : D.Decoder Things'
             - decodeThings =
-            - '    D.map8 Things'
-            - '                (D.int'
-            - '                    |> D.field "ellij"'
-            - '                    |> D.maybe'
-            - '                    |> D.map (Maybe.withDefault (0))'
-            - '                )'
-            - '                (D.float'
-            - '                    |> D.field "espresso"'
-            - '                    |> D.maybe'
-            - '                    |> D.map (Maybe.withDefault (0.0))'
-            - '                )'
-            - '                (D.float'
-            - '                    |> D.field "ingCastle"'
-            - '                    |> D.maybe'
-            - '                    |> D.map (Maybe.withDefault (0.0))'
-            - '                )'
-            - '                (D.int'
-            - '                    |> D.field "island"'
-            - '                    |> D.maybe'
-            - '                    |> D.map (Maybe.withDefault (0))'
-            - '                )'
-            - '                (D.string'
-            - '                    |> D.field "ofCharacters"'
-            - '                    |> D.maybe'
-            - '                    |> D.map (Maybe.withDefault (""))'
-            - '                )'
-            - '                ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes
+            - '    D.succeed Things'
+            - '            |> (D.int'
+            - '                |> D.field "ellij"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (0))'
+            - '                |> decodeApply)'
+            - '            |> (D.float'
+            - '                |> D.field "espresso"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (0.0))'
+            - '                |> decodeApply)'
+            - '            |> (D.float'
+            - '                |> D.field "ingCastle"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (0.0))'
+            - '                |> decodeApply)'
+            - '            |> (D.int'
+            - '                |> D.field "island"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (0))'
+            - '                |> decodeApply)'
+            - '            |> (D.string'
+            - '                |> D.field "ofCharacters"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (""))'
+            - '                |> decodeApply)'
+            - '            |> ((D.succeed ())'
+            - '                |> D.field "ology"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault ())'
+            - '                |> decodeApply)'
+            - '            |> ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes
               >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string "")))
               (D.maybe D.string))'
-            - '                    |> D.field "soongType"'
-            - '                    |> D.maybe'
-            - '                    |> D.map (Maybe.withDefault (RpcUtil.emptyBytes))'
-            - '                )'
-            - '                ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix)
+            - '                |> D.field "soongType"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (RpcUtil.emptyBytes))'
+            - '                |> decodeApply)'
+            - '            |> ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix)
               D.float)'
-            - '                    |> D.field "travelling"'
-            - '                    |> D.maybe'
-            - '                    |> D.map (Maybe.withDefault (Time.millisToPosix
-              0))'
-            - '                )'
-            - '                (D.bool'
-            - '                    |> D.field "truthOrDare"'
-            - '                    |> D.maybe'
-            - '                    |> D.map (Maybe.withDefault (False))'
-            - '                )'
+            - '                |> D.field "travelling"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (Time.millisToPosix 0))'
+            - '                |> decodeApply)'
+            - '            |> (D.bool'
+            - '                |> D.field "truthOrDare"'
+            - '                |> D.maybe'
+            - '                |> D.map (Maybe.withDefault (False))'
+            - '                |> decodeApply)'
             - '    '
             - ""
             - ""
@@ -5906,58 +5930,64 @@
             - )
             - ""
             - type Containers struct {
-            - "\tEllijList        []int                `json:\"ellijList\" yaml:\"ellijList\"
+            - "\tEllijList        []int                  `json:\"ellijList\" yaml:\"ellijList\"
               db:\"ellij_list\"`"
-            - "\tEllijMap         map[string]int       `json:\"ellijMap\" yaml:\"ellijMap\"
+            - "\tEllijMap         map[string]int         `json:\"ellijMap\" yaml:\"ellijMap\"
               db:\"ellij_map\"`"
-            - "\tEspressoList     []float64            `json:\"espressoList\" yaml:\"espressoList\"
+            - "\tEspressoList     []float64              `json:\"espressoList\" yaml:\"espressoList\"
               db:\"espresso_list\"`"
-            - "\tEspressoMap      map[string]float64   `json:\"espressoMap\" yaml:\"espressoMap\"
+            - "\tEspressoMap      map[string]float64     `json:\"espressoMap\" yaml:\"espressoMap\"
               db:\"espresso_map\"`"
-            - "\tIngCastleList    []float32            `json:\"ingCastleList\" yaml:\"ingCastleList\"
+            - "\tIngCastleList    []float32              `json:\"ingCastleList\" yaml:\"ingCastleList\"
               db:\"ing_castle_list\"`"
-            - "\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\" yaml:\"ingCastleMap\"
+            - "\tIngCastleMap     map[string]float32     `json:\"ingCastleMap\" yaml:\"ingCastleMap\"
               db:\"ing_castle_map\"`"
-            - "\tIslandList       []int64              `json:\"islandList\" yaml:\"islandList\"
+            - "\tIslandList       []int64                `json:\"islandList\" yaml:\"islandList\"
               db:\"island_list\"`"
-            - "\tIslandMap        map[string]int64     `json:\"islandMap\" yaml:\"islandMap\"
+            - "\tIslandMap        map[string]int64       `json:\"islandMap\" yaml:\"islandMap\"
               db:\"island_map\"`"
-            - "\tOfCharactersList []string             `json:\"ofCharactersList\"
+            - "\tOfCharactersList []string               `json:\"ofCharactersList\"
               yaml:\"ofCharactersList\" db:\"of_characters_list\"`"
-            - "\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\" yaml:\"ofCharactersMap\"
-              db:\"of_characters_map\"`"
-            - "\tSoongTypeList    [][]byte             `json:\"soongTypeList\" yaml:\"soongTypeList\"
+            - "\tOfCharactersMap  map[string]string      `json:\"ofCharactersMap\"
+              yaml:\"ofCharactersMap\" db:\"of_characters_map\"`"
+            - "\tOlogyList        []interface{}          `json:\"ologyList\" yaml:\"ologyList\"
+              db:\"ology_list\"`"
+            - "\tOlogyMap         map[string]interface{} `json:\"ologyMap\" yaml:\"ologyMap\"
+              db:\"ology_map\"`"
+            - "\tSoongTypeList    [][]byte               `json:\"soongTypeList\" yaml:\"soongTypeList\"
               db:\"soong_type_list\"`"
-            - "\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\" yaml:\"soongTypeMap\"
+            - "\tSoongTypeMap     map[string][]byte      `json:\"soongTypeMap\" yaml:\"soongTypeMap\"
               db:\"soong_type_map\"`"
-            - "\tTravellingList   []time.Time          `json:\"travellingList\" yaml:\"travellingList\"
-              db:\"travelling_list\"`"
-            - "\tTravellingMap    map[string]time.Time `json:\"travellingMap\" yaml:\"travellingMap\"
+            - "\tTravellingList   []time.Time            `json:\"travellingList\"
+              yaml:\"travellingList\" db:\"travelling_list\"`"
+            - "\tTravellingMap    map[string]time.Time   `json:\"travellingMap\" yaml:\"travellingMap\"
               db:\"travelling_map\"`"
-            - "\tTruthOrDareList  []bool               `json:\"truthOrDareList\" yaml:\"truthOrDareList\"
-              db:\"truth_or_dare_list\"`"
-            - "\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\" yaml:\"truthOrDareMap\"
-              db:\"truth_or_dare_map\"`"
+            - "\tTruthOrDareList  []bool                 `json:\"truthOrDareList\"
+              yaml:\"truthOrDareList\" db:\"truth_or_dare_list\"`"
+            - "\tTruthOrDareMap   map[string]bool        `json:\"truthOrDareMap\"
+              yaml:\"truthOrDareMap\" db:\"truth_or_dare_map\"`"
             - '}'
             - ""
             - func (obj *Containers) MarshalJSON() ([]byte, error) {
             - "\toutobj := struct {"
-            - "\t\tEllijList        []int                `json:\"ellijList\"`"
-            - "\t\tEllijMap         map[string]int       `json:\"ellijMap\"`"
-            - "\t\tEspressoList     []float64            `json:\"espressoList\"`"
-            - "\t\tEspressoMap      map[string]float64   `json:\"espressoMap\"`"
-            - "\t\tIngCastleList    []float32            `json:\"ingCastleList\"`"
-            - "\t\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\"`"
-            - "\t\tIslandList       []int64              `json:\"islandList\"`"
-            - "\t\tIslandMap        map[string]int64     `json:\"islandMap\"`"
-            - "\t\tOfCharactersList []string             `json:\"ofCharactersList\"`"
-            - "\t\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\"`"
-            - "\t\tSoongTypeList    [][]byte             `json:\"soongTypeList\"`"
-            - "\t\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\"`"
-            - "\t\tTravellingList   []time.Time          `json:\"travellingList\"`"
-            - "\t\tTravellingMap    map[string]time.Time `json:\"travellingMap\"`"
-            - "\t\tTruthOrDareList  []bool               `json:\"truthOrDareList\"`"
-            - "\t\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\"`"
+            - "\t\tEllijList        []int                  `json:\"ellijList\"`"
+            - "\t\tEllijMap         map[string]int         `json:\"ellijMap\"`"
+            - "\t\tEspressoList     []float64              `json:\"espressoList\"`"
+            - "\t\tEspressoMap      map[string]float64     `json:\"espressoMap\"`"
+            - "\t\tIngCastleList    []float32              `json:\"ingCastleList\"`"
+            - "\t\tIngCastleMap     map[string]float32     `json:\"ingCastleMap\"`"
+            - "\t\tIslandList       []int64                `json:\"islandList\"`"
+            - "\t\tIslandMap        map[string]int64       `json:\"islandMap\"`"
+            - "\t\tOfCharactersList []string               `json:\"ofCharactersList\"`"
+            - "\t\tOfCharactersMap  map[string]string      `json:\"ofCharactersMap\"`"
+            - "\t\tOlogyList        []interface{}          `json:\"ologyList\"`"
+            - "\t\tOlogyMap         map[string]interface{} `json:\"ologyMap\"`"
+            - "\t\tSoongTypeList    [][]byte               `json:\"soongTypeList\"`"
+            - "\t\tSoongTypeMap     map[string][]byte      `json:\"soongTypeMap\"`"
+            - "\t\tTravellingList   []time.Time            `json:\"travellingList\"`"
+            - "\t\tTravellingMap    map[string]time.Time   `json:\"travellingMap\"`"
+            - "\t\tTruthOrDareList  []bool                 `json:\"truthOrDareList\"`"
+            - "\t\tTruthOrDareMap   map[string]bool        `json:\"truthOrDareMap\"`"
             - "\t}{"
             - "\t\tEllijList:        (obj.EllijList),"
             - "\t\tEllijMap:         (obj.EllijMap),"
@@ -5969,6 +5999,8 @@
             - "\t\tIslandMap:        (obj.IslandMap),"
             - "\t\tOfCharactersList: (obj.OfCharactersList),"
             - "\t\tOfCharactersMap:  (obj.OfCharactersMap),"
+            - "\t\tOlogyList:        (obj.OlogyList),"
+            - "\t\tOlogyMap:         (obj.OlogyMap),"
             - "\t\tSoongTypeList:    (obj.SoongTypeList),"
             - "\t\tSoongTypeMap:     (obj.SoongTypeMap),"
             - "\t\tTravellingList:   (obj.TravellingList),"
@@ -5981,22 +6013,24 @@
             - ""
             - func (obj *Containers) UnmarshalJSON(buf []byte) error {
             - "\tinobj := struct {"
-            - "\t\tEllijList        []int                `json:\"ellijList\"`"
-            - "\t\tEllijMap         map[string]int       `json:\"ellijMap\"`"
-            - "\t\tEspressoList     []float64            `json:\"espressoList\"`"
-            - "\t\tEspressoMap      map[string]float64   `json:\"espressoMap\"`"
-            - "\t\tIngCastleList    []float32            `json:\"ingCastleList\"`"
-            - "\t\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\"`"
-            - "\t\tIslandList       []int64              `json:\"islandList\"`"
-            - "\t\tIslandMap        map[string]int64     `json:\"islandMap\"`"
-            - "\t\tOfCharactersList []string             `json:\"ofCharactersList\"`"
-            - "\t\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\"`"
-            - "\t\tSoongTypeList    [][]byte             `json:\"soongTypeList\"`"
-            - "\t\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\"`"
-            - "\t\tTravellingList   []time.Time          `json:\"travellingList\"`"
-            - "\t\tTravellingMap    map[string]time.Time `json:\"travellingMap\"`"
-            - "\t\tTruthOrDareList  []bool               `json:\"truthOrDareList\"`"
-            - "\t\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\"`"
+            - "\t\tEllijList        []int                  `json:\"ellijList\"`"
+            - "\t\tEllijMap         map[string]int         `json:\"ellijMap\"`"
+            - "\t\tEspressoList     []float64              `json:\"espressoList\"`"
+            - "\t\tEspressoMap      map[string]float64     `json:\"espressoMap\"`"
+            - "\t\tIngCastleList    []float32              `json:\"ingCastleList\"`"
+            - "\t\tIngCastleMap     map[string]float32     `json:\"ingCastleMap\"`"
+            - "\t\tIslandList       []int64                `json:\"islandList\"`"
+            - "\t\tIslandMap        map[string]int64       `json:\"islandMap\"`"
+            - "\t\tOfCharactersList []string               `json:\"ofCharactersList\"`"
+            - "\t\tOfCharactersMap  map[string]string      `json:\"ofCharactersMap\"`"
+            - "\t\tOlogyList        []interface{}          `json:\"ologyList\"`"
+            - "\t\tOlogyMap         map[string]interface{} `json:\"ologyMap\"`"
+            - "\t\tSoongTypeList    [][]byte               `json:\"soongTypeList\"`"
+            - "\t\tSoongTypeMap     map[string][]byte      `json:\"soongTypeMap\"`"
+            - "\t\tTravellingList   []time.Time            `json:\"travellingList\"`"
+            - "\t\tTravellingMap    map[string]time.Time   `json:\"travellingMap\"`"
+            - "\t\tTruthOrDareList  []bool                 `json:\"truthOrDareList\"`"
+            - "\t\tTruthOrDareMap   map[string]bool        `json:\"truthOrDareMap\"`"
             - "\t}{}"
             - ""
             - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
@@ -6013,6 +6047,8 @@
             - "\tobj.IslandMap = (inobj.IslandMap)"
             - "\tobj.OfCharactersList = (inobj.OfCharactersList)"
             - "\tobj.OfCharactersMap = (inobj.OfCharactersMap)"
+            - "\tobj.OlogyList = (inobj.OlogyList)"
+            - "\tobj.OlogyMap = (inobj.OlogyMap)"
             - "\tobj.SoongTypeList = (inobj.SoongTypeList)"
             - "\tobj.SoongTypeMap = (inobj.SoongTypeMap)"
             - "\tobj.TravellingList = (inobj.TravellingList)"
@@ -6023,34 +6059,38 @@
             - '}'
             - ""
             - type Things struct {
-            - "\tEllij        int       `json:\"ellij\" yaml:\"ellij\" db:\"ellij\"`"
-            - "\tEspresso     float64   `json:\"espresso\" yaml:\"espresso\" db:\"espresso\"`"
-            - "\tIngCastle    float32   `json:\"ingCastle\" yaml:\"ingCastle\" db:\"ing_castle\"`"
-            - "\tIsland       int64     `json:\"island\" yaml:\"island\" db:\"island\"`"
-            - "\tOfCharacters string    `json:\"ofCharacters\" yaml:\"ofCharacters\"
+            - "\tEllij        int         `json:\"ellij\" yaml:\"ellij\" db:\"ellij\"`"
+            - "\tEspresso     float64     `json:\"espresso\" yaml:\"espresso\" db:\"espresso\"`"
+            - "\tIngCastle    float32     `json:\"ingCastle\" yaml:\"ingCastle\" db:\"ing_castle\"`"
+            - "\tIsland       int64       `json:\"island\" yaml:\"island\" db:\"island\"`"
+            - "\tOfCharacters string      `json:\"ofCharacters\" yaml:\"ofCharacters\"
               db:\"of_characters\"`"
-            - "\tSoongType    []byte    `json:\"soongType\" yaml:\"soongType\" db:\"soong_type\"`"
-            - "\tTravelling   time.Time `json:\"travelling\" yaml:\"travelling\" db:\"travelling\"`"
-            - "\tTruthOrDare  bool      `json:\"truthOrDare\" yaml:\"truthOrDare\"
+            - "\tOlogy        interface{} `json:\"ology\" yaml:\"ology\" db:\"ology\"`"
+            - "\tSoongType    []byte      `json:\"soongType\" yaml:\"soongType\" db:\"soong_type\"`"
+            - "\tTravelling   time.Time   `json:\"travelling\" yaml:\"travelling\"
+              db:\"travelling\"`"
+            - "\tTruthOrDare  bool        `json:\"truthOrDare\" yaml:\"truthOrDare\"
               db:\"truth_or_dare\"`"
             - '}'
             - ""
             - func (obj *Things) MarshalJSON() ([]byte, error) {
             - "\toutobj := struct {"
-            - "\t\tEllij        int     `json:\"ellij\"`"
-            - "\t\tEspresso     float64 `json:\"espresso\"`"
-            - "\t\tIngCastle    float32 `json:\"ingCastle\"`"
-            - "\t\tIsland       int64   `json:\"island\"`"
-            - "\t\tOfCharacters string  `json:\"ofCharacters\"`"
-            - "\t\tSoongType    []byte  `json:\"soongType\"`"
-            - "\t\tTravelling   float64 `json:\"travelling\"`"
-            - "\t\tTruthOrDare  bool    `json:\"truthOrDare\"`"
+            - "\t\tEllij        int         `json:\"ellij\"`"
+            - "\t\tEspresso     float64     `json:\"espresso\"`"
+            - "\t\tIngCastle    float32     `json:\"ingCastle\"`"
+            - "\t\tIsland       int64       `json:\"island\"`"
+            - "\t\tOfCharacters string      `json:\"ofCharacters\"`"
+            - "\t\tOlogy        interface{} `json:\"ology\"`"
+            - "\t\tSoongType    []byte      `json:\"soongType\"`"
+            - "\t\tTravelling   float64     `json:\"travelling\"`"
+            - "\t\tTruthOrDare  bool        `json:\"truthOrDare\"`"
             - "\t}{"
             - "\t\tEllij:        (obj.Ellij),"
             - "\t\tEspresso:     (obj.Espresso),"
             - "\t\tIngCastle:    (obj.IngCastle),"
             - "\t\tIsland:       (obj.Island),"
             - "\t\tOfCharacters: (obj.OfCharacters),"
+            - "\t\tOlogy:        (obj.Ology),"
             - "\t\tSoongType:    (obj.SoongType),"
             - "\t\tTravelling: (func(t time.Time) float64 {"
             - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
@@ -6063,14 +6103,15 @@
             - ""
             - func (obj *Things) UnmarshalJSON(buf []byte) error {
             - "\tinobj := struct {"
-            - "\t\tEllij        int     `json:\"ellij\"`"
-            - "\t\tEspresso     float64 `json:\"espresso\"`"
-            - "\t\tIngCastle    float32 `json:\"ingCastle\"`"
-            - "\t\tIsland       int64   `json:\"island\"`"
-            - "\t\tOfCharacters string  `json:\"ofCharacters\"`"
-            - "\t\tSoongType    []byte  `json:\"soongType\"`"
-            - "\t\tTravelling   float64 `json:\"travelling\"`"
-            - "\t\tTruthOrDare  bool    `json:\"truthOrDare\"`"
+            - "\t\tEllij        int         `json:\"ellij\"`"
+            - "\t\tEspresso     float64     `json:\"espresso\"`"
+            - "\t\tIngCastle    float32     `json:\"ingCastle\"`"
+            - "\t\tIsland       int64       `json:\"island\"`"
+            - "\t\tOfCharacters string      `json:\"ofCharacters\"`"
+            - "\t\tOlogy        interface{} `json:\"ology\"`"
+            - "\t\tSoongType    []byte      `json:\"soongType\"`"
+            - "\t\tTravelling   float64     `json:\"travelling\"`"
+            - "\t\tTruthOrDare  bool        `json:\"truthOrDare\"`"
             - "\t}{}"
             - ""
             - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
@@ -6082,6 +6123,7 @@
             - "\tobj.IngCastle = (inobj.IngCastle)"
             - "\tobj.Island = (inobj.Island)"
             - "\tobj.OfCharacters = (inobj.OfCharacters)"
+            - "\tobj.Ology = (inobj.Ology)"
             - "\tobj.SoongType = (inobj.SoongType)"
             - "\tobj.Travelling = (func(t float64) time.Time {"
             - "\t\tfsec, fnsec := math.Modf(t)"
