@@ -39,6 +39,11 @@ tests:
               - $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-complex.rpc
               - find /tmp/rpc/elm -name "*.elm"
               - find /tmp/rpc/elm -name "*.elm" | xargs cat
+          - name: Types
+            commands:
+              - $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm all-types.rpc
+              - find /tmp/rpc/elm -name "*.elm"
+              - find /tmp/rpc/elm -name "*.elm" | xargs cat
       - name: Go
         tests:
           - name: Simple
