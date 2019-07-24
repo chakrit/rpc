@@ -2960,8 +2960,9 @@
               )'
             - '        , ( "ofCharactersMap", E.dict (identity) (E.string) obj.ofCharactersMap
               )'
-            - '        , ( "ologyList", E.list ((\_ -> E.null)) obj.ologyList )'
-            - '        , ( "ologyMap", E.dict (identity) ((\_ -> E.null)) obj.ologyMap
+            - '        , ( "ologyList", E.list ((\_ -> E.object [])) obj.ologyList
+              )'
+            - '        , ( "ologyMap", E.dict (identity) ((\_ -> E.object [])) obj.ologyMap
               )'
             - '        , ( "soongTypeList", E.list ((RpcUtil.b64StringFromBytes >>
               Maybe.withDefault "" >> E.string)) obj.soongTypeList )'
@@ -3030,12 +3031,12 @@
             - '                |> D.maybe'
             - '                |> D.map (Maybe.withDefault (Dict.empty))'
             - '                |> decodeApply)'
-            - '            |> (D.list ((D.succeed ()))'
+            - '            |> (D.list (D.map (\_ -> ()) D.value)'
             - '                |> D.field "ologyList"'
             - '                |> D.maybe'
             - '                |> D.map (Maybe.withDefault ([]))'
             - '                |> decodeApply)'
-            - '            |> (D.dict ((D.succeed ()))'
+            - '            |> (D.dict (D.map (\_ -> ()) D.value)'
             - '                |> D.field "ologyMap"'
             - '                |> D.maybe'
             - '                |> D.map (Maybe.withDefault (Dict.empty))'
@@ -3111,7 +3112,7 @@
             - '        , ( "ingCastle", E.float obj.ingCastle )'
             - '        , ( "island", E.int obj.island )'
             - '        , ( "ofCharacters", E.string obj.ofCharacters )'
-            - '        , ( "ology", (\_ -> E.null) obj.ology )'
+            - '        , ( "ology", (\_ -> E.object []) obj.ology )'
             - '        , ( "soongType", (RpcUtil.b64StringFromBytes >> Maybe.withDefault
               "" >> E.string) obj.soongType )'
             - '        , ( "travelling", (Time.posixToMillis >> toFloat >> (\f ->
@@ -3147,7 +3148,7 @@
             - '                |> D.maybe'
             - '                |> D.map (Maybe.withDefault (""))'
             - '                |> decodeApply)'
-            - '            |> ((D.succeed ())'
+            - '            |> (D.map (\_ -> ()) D.value'
             - '                |> D.field "ology"'
             - '                |> D.maybe'
             - '                |> D.map (Maybe.withDefault ())'
@@ -3285,12 +3286,12 @@
             - encodeOutputForMixEmUp
             - '    (arg0) ='
             - '        E.list (identity)'
-            - '            [ (\_ -> E.null) arg0'
+            - '            [ (\_ -> E.object []) arg0'
             - '            ]'
             - ""
             - 'decodeOutputForMixEmUp : D.Decoder OutputForMixEmUp'
             - decodeOutputForMixEmUp =
-            - '        (D.succeed ())'
+            - '        D.map (\_ -> ()) D.value'
             - '            |> D.index 0'
             - '            |> D.maybe'
             - '            |> D.map (Maybe.withDefault ())'

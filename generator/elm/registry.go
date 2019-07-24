@@ -20,7 +20,7 @@ func (r Registry) Lookup(context *Module, name string) *ElmType {
 
 func (r Registry) Resolve(ref *ElmTypeRef) *ElmTypeResolution {
 	switch ref.Name {
-	case "string", "bool", "int", "long", "float", "double", "time", "data":
+	case "unit", "string", "bool", "int", "long", "float", "double", "time", "data":
 		return r.resolveBasic(ref)
 	case "list":
 		return r.resolveList(ref)
@@ -33,6 +33,12 @@ func (r Registry) Resolve(ref *ElmTypeRef) *ElmTypeResolution {
 
 func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 	switch ref.Name {
+	case "unit":
+		return &ElmTypeResolution{
+			Name:   "()",
+			Encode: `(\_ -> E.object [])`,
+			Decode: `D.map (\_ -> ()) D.value`,
+		}
 	case "string":
 		return &ElmTypeResolution{
 			Name:    "String",
