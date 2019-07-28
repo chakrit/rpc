@@ -13,8 +13,8 @@ import (
 	rpc_root "github.com/chakrit/rpc/todo/api"
 )
 
-type Handler_rpc_root struct {
-	Handler rpc_root.Interface
+type Provider_rpc_root interface {
+	Provide_rpc_root() rpc_root.Interface
 }
 
 type Result struct {
@@ -23,8 +23,8 @@ type Result struct {
 }
 
 type Server struct {
-	options Options
-	Handler_rpc_root
+	options  Options
+	Provider Provider_rpc_root
 }
 
 type Options struct {
@@ -55,14 +55,15 @@ func (s *Server) Listen() error {
 
 func (s *Server) HTTPHandler() http.Handler {
 	mux := http.NewServeMux()
-	s.register_rpc_root(mux, s.Handler_rpc_root)
+	s.register_rpc_root(mux, s.Provider)
 	return mux
 }
 
 func (s *Server) register_rpc_root(
 	mux *http.ServeMux,
-	handler Handler_rpc_root,
+	provider Provider_rpc_root,
 ) *http.ServeMux {
+	handler := provider.Provide_rpc_root()
 
 	mux.HandleFunc("/api/Create", func(resp http.ResponseWriter, req *http.Request) {
 		var (
@@ -92,7 +93,7 @@ func (s *Server) register_rpc_root(
 			out0 *rpc_root.TodoItem
 		)
 
-		out0, err = handler.Handler.Create(
+		out0, err = handler.Create(
 			ctx, arg0)
 
 		if err != nil {
@@ -144,7 +145,7 @@ func (s *Server) register_rpc_root(
 			out0 *rpc_root.TodoItem
 		)
 
-		out0, err = handler.Handler.Destroy(
+		out0, err = handler.Destroy(
 			ctx, arg0)
 
 		if err != nil {
@@ -183,7 +184,7 @@ func (s *Server) register_rpc_root(
 			out0 []*rpc_root.TodoItem
 		)
 
-		out0, err = handler.Handler.List(
+		out0, err = handler.List(
 			ctx)
 
 		if err != nil {

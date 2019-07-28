@@ -3913,8 +3913,8 @@
             - "\trpc_root \"go.example.com/rpc\""
             - )
             - ""
-            - type Handler_rpc_root struct {
-            - "\tHandler rpc_root.Interface"
+            - type Provider_rpc_root interface {
+            - "\tProvide_rpc_root() rpc_root.Interface"
             - '}'
             - ""
             - type Result struct {
@@ -3923,8 +3923,8 @@
             - '}'
             - ""
             - type Server struct {
-            - "\toptions Options"
-            - "\tHandler_rpc_root"
+            - "\toptions  Options"
+            - "\tProvider Provider_rpc_root"
             - '}'
             - ""
             - type Options struct {
@@ -3957,14 +3957,15 @@
             - ""
             - func (s *Server) HTTPHandler() http.Handler {
             - "\tmux := http.NewServeMux()"
-            - "\ts.register_rpc_root(mux, s.Handler_rpc_root)"
+            - "\ts.register_rpc_root(mux, s.Provider)"
             - "\treturn mux"
             - '}'
             - ""
             - func (s *Server) register_rpc_root(
             - "\tmux *http.ServeMux,"
-            - "\thandler Handler_rpc_root,"
+            - "\tprovider Provider_rpc_root,"
             - ) *http.ServeMux {
+            - "\thandler := provider.Provide_rpc_root()"
             - ""
             - "\tmux.HandleFunc(\"/minitodo/Delete\", func(resp http.ResponseWriter,
               req *http.Request) {"
@@ -3996,7 +3997,7 @@
             - "\t\t\tout0 *rpc_root.TodoItem"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.Delete("
+            - "\t\tout0, err = handler.Delete("
             - "\t\t\tctx, arg0)"
             - ""
             - "\t\tif err != nil {"
@@ -4050,7 +4051,7 @@
             - "\t\t\tout0 *rpc_root.TodoItem"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.Get("
+            - "\t\tout0, err = handler.Get("
             - "\t\t\tctx, arg0)"
             - ""
             - "\t\tif err != nil {"
@@ -4090,7 +4091,7 @@
             - "\t\t\tout0 []*rpc_root.TodoItem"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.List("
+            - "\t\tout0, err = handler.List("
             - "\t\t\tctx)"
             - ""
             - "\t\tif err != nil {"
@@ -4144,7 +4145,7 @@
             - "\t\t\tout0 *rpc_root.TodoItem"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.Put("
+            - "\t\tout0, err = handler.Put("
             - "\t\t\tctx, arg0)"
             - ""
             - "\t\tif err != nil {"
@@ -4614,23 +4615,25 @@
             - "\trpc_todos \"github.com/chakrit/rpc/examples/todos\""
             - )
             - ""
-            - type Handler_rpc_root struct {
-            - "\tHandler rpc_root.Interface"
-            - "\tSystem  Handler_rpc_system"
-            - "\tTodos   Handler_rpc_todos"
+            - type Provider_rpc_root interface {
+            - "\tProvide_rpc_root() rpc_root.Interface"
+            - ""
+            - "\tProvider_rpc_system"
+            - "\tProvider_rpc_todos"
             - '}'
             - ""
-            - type Handler_rpc_system struct {
-            - "\tHandler rpc_system.Interface"
-            - "\tAuth    Handler_rpc_system_auth"
+            - type Provider_rpc_system interface {
+            - "\tProvide_rpc_system() rpc_system.Interface"
+            - ""
+            - "\tProvider_rpc_system_auth"
             - '}'
             - ""
-            - type Handler_rpc_system_auth struct {
-            - "\tHandler rpc_system_auth.Interface"
+            - type Provider_rpc_system_auth interface {
+            - "\tProvide_rpc_system_auth() rpc_system_auth.Interface"
             - '}'
             - ""
-            - type Handler_rpc_todos struct {
-            - "\tHandler rpc_todos.Interface"
+            - type Provider_rpc_todos interface {
+            - "\tProvide_rpc_todos() rpc_todos.Interface"
             - '}'
             - ""
             - type Result struct {
@@ -4639,8 +4642,8 @@
             - '}'
             - ""
             - type Server struct {
-            - "\toptions Options"
-            - "\tHandler_rpc_root"
+            - "\toptions  Options"
+            - "\tProvider Provider_rpc_root"
             - '}'
             - ""
             - type Options struct {
@@ -4673,24 +4676,26 @@
             - ""
             - func (s *Server) HTTPHandler() http.Handler {
             - "\tmux := http.NewServeMux()"
-            - "\ts.register_rpc_root(mux, s.Handler_rpc_root)"
+            - "\ts.register_rpc_root(mux, s.Provider)"
             - "\treturn mux"
             - '}'
             - ""
             - func (s *Server) register_rpc_root(
             - "\tmux *http.ServeMux,"
-            - "\thandler Handler_rpc_root,"
+            - "\tprovider Provider_rpc_root,"
             - ) *http.ServeMux {
+            - "\thandler := provider.Provide_rpc_root()"
             - ""
-            - "\ts.register_rpc_system(mux, handler.System)"
-            - "\ts.register_rpc_todos(mux, handler.Todos)"
+            - "\ts.register_rpc_system(mux, s.Provider.Provide_rpc_system)"
+            - "\ts.register_rpc_todos(mux, s.Provider.Provide_rpc_todos)"
             - "\treturn mux"
             - '}'
             - ""
             - func (s *Server) register_rpc_system(
             - "\tmux *http.ServeMux,"
-            - "\thandler Handler_rpc_system,"
+            - "\tprovider Provider_rpc_system,"
             - ) *http.ServeMux {
+            - "\thandler := provider.Provide_rpc_system()"
             - ""
             - "\tmux.HandleFunc(\"/examples/system/Status\", func(resp http.ResponseWriter,
               req *http.Request) {"
@@ -4708,7 +4713,7 @@
             - "\t\t\tout0 *rpc_root.Failure"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.Status("
+            - "\t\tout0, err = handler.Status("
             - "\t\t\tctx)"
             - ""
             - "\t\tif err != nil {"
@@ -4732,22 +4737,24 @@
             - "\t\t}"
             - "\t})"
             - ""
-            - "\ts.register_rpc_system_auth(mux, handler.Auth)"
+            - "\ts.register_rpc_system_auth(mux, s.Provider.Provide_rpc_system_auth)"
             - "\treturn mux"
             - '}'
             - ""
             - func (s *Server) register_rpc_system_auth(
             - "\tmux *http.ServeMux,"
-            - "\thandler Handler_rpc_system_auth,"
+            - "\tprovider Provider_rpc_system_auth,"
             - ) *http.ServeMux {
+            - "\thandler := provider.Provide_rpc_system_auth()"
             - ""
             - "\treturn mux"
             - '}'
             - ""
             - func (s *Server) register_rpc_todos(
             - "\tmux *http.ServeMux,"
-            - "\thandler Handler_rpc_todos,"
+            - "\tprovider Provider_rpc_todos,"
             - ) *http.ServeMux {
+            - "\thandler := provider.Provide_rpc_todos()"
             - ""
             - "\tmux.HandleFunc(\"/examples/todos/Delete\", func(resp http.ResponseWriter,
               req *http.Request) {"
@@ -4779,7 +4786,7 @@
             - "\t\t\tout0 *rpc_todos.Item"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.Delete("
+            - "\t\tout0, err = handler.Delete("
             - "\t\t\tctx, arg0)"
             - ""
             - "\t\tif err != nil {"
@@ -4833,7 +4840,7 @@
             - "\t\t\tout0 *rpc_todos.Item"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.Get("
+            - "\t\tout0, err = handler.Get("
             - "\t\t\tctx, arg0)"
             - ""
             - "\t\tif err != nil {"
@@ -4873,7 +4880,7 @@
             - "\t\t\tout0 []*rpc_todos.Item"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.List("
+            - "\t\tout0, err = handler.List("
             - "\t\t\tctx)"
             - ""
             - "\t\tif err != nil {"
@@ -4927,7 +4934,7 @@
             - "\t\t\tout0 *rpc_todos.Item"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.Put("
+            - "\t\tout0, err = handler.Put("
             - "\t\t\tctx, arg0)"
             - ""
             - "\t\tif err != nil {"
@@ -5676,8 +5683,8 @@
             - "\trpc_root \"go.example.com/rpc\""
             - )
             - ""
-            - type Handler_rpc_root struct {
-            - "\tHandler rpc_root.Interface"
+            - type Provider_rpc_root interface {
+            - "\tProvide_rpc_root() rpc_root.Interface"
             - '}'
             - ""
             - type Result struct {
@@ -5686,8 +5693,8 @@
             - '}'
             - ""
             - type Server struct {
-            - "\toptions Options"
-            - "\tHandler_rpc_root"
+            - "\toptions  Options"
+            - "\tProvider Provider_rpc_root"
             - '}'
             - ""
             - type Options struct {
@@ -5720,14 +5727,15 @@
             - ""
             - func (s *Server) HTTPHandler() http.Handler {
             - "\tmux := http.NewServeMux()"
-            - "\ts.register_rpc_root(mux, s.Handler_rpc_root)"
+            - "\ts.register_rpc_root(mux, s.Provider)"
             - "\treturn mux"
             - '}'
             - ""
             - func (s *Server) register_rpc_root(
             - "\tmux *http.ServeMux,"
-            - "\thandler Handler_rpc_root,"
+            - "\tprovider Provider_rpc_root,"
             - ) *http.ServeMux {
+            - "\thandler := provider.Provide_rpc_root()"
             - ""
             - "\tmux.HandleFunc(\"/rpc/AllThe\", func(resp http.ResponseWriter, req
               *http.Request) {"
@@ -5759,7 +5767,7 @@
             - "\t\t\tout0 *rpc_root.Things"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.AllThe("
+            - "\t\tout0, err = handler.AllThe("
             - "\t\t\tctx, arg0)"
             - ""
             - "\t\tif err != nil {"
@@ -5813,7 +5821,7 @@
             - "\t\t\tout0 *rpc_root.Containers"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.CatIn("
+            - "\t\tout0, err = handler.CatIn("
             - "\t\t\tctx, arg0)"
             - ""
             - "\t\tif err != nil {"
@@ -5871,7 +5879,7 @@
             - "\t\t\tout0 struct{}"
             - "\t\t)"
             - ""
-            - "\t\tout0, err = handler.Handler.MixEmUp("
+            - "\t\tout0, err = handler.MixEmUp("
             - "\t\t\tctx, arg0, arg1, arg2)"
             - ""
             - "\t\tif err != nil {"

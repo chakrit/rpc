@@ -32,7 +32,7 @@ func main() {
 func runServer(addr string) {
 	opts := server.Options{Addr: addr}
 	srv := server.New(&opts)
-	srv.Handler = &handler{}
+	srv.Provider = &provider{}
 	if err := srv.Listen(); err != nil {
 		log.Fatal(err)
 	}

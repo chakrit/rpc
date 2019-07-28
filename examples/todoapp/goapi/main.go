@@ -10,13 +10,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/rs/cors"
-
-	"github.com/gorilla/handlers"
-
 	"github.com/chakrit/rpc/todo/api"
 	"github.com/chakrit/rpc/todo/api/client"
 	"github.com/chakrit/rpc/todo/api/server"
+	"github.com/gorilla/handlers"
+	"github.com/rs/cors"
 	"github.com/spf13/cobra"
 )
 
@@ -57,7 +55,7 @@ func main() {
 func runServerCmd(cmd *cobra.Command, args []string) {
 	opts := server.Options{Addr: flags.Addr}
 	srv := server.New(&opts)
-	srv.Handler = &handler{}
+	srv.Provider = provider{}
 
 	// compose some middlewares cors/logging
 	httpHandler := srv.HTTPHandler()
