@@ -154,7 +154,7 @@ func (s *Server) HTTPHandler() http.Handler {
     {{  end -}}
 
     {{  range $child := .Children -}}
-        s.register_{{ .MangledName }}(mux, s.Provider.Provide_{{ $child.MangledName }})
+        s.register_{{ .MangledName }}(mux, s.Provider)
     {{  end -}}
 
         return mux
