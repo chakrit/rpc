@@ -43,6 +43,7 @@ type Options struct {
     CtxFilter func(req *http.Request, method string) context.Context
     ErrFilter func(req *http.Request, method string, err error) error
     ErrLog    func(req *http.Request, method string, err error)
+    FormatErr func(err error) string
 }
 
 func New(opts *Options) *Server {
@@ -161,7 +162,26 @@ func (s *Server) HTTPHandler() http.Handler {
 func renderResult(options Options, resp http.ResponseWriter, status int, result *Result) {
     resp.Header().Set("Content-Type", "application/json")
 
-    buf, err := json.Marshal(result)
+    shim := struct{
+        Error   *string       `json:"error"`
+        Returns []interface{} `json:"returns"`
+    }{}
+
+    if result.Error != nil {
+        var errstr string
+        if options.FormatErr != nil {
+            errstr = options.FormatErr(result.Error)
+        } else {
+            errstr = result.Error.Error()
+        }
+
+        shim.Returns, shim.Error = nil, &errstr
+
+    } else {
+        shim.Returns, shim.Error = result.Returns, nil
+    }
+
+    buf, err := json.Marshal(shim)
     if err != nil {
         resp.WriteHeader(500)
         _, _ = resp.Write([]byte(`{"error":"json processing error","result":null}`))
