@@ -4,10 +4,8 @@
 package server
 
 import (
-    "bytes"
     "context"
     "encoding/json"
-    "io"
     "net/http"
 
     {{ template "imports" . }}
@@ -91,8 +89,6 @@ func (s *Server) HTTPHandler() http.Handler {
             ctx = s.options.CtxFilter(req, "{{ $pkg.RPCPath }}/{{ $rpc.Name }}")
             req = req.WithContext(ctx)
 
-            resp.Header().Set("Content-Type", "application/json")
-
             {{  range $index, $type := $rpc.InputTypes  }}
                 var arg{{ $index }} {{ asReference (resolveAbs $pkg $type) }}
             {{- end -}}
@@ -105,8 +101,10 @@ func (s *Server) HTTPHandler() http.Handler {
 
                 if req.Body != nil {
                     if err := json.NewDecoder(req.Body).Decode(&args); err != nil {
-                        resp.WriteHeader(400)
-                        renderError(resp, err)
+                        renderResult(s.options, resp, 400, &Result{
+                            Error: err,
+                            Returns: nil,
+                        })
                         return
                     }
                 }
@@ -128,27 +126,20 @@ func (s *Server) HTTPHandler() http.Handler {
             {{- end -}}
             )
 
+            result := &Result{}
             if err != nil {
                 err = s.options.ErrFilter(req, "{{ $pkg.RPCPath }}/{{ $rpc.Name }}", err)
                 s.options.ErrLog(req, "{{ $pkg.RPCPath }}/{{ $rpc.Name }}", err)
-            }
-
-            result := &Result{
-                Error: err,
-                Returns: []interface{}{
-            {{- range $index, $_ := $rpc.OutputTypes  }}
-                out{{ $index }},
-            {{- end  }}
-                },
-            }
-
-            if buf, err := json.Marshal(result); err != nil {
-                resp.WriteHeader(500)
-                renderError(resp, err)
+                result.Error = err
             } else {
-                resp.WriteHeader(200)
-                _, _ = io.Copy(resp, bytes.NewBuffer(buf))
+                result.Returns = []interface{}{
+                {{- range $index, $_ := $rpc.OutputTypes  }}
+                    out{{ $index }},
+                {{- end  }}
+                }
             }
+
+            renderResult(s.options, resp, 200, result)
         })
 
     {{  end -}}
@@ -167,16 +158,15 @@ func (s *Server) HTTPHandler() http.Handler {
 
 {{  template "registerFunc" .  }}
 
-func renderError(resp http.ResponseWriter, e error) {
-    result := &Result{
-        Error: e,
-        Returns: nil,
-    }
+func renderResult(options Options, resp http.ResponseWriter, status int, result *Result) {
+    resp.Header().Set("Content-Type", "application/json")
 
-    bytes, err := json.Marshal(result)
+    buf, err := json.Marshal(result)
     if err != nil {
-        _, _ = resp.Write([]byte(`{"error":"json processing error"}`))
+        resp.WriteHeader(500)
+        _, _ = resp.Write([]byte(`{"error":"json processing error","result":null}`))
     } else {
-        _, _ = resp.Write(bytes)
+        resp.WriteHeader(status)
+        _, _ = resp.Write(buf)
     }
 }

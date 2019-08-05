@@ -4,10 +4,8 @@
 package server
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 
 	rpc_root "github.com/chakrit/rpc/todo/api"
@@ -74,8 +72,6 @@ func (s *Server) register_rpc_root(
 		ctx = s.options.CtxFilter(req, "api/Create")
 		req = req.WithContext(ctx)
 
-		resp.Header().Set("Content-Type", "application/json")
-
 		var arg0 string
 		args := [1]interface{}{
 			&arg0,
@@ -83,8 +79,10 @@ func (s *Server) register_rpc_root(
 
 		if req.Body != nil {
 			if err := json.NewDecoder(req.Body).Decode(&args); err != nil {
-				resp.WriteHeader(400)
-				renderError(resp, err)
+				renderResult(s.options, resp, 400, &Result{
+					Error:   err,
+					Returns: nil,
+				})
 				return
 			}
 		}
@@ -96,25 +94,18 @@ func (s *Server) register_rpc_root(
 		out0, err = handler.Create(
 			ctx, arg0)
 
+		result := &Result{}
 		if err != nil {
 			err = s.options.ErrFilter(req, "api/Create", err)
 			s.options.ErrLog(req, "api/Create", err)
-		}
-
-		result := &Result{
-			Error: err,
-			Returns: []interface{}{
-				out0,
-			},
-		}
-
-		if buf, err := json.Marshal(result); err != nil {
-			resp.WriteHeader(500)
-			renderError(resp, err)
+			result.Error = err
 		} else {
-			resp.WriteHeader(200)
-			_, _ = io.Copy(resp, bytes.NewBuffer(buf))
+			result.Returns = []interface{}{
+				out0,
+			}
 		}
+
+		renderResult(s.options, resp, 200, result)
 	})
 
 	mux.HandleFunc("/api/Destroy", func(resp http.ResponseWriter, req *http.Request) {
@@ -126,8 +117,6 @@ func (s *Server) register_rpc_root(
 		ctx = s.options.CtxFilter(req, "api/Destroy")
 		req = req.WithContext(ctx)
 
-		resp.Header().Set("Content-Type", "application/json")
-
 		var arg0 int64
 		args := [1]interface{}{
 			&arg0,
@@ -135,8 +124,10 @@ func (s *Server) register_rpc_root(
 
 		if req.Body != nil {
 			if err := json.NewDecoder(req.Body).Decode(&args); err != nil {
-				resp.WriteHeader(400)
-				renderError(resp, err)
+				renderResult(s.options, resp, 400, &Result{
+					Error:   err,
+					Returns: nil,
+				})
 				return
 			}
 		}
@@ -148,25 +139,18 @@ func (s *Server) register_rpc_root(
 		out0, err = handler.Destroy(
 			ctx, arg0)
 
+		result := &Result{}
 		if err != nil {
 			err = s.options.ErrFilter(req, "api/Destroy", err)
 			s.options.ErrLog(req, "api/Destroy", err)
-		}
-
-		result := &Result{
-			Error: err,
-			Returns: []interface{}{
-				out0,
-			},
-		}
-
-		if buf, err := json.Marshal(result); err != nil {
-			resp.WriteHeader(500)
-			renderError(resp, err)
+			result.Error = err
 		} else {
-			resp.WriteHeader(200)
-			_, _ = io.Copy(resp, bytes.NewBuffer(buf))
+			result.Returns = []interface{}{
+				out0,
+			}
 		}
+
+		renderResult(s.options, resp, 200, result)
 	})
 
 	mux.HandleFunc("/api/List", func(resp http.ResponseWriter, req *http.Request) {
@@ -178,8 +162,6 @@ func (s *Server) register_rpc_root(
 		ctx = s.options.CtxFilter(req, "api/List")
 		req = req.WithContext(ctx)
 
-		resp.Header().Set("Content-Type", "application/json")
-
 		var (
 			out0 []*rpc_root.TodoItem
 		)
@@ -187,40 +169,32 @@ func (s *Server) register_rpc_root(
 		out0, err = handler.List(
 			ctx)
 
+		result := &Result{}
 		if err != nil {
 			err = s.options.ErrFilter(req, "api/List", err)
 			s.options.ErrLog(req, "api/List", err)
-		}
-
-		result := &Result{
-			Error: err,
-			Returns: []interface{}{
-				out0,
-			},
-		}
-
-		if buf, err := json.Marshal(result); err != nil {
-			resp.WriteHeader(500)
-			renderError(resp, err)
+			result.Error = err
 		} else {
-			resp.WriteHeader(200)
-			_, _ = io.Copy(resp, bytes.NewBuffer(buf))
+			result.Returns = []interface{}{
+				out0,
+			}
 		}
+
+		renderResult(s.options, resp, 200, result)
 	})
 
 	return mux
 }
 
-func renderError(resp http.ResponseWriter, e error) {
-	result := &Result{
-		Error:   e,
-		Returns: nil,
-	}
+func renderResult(options Options, resp http.ResponseWriter, status int, result *Result) {
+	resp.Header().Set("Content-Type", "application/json")
 
-	bytes, err := json.Marshal(result)
+	buf, err := json.Marshal(result)
 	if err != nil {
-		_, _ = resp.Write([]byte(`{"error":"json processing error"}`))
+		resp.WriteHeader(500)
+		_, _ = resp.Write([]byte(`{"error":"json processing error","result":null}`))
 	} else {
-		_, _ = resp.Write(bytes)
+		resp.WriteHeader(status)
+		_, _ = resp.Write(buf)
 	}
 }
