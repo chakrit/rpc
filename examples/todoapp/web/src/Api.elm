@@ -7,7 +7,7 @@ import Dict exposing (Dict)
 import Time exposing (Posix)
 import Bytes exposing (Bytes)
 import Bytes.Encode
-import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult, decodeApply)
+import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
 
 
 
@@ -168,11 +168,11 @@ decodeOutputForList =
 
 
 
-callCreate : Config -> InputForCreate -> (CallResult OutputForCreate -> a) -> Cmd a
+callCreate : Config -> InputForCreate -> (RpcResult OutputForCreate -> a) -> Cmd a
 callCreate config input mapResult =
     let
         body = Http.jsonBody (encodeInputForCreate input)
-        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForCreate)
+        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder decodeOutputForCreate)
     in
     Http.request
         { method = "POST"
@@ -184,11 +184,11 @@ callCreate config input mapResult =
         , tracker = Nothing
         }
 
-callDestroy : Config -> InputForDestroy -> (CallResult OutputForDestroy -> a) -> Cmd a
+callDestroy : Config -> InputForDestroy -> (RpcResult OutputForDestroy -> a) -> Cmd a
 callDestroy config input mapResult =
     let
         body = Http.jsonBody (encodeInputForDestroy input)
-        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForDestroy)
+        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder decodeOutputForDestroy)
     in
     Http.request
         { method = "POST"
@@ -200,11 +200,11 @@ callDestroy config input mapResult =
         , tracker = Nothing
         }
 
-callList : Config -> InputForList -> (CallResult OutputForList -> a) -> Cmd a
+callList : Config -> InputForList -> (RpcResult OutputForList -> a) -> Cmd a
 callList config input mapResult =
     let
         body = Http.jsonBody (encodeInputForList input)
-        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputForList)
+        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder decodeOutputForList)
     in
     Http.request
         { method = "POST"

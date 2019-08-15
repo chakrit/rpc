@@ -7,7 +7,7 @@ import Dict exposing (Dict)
 import Time exposing (Posix)
 import Bytes exposing (Bytes)
 import Bytes.Encode
-import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult, decodeApply)
+import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
 {{- range $import := .Imports  }}
 import {{ $import.Name }}
 {{- end  }}
@@ -121,11 +121,11 @@ decode{{ $tuple.Name }} =
 {{  end  }}
 
 {{  range $rpc := .RPCFuncs  }}
-call{{ $rpc.Name }} : Config -> InputFor{{ $rpc.Name }} -> (CallResult OutputFor{{ $rpc.Name }} -> a) -> Cmd a
+call{{ $rpc.Name }} : Config -> InputFor{{ $rpc.Name }} -> (RpcResult OutputFor{{ $rpc.Name }} -> a) -> Cmd a
 call{{ $rpc.Name }} config input mapResult =
     let
         body = Http.jsonBody (encodeInputFor{{ $rpc.Name }} input)
-        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult decodeOutputFor{{ $rpc.Name }})
+        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder decodeOutputFor{{ $rpc.Name }})
     in
     Http.request
         { method = "POST"

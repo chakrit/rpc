@@ -1,15 +1,18 @@
 module RpcUtil exposing
-    ( CallResult(..)
-    , Config
+    ( Config
+    , RpcError(..)
+    , RpcResult
     , b64StringFromBytes
     , b64StringToBytes
+    , configDecoder
     , decodeApply
-    , decodeCallResult
-    , decodeConfig
+    , decodeString
+    , decodeValue
+    , decoder
     , emptyBytes
-    , mapResult
-    , translateHttpError
-    , unwrapHttpResult
+    , errorToString
+    , fromHttpResult
+    , map
     )
 
 import Array exposing (Array)
@@ -28,8 +31,8 @@ type alias Config =
     }
 
 
-decodeConfig : JsonDec.Decoder Config
-decodeConfig =
+configDecoder : JsonDec.Decoder Config
+configDecoder =
     let
         mapHeader : Array String -> Http.Header
         mapHeader arr =
@@ -56,69 +59,99 @@ decodeApply fieldDec partial =
     JsonDec.andThen (\p -> JsonDec.map p fieldDec) partial
 
 
-type CallResult a
+type RpcError
     = HttpError Http.Error
+    | JsonError JsonDec.Error
     | ApiError String
-    | Success a
 
 
-translateHttpError : Http.Error -> String
-translateHttpError httpErr =
+type alias RpcResult a =
+    Result RpcError a
+
+
+fromHttpResult : Result Http.Error (RpcResult a) -> RpcResult a
+fromHttpResult httpResult =
+    case httpResult of
+        Err err ->
+            Err (HttpError err)
+
+        Ok result ->
+            -- unwrap inner result
+            result
+
+
+errorToString : RpcError -> String
+errorToString httpErr =
     case httpErr of
-        BadUrl str ->
+        HttpError (BadUrl str) ->
             "Bad URL: " ++ str
 
-        Timeout ->
+        HttpError Timeout ->
             "Network Timeout"
 
-        NetworkError ->
+        HttpError NetworkError ->
             "Network Error"
 
-        BadStatus code ->
+        HttpError (BadStatus code) ->
             "Bad Status Code: " ++ String.fromInt code
 
-        BadBody str ->
+        HttpError (BadBody str) ->
             "Malformed Response: " ++ str
 
+        JsonError err ->
+            "JSON Error: " ++ JsonDec.errorToString err
 
-mapResult : { onHttpErr : Http.Error -> msg, onApiErr : String -> msg, onSuccess : a -> msg } -> CallResult a -> msg
-mapResult mapper result =
+        ApiError str ->
+            str
+
+
+map : (RpcError -> msg) -> (a -> msg) -> RpcResult a -> msg
+map errMap okMap result =
     case result of
-        HttpError httpErr ->
-            mapper.onHttpErr httpErr
+        Err err ->
+            errMap err
 
-        ApiError err ->
-            mapper.onApiErr err
-
-        Success obj ->
-            mapper.onSuccess obj
+        Ok obj ->
+            okMap obj
 
 
-unwrapHttpResult : Result Http.Error (CallResult a) -> CallResult a
-unwrapHttpResult result =
-    case result of
-        Ok callResult ->
-            callResult
+decodeString : JsonDec.Decoder (RpcResult a) -> String -> RpcResult a
+decodeString decoder_ str =
+    case JsonDec.decodeString decoder_ str of
+        Ok v ->
+            -- unwrap inner Result
+            v
 
-        Err httpErr ->
-            HttpError httpErr
+        Err err ->
+            Err (JsonError err)
 
 
-decodeCallResult : JsonDec.Decoder a -> JsonDec.Decoder (CallResult a)
-decodeCallResult decodeReturns =
+decodeValue : JsonDec.Decoder (RpcResult a) -> JsonDec.Value -> RpcResult a
+decodeValue decoder_ value =
+    case JsonDec.decodeValue decoder_ value of
+        Ok v ->
+            -- unwrap inner Result
+            v
+
+        Err err ->
+            Err (JsonError err)
+
+
+decoder : JsonDec.Decoder a -> JsonDec.Decoder (RpcResult a)
+decoder returnDecoder =
     let
-        mapResultObj : Maybe String -> a -> CallResult a
-        mapResultObj err ret =
+        mapToResult : Maybe String -> a -> RpcResult a
+        mapToResult err ret =
             case err of
                 Just str ->
-                    ApiError str
+                    Err (ApiError str)
 
                 Nothing ->
-                    Success ret
+                    Ok ret
     in
-    JsonDec.map2 mapResultObj
+    JsonDec.map2 mapToResult
         (JsonDec.field "error" (JsonDec.maybe JsonDec.string))
-        (JsonDec.field "returns" decodeReturns)
+        (JsonDec.field "returns" returnDecoder)
 
 
 emptyBytes : Bytes
@@ -202,11 +235,11 @@ b64StringFromBytes bytes =
                             -- 3 or more
                             get3 |> BytesDec.map (appendB64State 3 state)
 
-        decoder =
+        decoder_ =
             BytesDec.loop (initialB64State bytes) process
                 |> BytesDec.map String.fromList
     in
-    BytesDec.decode decoder bytes
+    BytesDec.decode decoder_ bytes
 
 
 {-| base64 1111 1122 2222 3333 3344 4444

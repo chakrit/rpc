@@ -924,8 +924,7 @@
             - import Time exposing (Posix)
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
-            - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeApply)
+            - import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
             - ""
             - ""
             - ""
@@ -1169,12 +1168,12 @@
             - ""
             - ""
             - ""
-            - 'callDelete : Config -> InputForDelete -> (CallResult OutputForDelete
+            - 'callDelete : Config -> InputForDelete -> (RpcResult OutputForDelete
               -> a) -> Cmd a'
             - callDelete config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForDelete input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForDelete)'
             - '    in'
             - '    Http.request'
@@ -1187,12 +1186,12 @@
             - '        , tracker = Nothing'
             - '        }'
             - ""
-            - 'callGet : Config -> InputForGet -> (CallResult OutputForGet -> a) ->
+            - 'callGet : Config -> InputForGet -> (RpcResult OutputForGet -> a) ->
               Cmd a'
             - callGet config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForGet input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForGet)'
             - '    in'
             - '    Http.request'
@@ -1205,12 +1204,12 @@
             - '        , tracker = Nothing'
             - '        }'
             - ""
-            - 'callList : Config -> InputForList -> (CallResult OutputForList -> a)
+            - 'callList : Config -> InputForList -> (RpcResult OutputForList -> a)
               -> Cmd a'
             - callList config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForList input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForList)'
             - '    in'
             - '    Http.request'
@@ -1223,12 +1222,12 @@
             - '        , tracker = Nothing'
             - '        }'
             - ""
-            - 'callPut : Config -> InputForPut -> (CallResult OutputForPut -> a) ->
+            - 'callPut : Config -> InputForPut -> (RpcResult OutputForPut -> a) ->
               Cmd a'
             - callPut config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForPut input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForPut)'
             - '    in'
             - '    Http.request'
@@ -1242,17 +1241,20 @@
             - '        }'
             - ""
             - module RpcUtil exposing
-            - '    ( CallResult(..)'
-            - '    , Config'
+            - '    ( Config'
+            - '    , RpcError(..)'
+            - '    , RpcResult'
             - '    , b64StringFromBytes'
             - '    , b64StringToBytes'
+            - '    , configDecoder'
             - '    , decodeApply'
-            - '    , decodeCallResult'
-            - '    , decodeConfig'
+            - '    , decodeString'
+            - '    , decodeValue'
+            - '    , decoder'
             - '    , emptyBytes'
-            - '    , mapResult'
-            - '    , translateHttpError'
-            - '    , unwrapHttpResult'
+            - '    , errorToString'
+            - '    , fromHttpResult'
+            - '    , map'
             - '    )'
             - ""
             - import Array exposing (Array)
@@ -1271,8 +1273,8 @@
             - '    }'
             - ""
             - ""
-            - 'decodeConfig : JsonDec.Decoder Config'
-            - decodeConfig =
+            - 'configDecoder : JsonDec.Decoder Config'
+            - configDecoder =
             - '    let'
             - '        mapHeader : Array String -> Http.Header'
             - '        mapHeader arr ='
@@ -1301,71 +1303,101 @@
             - '    JsonDec.andThen (\p -> JsonDec.map p fieldDec) partial'
             - ""
             - ""
-            - type CallResult a
+            - type RpcError
             - '    = HttpError Http.Error'
+            - '    | JsonError JsonDec.Error'
             - '    | ApiError String'
-            - '    | Success a'
             - ""
             - ""
-            - 'translateHttpError : Http.Error -> String'
-            - translateHttpError httpErr =
+            - type alias RpcResult a =
+            - '    Result RpcError a'
+            - ""
+            - ""
+            - 'fromHttpResult : Result Http.Error (RpcResult a) -> RpcResult a'
+            - fromHttpResult httpResult =
+            - '    case httpResult of'
+            - '        Err err ->'
+            - '            Err (HttpError err)'
+            - ""
+            - '        Ok result ->'
+            - '            -- unwrap inner result'
+            - '            result'
+            - ""
+            - ""
+            - 'errorToString : RpcError -> String'
+            - errorToString httpErr =
             - '    case httpErr of'
-            - '        BadUrl str ->'
+            - '        HttpError (BadUrl str) ->'
             - '            "Bad URL: " ++ str'
             - ""
-            - '        Timeout ->'
+            - '        HttpError Timeout ->'
             - '            "Network Timeout"'
             - ""
-            - '        NetworkError ->'
+            - '        HttpError NetworkError ->'
             - '            "Network Error"'
             - ""
-            - '        BadStatus code ->'
+            - '        HttpError (BadStatus code) ->'
             - '            "Bad Status Code: " ++ String.fromInt code'
             - ""
-            - '        BadBody str ->'
+            - '        HttpError (BadBody str) ->'
             - '            "Malformed Response: " ++ str'
             - ""
+            - '        JsonError err ->'
+            - '            "JSON Error: " ++ JsonDec.errorToString err'
             - ""
-            - 'mapResult : { onHttpErr : Http.Error -> msg, onApiErr : String -> msg,
-              onSuccess : a -> msg } -> CallResult a -> msg'
-            - mapResult mapper result =
+            - '        ApiError str ->'
+            - '            str'
+            - ""
+            - ""
+            - 'map : (RpcError -> msg) -> (a -> msg) -> RpcResult a -> msg'
+            - map errMap okMap result =
             - '    case result of'
-            - '        HttpError httpErr ->'
-            - '            mapper.onHttpErr httpErr'
+            - '        Err err ->'
+            - '            errMap err'
             - ""
-            - '        ApiError err ->'
-            - '            mapper.onApiErr err'
-            - ""
-            - '        Success obj ->'
-            - '            mapper.onSuccess obj'
+            - '        Ok obj ->'
+            - '            okMap obj'
             - ""
             - ""
-            - 'unwrapHttpResult : Result Http.Error (CallResult a) -> CallResult a'
-            - unwrapHttpResult result =
-            - '    case result of'
-            - '        Ok callResult ->'
-            - '            callResult'
+            - 'decodeString : JsonDec.Decoder (RpcResult a) -> String -> RpcResult
+              a'
+            - decodeString decoder_ str =
+            - '    case JsonDec.decodeString decoder_ str of'
+            - '        Ok v ->'
+            - '            -- unwrap inner Result'
+            - '            v'
             - ""
-            - '        Err httpErr ->'
-            - '            HttpError httpErr'
+            - '        Err err ->'
+            - '            Err (JsonError err)'
             - ""
             - ""
-            - 'decodeCallResult : JsonDec.Decoder a -> JsonDec.Decoder (CallResult
-              a)'
-            - decodeCallResult decodeReturns =
+            - 'decodeValue : JsonDec.Decoder (RpcResult a) -> JsonDec.Value -> RpcResult
+              a'
+            - decodeValue decoder_ value =
+            - '    case JsonDec.decodeValue decoder_ value of'
+            - '        Ok v ->'
+            - '            -- unwrap inner Result'
+            - '            v'
+            - ""
+            - '        Err err ->'
+            - '            Err (JsonError err)'
+            - ""
+            - ""
+            - 'decoder : JsonDec.Decoder a -> JsonDec.Decoder (RpcResult a)'
+            - decoder returnDecoder =
             - '    let'
-            - '        mapResultObj : Maybe String -> a -> CallResult a'
-            - '        mapResultObj err ret ='
+            - '        mapToResult : Maybe String -> a -> RpcResult a'
+            - '        mapToResult err ret ='
             - '            case err of'
             - '                Just str ->'
-            - '                    ApiError str'
+            - '                    Err (ApiError str)'
             - ""
             - '                Nothing ->'
-            - '                    Success ret'
+            - '                    Ok ret'
             - '    in'
-            - '    JsonDec.map2 mapResultObj'
+            - '    JsonDec.map2 mapToResult'
             - '        (JsonDec.field "error" (JsonDec.maybe JsonDec.string))'
-            - '        (JsonDec.field "returns" decodeReturns)'
+            - '        (JsonDec.field "returns" returnDecoder)'
             - ""
             - ""
             - 'emptyBytes : Bytes'
@@ -1454,11 +1486,11 @@
             - '                            get3 |> BytesDec.map (appendB64State 3
               state)'
             - ""
-            - '        decoder ='
+            - '        decoder_ ='
             - '            BytesDec.loop (initialB64State bytes) process'
             - '                |> BytesDec.map String.fromList'
             - '    in'
-            - '    BytesDec.decode decoder bytes'
+            - '    BytesDec.decode decoder_ bytes'
             - ""
             - ""
             - '{-| base64 1111 1122 2222 3333 3344 4444'
@@ -1784,8 +1816,7 @@
             - import Time exposing (Posix)
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
-            - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeApply)
+            - import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
             - ""
             - ""
             - ""
@@ -1835,8 +1866,7 @@
             - import Time exposing (Posix)
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
-            - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeApply)
+            - import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
             - ""
             - ""
             - ""
@@ -2077,12 +2107,12 @@
             - ""
             - ""
             - ""
-            - 'callDelete : Config -> InputForDelete -> (CallResult OutputForDelete
+            - 'callDelete : Config -> InputForDelete -> (RpcResult OutputForDelete
               -> a) -> Cmd a'
             - callDelete config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForDelete input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForDelete)'
             - '    in'
             - '    Http.request'
@@ -2095,12 +2125,12 @@
             - '        , tracker = Nothing'
             - '        }'
             - ""
-            - 'callGet : Config -> InputForGet -> (CallResult OutputForGet -> a) ->
+            - 'callGet : Config -> InputForGet -> (RpcResult OutputForGet -> a) ->
               Cmd a'
             - callGet config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForGet input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForGet)'
             - '    in'
             - '    Http.request'
@@ -2113,12 +2143,12 @@
             - '        , tracker = Nothing'
             - '        }'
             - ""
-            - 'callList : Config -> InputForList -> (CallResult OutputForList -> a)
+            - 'callList : Config -> InputForList -> (RpcResult OutputForList -> a)
               -> Cmd a'
             - callList config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForList input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForList)'
             - '    in'
             - '    Http.request'
@@ -2131,12 +2161,12 @@
             - '        , tracker = Nothing'
             - '        }'
             - ""
-            - 'callPut : Config -> InputForPut -> (CallResult OutputForPut -> a) ->
+            - 'callPut : Config -> InputForPut -> (RpcResult OutputForPut -> a) ->
               Cmd a'
             - callPut config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForPut input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForPut)'
             - '    in'
             - '    Http.request'
@@ -2158,8 +2188,7 @@
             - import Time exposing (Posix)
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
-            - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeApply)
+            - import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
             - import Rpc
             - ""
             - ""
@@ -2200,12 +2229,12 @@
             - ""
             - ""
             - ""
-            - 'callStatus : Config -> InputForStatus -> (CallResult OutputForStatus
+            - 'callStatus : Config -> InputForStatus -> (RpcResult OutputForStatus
               -> a) -> Cmd a'
             - callStatus config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForStatus input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForStatus)'
             - '    in'
             - '    Http.request'
@@ -2227,8 +2256,7 @@
             - import Time exposing (Posix)
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
-            - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeApply)
+            - import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
             - import Rpc
             - ""
             - ""
@@ -2356,17 +2384,20 @@
             - ""
             - ""
             - module RpcUtil exposing
-            - '    ( CallResult(..)'
-            - '    , Config'
+            - '    ( Config'
+            - '    , RpcError(..)'
+            - '    , RpcResult'
             - '    , b64StringFromBytes'
             - '    , b64StringToBytes'
+            - '    , configDecoder'
             - '    , decodeApply'
-            - '    , decodeCallResult'
-            - '    , decodeConfig'
+            - '    , decodeString'
+            - '    , decodeValue'
+            - '    , decoder'
             - '    , emptyBytes'
-            - '    , mapResult'
-            - '    , translateHttpError'
-            - '    , unwrapHttpResult'
+            - '    , errorToString'
+            - '    , fromHttpResult'
+            - '    , map'
             - '    )'
             - ""
             - import Array exposing (Array)
@@ -2385,8 +2416,8 @@
             - '    }'
             - ""
             - ""
-            - 'decodeConfig : JsonDec.Decoder Config'
-            - decodeConfig =
+            - 'configDecoder : JsonDec.Decoder Config'
+            - configDecoder =
             - '    let'
             - '        mapHeader : Array String -> Http.Header'
             - '        mapHeader arr ='
@@ -2415,71 +2446,101 @@
             - '    JsonDec.andThen (\p -> JsonDec.map p fieldDec) partial'
             - ""
             - ""
-            - type CallResult a
+            - type RpcError
             - '    = HttpError Http.Error'
+            - '    | JsonError JsonDec.Error'
             - '    | ApiError String'
-            - '    | Success a'
             - ""
             - ""
-            - 'translateHttpError : Http.Error -> String'
-            - translateHttpError httpErr =
+            - type alias RpcResult a =
+            - '    Result RpcError a'
+            - ""
+            - ""
+            - 'fromHttpResult : Result Http.Error (RpcResult a) -> RpcResult a'
+            - fromHttpResult httpResult =
+            - '    case httpResult of'
+            - '        Err err ->'
+            - '            Err (HttpError err)'
+            - ""
+            - '        Ok result ->'
+            - '            -- unwrap inner result'
+            - '            result'
+            - ""
+            - ""
+            - 'errorToString : RpcError -> String'
+            - errorToString httpErr =
             - '    case httpErr of'
-            - '        BadUrl str ->'
+            - '        HttpError (BadUrl str) ->'
             - '            "Bad URL: " ++ str'
             - ""
-            - '        Timeout ->'
+            - '        HttpError Timeout ->'
             - '            "Network Timeout"'
             - ""
-            - '        NetworkError ->'
+            - '        HttpError NetworkError ->'
             - '            "Network Error"'
             - ""
-            - '        BadStatus code ->'
+            - '        HttpError (BadStatus code) ->'
             - '            "Bad Status Code: " ++ String.fromInt code'
             - ""
-            - '        BadBody str ->'
+            - '        HttpError (BadBody str) ->'
             - '            "Malformed Response: " ++ str'
             - ""
+            - '        JsonError err ->'
+            - '            "JSON Error: " ++ JsonDec.errorToString err'
             - ""
-            - 'mapResult : { onHttpErr : Http.Error -> msg, onApiErr : String -> msg,
-              onSuccess : a -> msg } -> CallResult a -> msg'
-            - mapResult mapper result =
+            - '        ApiError str ->'
+            - '            str'
+            - ""
+            - ""
+            - 'map : (RpcError -> msg) -> (a -> msg) -> RpcResult a -> msg'
+            - map errMap okMap result =
             - '    case result of'
-            - '        HttpError httpErr ->'
-            - '            mapper.onHttpErr httpErr'
+            - '        Err err ->'
+            - '            errMap err'
             - ""
-            - '        ApiError err ->'
-            - '            mapper.onApiErr err'
-            - ""
-            - '        Success obj ->'
-            - '            mapper.onSuccess obj'
+            - '        Ok obj ->'
+            - '            okMap obj'
             - ""
             - ""
-            - 'unwrapHttpResult : Result Http.Error (CallResult a) -> CallResult a'
-            - unwrapHttpResult result =
-            - '    case result of'
-            - '        Ok callResult ->'
-            - '            callResult'
+            - 'decodeString : JsonDec.Decoder (RpcResult a) -> String -> RpcResult
+              a'
+            - decodeString decoder_ str =
+            - '    case JsonDec.decodeString decoder_ str of'
+            - '        Ok v ->'
+            - '            -- unwrap inner Result'
+            - '            v'
             - ""
-            - '        Err httpErr ->'
-            - '            HttpError httpErr'
+            - '        Err err ->'
+            - '            Err (JsonError err)'
             - ""
             - ""
-            - 'decodeCallResult : JsonDec.Decoder a -> JsonDec.Decoder (CallResult
-              a)'
-            - decodeCallResult decodeReturns =
+            - 'decodeValue : JsonDec.Decoder (RpcResult a) -> JsonDec.Value -> RpcResult
+              a'
+            - decodeValue decoder_ value =
+            - '    case JsonDec.decodeValue decoder_ value of'
+            - '        Ok v ->'
+            - '            -- unwrap inner Result'
+            - '            v'
+            - ""
+            - '        Err err ->'
+            - '            Err (JsonError err)'
+            - ""
+            - ""
+            - 'decoder : JsonDec.Decoder a -> JsonDec.Decoder (RpcResult a)'
+            - decoder returnDecoder =
             - '    let'
-            - '        mapResultObj : Maybe String -> a -> CallResult a'
-            - '        mapResultObj err ret ='
+            - '        mapToResult : Maybe String -> a -> RpcResult a'
+            - '        mapToResult err ret ='
             - '            case err of'
             - '                Just str ->'
-            - '                    ApiError str'
+            - '                    Err (ApiError str)'
             - ""
             - '                Nothing ->'
-            - '                    Success ret'
+            - '                    Ok ret'
             - '    in'
-            - '    JsonDec.map2 mapResultObj'
+            - '    JsonDec.map2 mapToResult'
             - '        (JsonDec.field "error" (JsonDec.maybe JsonDec.string))'
-            - '        (JsonDec.field "returns" decodeReturns)'
+            - '        (JsonDec.field "returns" returnDecoder)'
             - ""
             - ""
             - 'emptyBytes : Bytes'
@@ -2568,11 +2629,11 @@
             - '                            get3 |> BytesDec.map (appendB64State 3
               state)'
             - ""
-            - '        decoder ='
+            - '        decoder_ ='
             - '            BytesDec.loop (initialB64State bytes) process'
             - '                |> BytesDec.map String.fromList'
             - '    in'
-            - '    BytesDec.decode decoder bytes'
+            - '    BytesDec.decode decoder_ bytes'
             - ""
             - ""
             - '{-| base64 1111 1122 2222 3333 3344 4444'
@@ -2895,8 +2956,7 @@
             - import Time exposing (Posix)
             - import Bytes exposing (Bytes)
             - import Bytes.Encode
-            - import RpcUtil exposing (Config, CallResult, unwrapHttpResult, decodeCallResult,
-              decodeApply)
+            - import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
             - ""
             - ""
             - ""
@@ -3299,12 +3359,12 @@
             - ""
             - ""
             - ""
-            - 'callAllThe : Config -> InputForAllThe -> (CallResult OutputForAllThe
+            - 'callAllThe : Config -> InputForAllThe -> (RpcResult OutputForAllThe
               -> a) -> Cmd a'
             - callAllThe config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForAllThe input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForAllThe)'
             - '    in'
             - '    Http.request'
@@ -3317,12 +3377,12 @@
             - '        , tracker = Nothing'
             - '        }'
             - ""
-            - 'callCatIn : Config -> InputForCatIn -> (CallResult OutputForCatIn ->
+            - 'callCatIn : Config -> InputForCatIn -> (RpcResult OutputForCatIn ->
               a) -> Cmd a'
             - callCatIn config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForCatIn input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForCatIn)'
             - '    in'
             - '    Http.request'
@@ -3335,12 +3395,12 @@
             - '        , tracker = Nothing'
             - '        }'
             - ""
-            - 'callMixEmUp : Config -> InputForMixEmUp -> (CallResult OutputForMixEmUp
+            - 'callMixEmUp : Config -> InputForMixEmUp -> (RpcResult OutputForMixEmUp
               -> a) -> Cmd a'
             - callMixEmUp config input mapResult =
             - '    let'
             - '        body = Http.jsonBody (encodeInputForMixEmUp input)'
-            - '        expect = Http.expectJson (unwrapHttpResult >> mapResult) (decodeCallResult
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
               decodeOutputForMixEmUp)'
             - '    in'
             - '    Http.request'
@@ -3354,17 +3414,20 @@
             - '        }'
             - ""
             - module RpcUtil exposing
-            - '    ( CallResult(..)'
-            - '    , Config'
+            - '    ( Config'
+            - '    , RpcError(..)'
+            - '    , RpcResult'
             - '    , b64StringFromBytes'
             - '    , b64StringToBytes'
+            - '    , configDecoder'
             - '    , decodeApply'
-            - '    , decodeCallResult'
-            - '    , decodeConfig'
+            - '    , decodeString'
+            - '    , decodeValue'
+            - '    , decoder'
             - '    , emptyBytes'
-            - '    , mapResult'
-            - '    , translateHttpError'
-            - '    , unwrapHttpResult'
+            - '    , errorToString'
+            - '    , fromHttpResult'
+            - '    , map'
             - '    )'
             - ""
             - import Array exposing (Array)
@@ -3383,8 +3446,8 @@
             - '    }'
             - ""
             - ""
-            - 'decodeConfig : JsonDec.Decoder Config'
-            - decodeConfig =
+            - 'configDecoder : JsonDec.Decoder Config'
+            - configDecoder =
             - '    let'
             - '        mapHeader : Array String -> Http.Header'
             - '        mapHeader arr ='
@@ -3413,71 +3476,101 @@
             - '    JsonDec.andThen (\p -> JsonDec.map p fieldDec) partial'
             - ""
             - ""
-            - type CallResult a
+            - type RpcError
             - '    = HttpError Http.Error'
+            - '    | JsonError JsonDec.Error'
             - '    | ApiError String'
-            - '    | Success a'
             - ""
             - ""
-            - 'translateHttpError : Http.Error -> String'
-            - translateHttpError httpErr =
+            - type alias RpcResult a =
+            - '    Result RpcError a'
+            - ""
+            - ""
+            - 'fromHttpResult : Result Http.Error (RpcResult a) -> RpcResult a'
+            - fromHttpResult httpResult =
+            - '    case httpResult of'
+            - '        Err err ->'
+            - '            Err (HttpError err)'
+            - ""
+            - '        Ok result ->'
+            - '            -- unwrap inner result'
+            - '            result'
+            - ""
+            - ""
+            - 'errorToString : RpcError -> String'
+            - errorToString httpErr =
             - '    case httpErr of'
-            - '        BadUrl str ->'
+            - '        HttpError (BadUrl str) ->'
             - '            "Bad URL: " ++ str'
             - ""
-            - '        Timeout ->'
+            - '        HttpError Timeout ->'
             - '            "Network Timeout"'
             - ""
-            - '        NetworkError ->'
+            - '        HttpError NetworkError ->'
             - '            "Network Error"'
             - ""
-            - '        BadStatus code ->'
+            - '        HttpError (BadStatus code) ->'
             - '            "Bad Status Code: " ++ String.fromInt code'
             - ""
-            - '        BadBody str ->'
+            - '        HttpError (BadBody str) ->'
             - '            "Malformed Response: " ++ str'
             - ""
+            - '        JsonError err ->'
+            - '            "JSON Error: " ++ JsonDec.errorToString err'
             - ""
-            - 'mapResult : { onHttpErr : Http.Error -> msg, onApiErr : String -> msg,
-              onSuccess : a -> msg } -> CallResult a -> msg'
-            - mapResult mapper result =
+            - '        ApiError str ->'
+            - '            str'
+            - ""
+            - ""
+            - 'map : (RpcError -> msg) -> (a -> msg) -> RpcResult a -> msg'
+            - map errMap okMap result =
             - '    case result of'
-            - '        HttpError httpErr ->'
-            - '            mapper.onHttpErr httpErr'
+            - '        Err err ->'
+            - '            errMap err'
             - ""
-            - '        ApiError err ->'
-            - '            mapper.onApiErr err'
-            - ""
-            - '        Success obj ->'
-            - '            mapper.onSuccess obj'
+            - '        Ok obj ->'
+            - '            okMap obj'
             - ""
             - ""
-            - 'unwrapHttpResult : Result Http.Error (CallResult a) -> CallResult a'
-            - unwrapHttpResult result =
-            - '    case result of'
-            - '        Ok callResult ->'
-            - '            callResult'
+            - 'decodeString : JsonDec.Decoder (RpcResult a) -> String -> RpcResult
+              a'
+            - decodeString decoder_ str =
+            - '    case JsonDec.decodeString decoder_ str of'
+            - '        Ok v ->'
+            - '            -- unwrap inner Result'
+            - '            v'
             - ""
-            - '        Err httpErr ->'
-            - '            HttpError httpErr'
+            - '        Err err ->'
+            - '            Err (JsonError err)'
             - ""
             - ""
-            - 'decodeCallResult : JsonDec.Decoder a -> JsonDec.Decoder (CallResult
-              a)'
-            - decodeCallResult decodeReturns =
+            - 'decodeValue : JsonDec.Decoder (RpcResult a) -> JsonDec.Value -> RpcResult
+              a'
+            - decodeValue decoder_ value =
+            - '    case JsonDec.decodeValue decoder_ value of'
+            - '        Ok v ->'
+            - '            -- unwrap inner Result'
+            - '            v'
+            - ""
+            - '        Err err ->'
+            - '            Err (JsonError err)'
+            - ""
+            - ""
+            - 'decoder : JsonDec.Decoder a -> JsonDec.Decoder (RpcResult a)'
+            - decoder returnDecoder =
             - '    let'
-            - '        mapResultObj : Maybe String -> a -> CallResult a'
-            - '        mapResultObj err ret ='
+            - '        mapToResult : Maybe String -> a -> RpcResult a'
+            - '        mapToResult err ret ='
             - '            case err of'
             - '                Just str ->'
-            - '                    ApiError str'
+            - '                    Err (ApiError str)'
             - ""
             - '                Nothing ->'
-            - '                    Success ret'
+            - '                    Ok ret'
             - '    in'
-            - '    JsonDec.map2 mapResultObj'
+            - '    JsonDec.map2 mapToResult'
             - '        (JsonDec.field "error" (JsonDec.maybe JsonDec.string))'
-            - '        (JsonDec.field "returns" decodeReturns)'
+            - '        (JsonDec.field "returns" returnDecoder)'
             - ""
             - ""
             - 'emptyBytes : Bytes'
@@ -3566,11 +3659,11 @@
             - '                            get3 |> BytesDec.map (appendB64State 3
               state)'
             - ""
-            - '        decoder ='
+            - '        decoder_ ='
             - '            BytesDec.loop (initialB64State bytes) process'
             - '                |> BytesDec.map String.fromList'
             - '    in'
-            - '    BytesDec.decode decoder bytes'
+            - '    BytesDec.decode decoder_ bytes'
             - ""
             - ""
             - '{-| base64 1111 1122 2222 3333 3344 4444'
@@ -4002,7 +4095,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"minitodo/Delete\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"minitodo/Delete\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"minitodo/Delete\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -4049,7 +4144,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"minitodo/Get\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"minitodo/Get\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"minitodo/Get\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -4080,7 +4177,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"minitodo/List\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"minitodo/List\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"minitodo/List\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -4127,7 +4226,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"minitodo/Put\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"minitodo/Put\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"minitodo/Put\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -4704,7 +4805,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"examples/system/Status\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"examples/system/Status\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"examples/system/Status\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -4770,7 +4873,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"examples/todos/Delete\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"examples/todos/Delete\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"examples/todos/Delete\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -4817,7 +4922,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"examples/todos/Get\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"examples/todos/Get\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"examples/todos/Get\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -4848,7 +4955,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"examples/todos/List\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"examples/todos/List\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"examples/todos/List\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -4895,7 +5004,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"examples/todos/Put\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"examples/todos/Put\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"examples/todos/Put\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -5739,7 +5850,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"rpc/AllThe\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"rpc/AllThe\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"rpc/AllThe\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -5786,7 +5899,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"rpc/CatIn\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"rpc/CatIn\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"rpc/CatIn\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"
@@ -5837,7 +5952,9 @@
             - "\t\tresult := &Result{}"
             - "\t\tif err != nil {"
             - "\t\t\terr = s.options.ErrFilter(req, \"rpc/MixEmUp\", err)"
-            - "\t\t\ts.options.ErrLog(req, \"rpc/MixEmUp\", err)"
+            - "\t\t\tif s.options.ErrLog != nil {"
+            - "\t\t\t\ts.options.ErrLog(req, \"rpc/MixEmUp\", err)"
+            - "\t\t\t}"
             - "\t\t\tresult.Error = err"
             - "\t\t} else {"
             - "\t\t\tresult.Returns = []interface{}{"

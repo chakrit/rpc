@@ -130,7 +130,9 @@ func (s *Server) HTTPHandler() http.Handler {
             result := &Result{}
             if err != nil {
                 err = s.options.ErrFilter(req, "{{ $pkg.RPCPath }}/{{ $rpc.Name }}", err)
-                s.options.ErrLog(req, "{{ $pkg.RPCPath }}/{{ $rpc.Name }}", err)
+                if s.options.ErrLog != nil {
+                    s.options.ErrLog(req, "{{ $pkg.RPCPath }}/{{ $rpc.Name }}", err)
+                }
                 result.Error = err
             } else {
                 result.Returns = []interface{}{

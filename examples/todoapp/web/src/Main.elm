@@ -11,7 +11,7 @@ import Html exposing (Html, div, text)
 import Html.Attributes exposing (value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode
-import RpcUtil as Rpc exposing (CallResult(..), b64StringFromBytes, mapResult, translateHttpError)
+import RpcUtil as Rpc exposing (RpcError(..), b64StringFromBytes)
 import Task
 import Time exposing (Month(..), utc)
 
@@ -52,28 +52,33 @@ type Msg
     | ListReply (List TodoItem)
 
 
+onError : RpcError -> Msg
+onError rpcError =
+    let
+        prefix =
+            case rpcError of
+                HttpError _ ->
+                    "HTTP Error: "
+
+                JsonError _ ->
+                    "JSON Error: "
+
+                ApiError _ ->
+                    "API Error: "
+    in
+    ErrorReply (prefix ++ Rpc.errorToString rpcError)
+
+
 onCreateReply =
-    mapResult
-        { onHttpErr = translateHttpError >> ErrorReply
-        , onApiErr = ErrorReply
-        , onSuccess = always Reset
-        }
+    Rpc.map onError (always Reset)
 
 
 onListReply =
-    mapResult
-        { onHttpErr = translateHttpError >> ErrorReply
-        , onApiErr = ErrorReply
-        , onSuccess = ListReply
-        }
+    Rpc.map onError ListReply
 
 
 onDeleteReply =
-    mapResult
-        { onHttpErr = translateHttpError >> ErrorReply
-        , onApiErr = ErrorReply
-        , onSuccess = always Refresh
-        }
+    Rpc.map onError (always Refresh)
 
 
 init : Flags -> ( Model, Cmd Msg )

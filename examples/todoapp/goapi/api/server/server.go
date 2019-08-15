@@ -98,7 +98,9 @@ func (s *Server) register_rpc_root(
 		result := &Result{}
 		if err != nil {
 			err = s.options.ErrFilter(req, "api/Create", err)
-			s.options.ErrLog(req, "api/Create", err)
+			if s.options.ErrLog != nil {
+				s.options.ErrLog(req, "api/Create", err)
+			}
 			result.Error = err
 		} else {
 			result.Returns = []interface{}{
@@ -143,7 +145,9 @@ func (s *Server) register_rpc_root(
 		result := &Result{}
 		if err != nil {
 			err = s.options.ErrFilter(req, "api/Destroy", err)
-			s.options.ErrLog(req, "api/Destroy", err)
+			if s.options.ErrLog != nil {
+				s.options.ErrLog(req, "api/Destroy", err)
+			}
 			result.Error = err
 		} else {
 			result.Returns = []interface{}{
@@ -173,7 +177,9 @@ func (s *Server) register_rpc_root(
 		result := &Result{}
 		if err != nil {
 			err = s.options.ErrFilter(req, "api/List", err)
-			s.options.ErrLog(req, "api/List", err)
+			if s.options.ErrLog != nil {
+				s.options.ErrLog(req, "api/List", err)
+			}
 			result.Error = err
 		} else {
 			result.Returns = []interface{}{

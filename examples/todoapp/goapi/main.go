@@ -53,7 +53,13 @@ func main() {
 }
 
 func runServerCmd(cmd *cobra.Command, args []string) {
-	opts := server.Options{Addr: flags.Addr}
+	opts := server.Options{
+		Addr:      flags.Addr,
+		CtxFilter: nil,
+		ErrFilter: nil,
+		ErrLog:    nil,
+		FormatErr: nil,
+	}
 	srv := server.New(&opts)
 	srv.Provider = provider{}
 
