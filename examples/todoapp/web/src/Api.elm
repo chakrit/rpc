@@ -4,10 +4,11 @@ import Http
 import Json.Decode as D
 import Json.Encode as E
 import Dict exposing (Dict)
+import Task exposing (Task)
 import Time exposing (Posix)
 import Bytes exposing (Bytes)
 import Bytes.Encode
-import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
+import RpcUtil exposing (Config, RpcError, RpcResult, decodeApply, fromHttpResult)
 
 
 
@@ -168,6 +169,25 @@ decodeOutputForList =
 
 
 
+callCreateTask : Config -> InputForCreate -> Task RpcError OutputForCreate
+callCreateTask config input =
+    let
+        body =
+            Http.jsonBody (encodeInputForCreate input)
+
+        resolver =
+            RpcUtil.resolver decodeOutputForCreate
+    in
+    Http.task
+        { method = "POST"
+        , headers = config.headers
+        , url = config.baseUrl ++ "/api/Create"
+        , body = body
+        , resolver = resolver
+        , timeout = Nothing
+        }
+
+
 callCreate : Config -> InputForCreate -> (RpcResult OutputForCreate -> a) -> Cmd a
 callCreate config input mapResult =
     let
@@ -184,6 +204,25 @@ callCreate config input mapResult =
         , tracker = Nothing
         }
 
+callDestroyTask : Config -> InputForDestroy -> Task RpcError OutputForDestroy
+callDestroyTask config input =
+    let
+        body =
+            Http.jsonBody (encodeInputForDestroy input)
+
+        resolver =
+            RpcUtil.resolver decodeOutputForDestroy
+    in
+    Http.task
+        { method = "POST"
+        , headers = config.headers
+        , url = config.baseUrl ++ "/api/Destroy"
+        , body = body
+        , resolver = resolver
+        , timeout = Nothing
+        }
+
+
 callDestroy : Config -> InputForDestroy -> (RpcResult OutputForDestroy -> a) -> Cmd a
 callDestroy config input mapResult =
     let
@@ -199,6 +238,25 @@ callDestroy config input mapResult =
         , timeout = Nothing
         , tracker = Nothing
         }
+
+callListTask : Config -> InputForList -> Task RpcError OutputForList
+callListTask config input =
+    let
+        body =
+            Http.jsonBody (encodeInputForList input)
+
+        resolver =
+            RpcUtil.resolver decodeOutputForList
+    in
+    Http.task
+        { method = "POST"
+        , headers = config.headers
+        , url = config.baseUrl ++ "/api/List"
+        , body = body
+        , resolver = resolver
+        , timeout = Nothing
+        }
+
 
 callList : Config -> InputForList -> (RpcResult OutputForList -> a) -> Cmd a
 callList config input mapResult =

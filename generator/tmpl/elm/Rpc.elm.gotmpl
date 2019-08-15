@@ -4,10 +4,11 @@ import Http
 import Json.Decode as D
 import Json.Encode as E
 import Dict exposing (Dict)
+import Task exposing (Task)
 import Time exposing (Posix)
 import Bytes exposing (Bytes)
 import Bytes.Encode
-import RpcUtil exposing (Config, RpcResult, decodeApply, fromHttpResult)
+import RpcUtil exposing (Config, RpcError, RpcResult, decodeApply, fromHttpResult)
 {{- range $import := .Imports  }}
 import {{ $import.Name }}
 {{- end  }}
@@ -121,6 +122,25 @@ decode{{ $tuple.Name }} =
 {{  end  }}
 
 {{  range $rpc := .RPCFuncs  }}
+call{{ $rpc.Name }}Task : Config -> InputFor{{ $rpc.Name }} -> Task RpcError OutputFor{{ $rpc.Name }}
+call{{ $rpc.Name }}Task config input =
+    let
+        body =
+            Http.jsonBody (encodeInputFor{{ $rpc.Name }} input)
+
+        resolver =
+            RpcUtil.resolver decodeOutputFor{{ $rpc.Name }}
+    in
+    Http.task
+        { method = "POST"
+        , headers = config.headers
+        , url = config.baseUrl ++ "/{{ $rpc.RPCPath }}"
+        , body = body
+        , resolver = resolver
+        , timeout = Nothing
+        }
+
+
 call{{ $rpc.Name }} : Config -> InputFor{{ $rpc.Name }} -> (RpcResult OutputFor{{ $rpc.Name }} -> a) -> Cmd a
 call{{ $rpc.Name }} config input mapResult =
     let

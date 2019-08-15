@@ -13,6 +13,7 @@ module RpcUtil exposing
     , errorToString
     , fromHttpResult
     , map
+    , resolver
     )
 
 import Array exposing (Array)
@@ -21,7 +22,7 @@ import Bytes exposing (Bytes)
 import Bytes.Decode as BytesDec
 import Bytes.Encode as BytesEnc
 import Dict exposing (Dict)
-import Http exposing (Error(..))
+import Http exposing (Error(..), Resolver, Response(..))
 import Json.Decode as JsonDec
 
 
@@ -103,6 +104,28 @@ errorToString httpErr =
 
         ApiError str ->
             str
+
+
+resolver : JsonDec.Decoder a -> Resolver RpcError a
+resolver decoder_ =
+    Http.stringResolver
+        (\resp ->
+            case resp of
+                BadUrl_ s ->
+                    Err (HttpError (BadUrl s))
+
+                Timeout_ ->
+                    Err (HttpError Timeout)
+
+                NetworkError_ ->
+                    Err (HttpError NetworkError)
+
+                BadStatus_ metadata _ ->
+                    Err (HttpError (BadStatus metadata.statusCode))
+
+                GoodStatus_ metadata str ->
+                    decodeString (decoder decoder_) str
+        )
 
 
 map : (RpcError -> msg) -> (a -> msg) -> RpcResult a -> msg
