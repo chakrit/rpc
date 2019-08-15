@@ -75,11 +75,13 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 			Default: `Time.millisToPosix 0`,
 		}
 	case "data":
+		// data url is used on most things on Elm-side and we have easy conversion with
+		// File.toUrl so we assume simple string handling on Elm side for binary data
 		return &ElmTypeResolution{
-			Name:    "Bytes",
-			Encode:  `(RpcUtil.b64StringFromBytes >> Maybe.withDefault "" >> E.string)`,
-			Decode:  `(D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))`,
-			Default: `RpcUtil.emptyBytes`,
+			Name:    "String",
+			Encode:  `E.string`,
+			Decode:  `D.string`,
+			Default: `""`,
 		}
 	default:
 		return r.resolveUnknown()

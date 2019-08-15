@@ -16,7 +16,7 @@ type alias TodoItem =
     { ctime : Posix
     , description : String
     , id : Int
-    , metadata : Bytes
+    , metadata : String
     }
 
 defaultTodoItem : TodoItem
@@ -24,7 +24,7 @@ defaultTodoItem =
     { ctime = Time.millisToPosix 0
     , description = ""
     , id = 0
-    , metadata = RpcUtil.emptyBytes
+    , metadata = ""
     }
 
 encodeTodoItem : TodoItem -> E.Value
@@ -33,7 +33,7 @@ encodeTodoItem obj =
         [ ( "ctime", (Time.posixToMillis >> toFloat >> (\f -> f/1000.0) >> E.float) obj.ctime )
         , ( "description", E.string obj.description )
         , ( "id", E.int obj.id )
-        , ( "metadata", (RpcUtil.b64StringFromBytes >> Maybe.withDefault "" >> E.string) obj.metadata )
+        , ( "metadata", E.string obj.metadata )
         ]
 
 decodeTodoItem : D.Decoder TodoItem
@@ -54,10 +54,10 @@ decodeTodoItem =
                     |> D.maybe
                     |> D.map (Maybe.withDefault (0))
                 )
-                ((D.map (Maybe.withDefault "" >> RpcUtil.b64StringToBytes >> Maybe.withDefault (Bytes.Encode.encode (Bytes.Encode.string ""))) (D.maybe D.string))
+                (D.string
                     |> D.field "metadata"
                     |> D.maybe
-                    |> D.map (Maybe.withDefault (RpcUtil.emptyBytes))
+                    |> D.map (Maybe.withDefault (""))
                 )
     
 
