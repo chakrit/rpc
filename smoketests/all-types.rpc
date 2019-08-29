@@ -32,6 +32,18 @@ type Containers {
     map<string, data>   soongTypeMap
 }
 
+enum Enums {
+    The
+    Quick
+    Brown
+    Fox
+    Jumps
+    Over
+    The
+    Lazy
+    Dog
+}
+
 rpc AllThe(Things) Things
 rpc CatIn(Containers) Containers
 
