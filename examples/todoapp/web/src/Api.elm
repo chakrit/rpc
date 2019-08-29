@@ -17,6 +17,7 @@ type alias TodoItem =
     , description : String
     , id : Int
     , metadata : String
+    , state : State
     }
 
 defaultTodoItem : TodoItem
@@ -25,6 +26,7 @@ defaultTodoItem =
     , description = ""
     , id = 0
     , metadata = ""
+    , state = defaultState
     }
 
 encodeTodoItem : TodoItem -> E.Value
@@ -34,11 +36,12 @@ encodeTodoItem obj =
         , ( "description", E.string obj.description )
         , ( "id", E.int obj.id )
         , ( "metadata", E.string obj.metadata )
+        , ( "state", encodeState obj.state )
         ]
 
 decodeTodoItem : D.Decoder TodoItem
 decodeTodoItem =
-    D.map4 TodoItem
+    D.map5 TodoItem
                 ((D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)
                     |> D.field "ctime"
                     |> D.maybe
@@ -59,7 +62,54 @@ decodeTodoItem =
                     |> D.maybe
                     |> D.map (Maybe.withDefault (""))
                 )
+                (decodeState
+                    |> D.field "state"
+                    |> D.maybe
+                    |> D.map (Maybe.withDefault (defaultState))
+                )
     
+
+
+
+type State
+    = New
+    | InProgress
+    | Completed
+
+stringToState : String -> Maybe State
+stringToState str =
+    case str of
+        "new" ->
+            Just New
+        "in_progress" ->
+            Just InProgress
+        "completed" ->
+            Just Completed
+        _ ->
+            Nothing
+
+stringFromState : State -> String
+stringFromState v =
+    case v of
+        New ->
+            "new"
+        InProgress ->
+            "in_progress"
+        Completed ->
+            "completed"
+
+defaultState =
+    New
+
+encodeState : State -> E.Value
+encodeState =
+    stringFromState >> E.string
+
+decodeState : D.Decoder State
+decodeState =
+    D.string
+        |> D.map stringToState
+        |> D.map (Maybe.withDefault defaultState)
 
 
 

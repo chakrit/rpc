@@ -17,42 +17,55 @@ const (
 	ModuleOption     = "elm_module"
 )
 
-type Field struct {
-	Name string
-	Type *TypeRef
-}
+type (
+	Field struct {
+		Name string
+		Type *TypeRef
+	}
 
-type Type struct {
-	Name   string
-	Fields []*Field
-	Module *Module
-}
+	Member struct {
+		Name  string
+		Value string
+	}
 
-type TypeRef struct {
-	Name   string
-	Args   []*TypeRef
-	Module *Module
-}
+	Type struct {
+		Name   string
+		Fields []*Field
+		Module *Module
+	}
 
-type TypeResolution struct {
-	Name    string
-	Encode  string
-	Decode  string
-	Default string
-}
+	Enum struct {
+		Name    string
+		Members []*Member
+		Module  *Module
+	}
 
-type Tuple struct {
-	Name string
-	Args []*TypeRef
-}
+	TypeRef struct {
+		Name   string
+		Args   []*TypeRef
+		Module *Module
+	}
 
-type RpcFunc struct {
-	Name    string
-	RPCPath string
+	TypeResolution struct {
+		Name    string
+		Encode  string
+		Decode  string
+		Default string
+	}
 
-	InArgs  []*TypeRef
-	OutArgs []*TypeRef
-}
+	Tuple struct {
+		Name string
+		Args []*TypeRef
+	}
+
+	RpcFunc struct {
+		Name    string
+		RPCPath string
+
+		InArgs  []*TypeRef
+		OutArgs []*TypeRef
+	}
+)
 
 func Generate(ns *spec.Namespace, outdir string) error {
 	module := newModule(nil, outdir, ns)

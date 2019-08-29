@@ -61,6 +61,16 @@ func (obj *{{$name}}) UnmarshalJSON(buf []byte) error {
 }
 {{ end }}
 
+{{ range $name, $enum := .Namespace.Enums }}
+type {{ $name }} string
+
+const (
+    {{  range $member := $enum.Members -}}
+    {{ $member }} = {{ $name }}("{{ snake $member }}")
+    {{  end -}}
+)
+{{ end }}
+
 type Interface interface {
     {{  range $name, $rpc := .Namespace.RPCs -}}
     {{ $name }}(context.Context,

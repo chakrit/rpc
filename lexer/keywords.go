@@ -9,6 +9,7 @@ var Keywords = map[string]struct{}{
 	// definitions
 	"namespace": {},
 	"type":      {},
+	"enum":      {},
 	"rpc":       {},
 
 	// built-in types

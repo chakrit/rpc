@@ -20,6 +20,7 @@ type Module struct {
 	Registry  Registry
 
 	Types    []*Type
+	Enums    []*Enum
 	Tuples   []*Tuple
 	RPCFuncs []*RpcFunc
 	Imports  []*Module
@@ -93,7 +94,25 @@ func (m *Module) resolveTypes() {
 		}
 
 		m.Types = append(m.Types, elmType)
-		m.Registry.Register(elmType)
+		m.Registry.RegisterType(elmType)
+	}
+
+	for _, e := range m.Namespace.Enums.SortedByName() {
+		enum := e.(*spec.Enum)
+		elmEnum := &Enum{
+			Name:   enum.Name,
+			Module: m,
+		}
+
+		for _, m := range enum.Members {
+			elmEnum.Members = append(elmEnum.Members, &Member{
+				Name:  m,
+				Value: internal.InflectSnake(m),
+			})
+		}
+
+		m.Enums = append(m.Enums, elmEnum)
+		m.Registry.RegisterEnum(elmEnum)
 	}
 }
 
@@ -127,6 +146,9 @@ func (m *Module) resolveImports() {
 	imports := map[string]struct{}{}
 	for _, typ := range m.Types {
 		locals[typ.Name] = struct{}{}
+	}
+	for _, enum := range m.Enums {
+		locals[enum.Name] = struct{}{}
 	}
 
 	var check func(ref *TypeRef)

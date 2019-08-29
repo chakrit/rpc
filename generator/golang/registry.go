@@ -12,6 +12,11 @@ func (r TypeRegistry) RegisterAll(pkg *Pkg) {
 		slug := r.slug(pkg, typ.Name)
 		r[slug] = rtUserDefined{typ.Name, pkg}
 	}
+	for _, enumNode := range pkg.Namespace.Enums {
+		enum := enumNode.(*spec.Enum)
+		slug := r.slug(pkg, enum.Name)
+		r[slug] = rtEnum{enum.Name, pkg}
+	}
 
 	for _, child := range pkg.Children {
 		r.RegisterAll(child)
@@ -27,7 +32,7 @@ func (r TypeRegistry) Resolve(pkg *Pkg, ref *spec.TypeRef) ResolvedType {
 	case "map":
 		return r.resolveMapType(pkg, ref)
 	default:
-		return r.resolveUserDefinedType(pkg, ref)
+		return r.resolveCustomType(pkg, ref)
 	}
 }
 
@@ -90,11 +95,16 @@ func (r TypeRegistry) resolveMapType(pkg *Pkg, ref *spec.TypeRef) ResolvedType {
 	}
 }
 
-func (r TypeRegistry) resolveUserDefinedType(pkg *Pkg, ref *spec.TypeRef) ResolvedType {
+func (r TypeRegistry) resolveCustomType(pkg *Pkg, ref *spec.TypeRef) ResolvedType {
 	for findPkg := pkg; findPkg != nil; findPkg = findPkg.Parent {
 		slug := r.slug(findPkg, ref.Name)
-		if _, ok := r[slug]; ok {
+		switch r[slug].(type) {
+		case nil:
+			continue
+		case rtUserDefined:
 			return rtUserDefined{ref.Name, findPkg}
+		case rtEnum:
+			return rtEnum{ref.Name, findPkg}
 		}
 	}
 

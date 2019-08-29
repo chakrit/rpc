@@ -490,6 +490,7 @@
             - '      }'
             - '    }'
             - '  },'
+            - '  "enums": null,'
             - '  "rpcs": {'
             - '    "Delete": {'
             - '      "name": "Delete",'
@@ -655,11 +656,13 @@
             - '              }'
             - '            }'
             - '          },'
+            - '          "enums": null,'
             - '          "rpcs": null'
             - '        }'
             - '      },'
             - '      "options": null,'
             - '      "types": null,'
+            - '      "enums": null,'
             - '      "rpcs": {'
             - '        "Status": {'
             - '          "name": "Status",'
@@ -752,6 +755,7 @@
             - '          }'
             - '        }'
             - '      },'
+            - '      "enums": null,'
             - '      "rpcs": {'
             - '        "Delete": {'
             - '          "name": "Delete",'
@@ -841,6 +845,7 @@
             - '      }'
             - '    }'
             - '  },'
+            - '  "enums": null,'
             - '  "rpcs": null'
             - '}'
         - name: stderr
@@ -1021,6 +1026,8 @@
             - '                    |> D.map (Maybe.withDefault (""))'
             - '                )'
             - '    '
+            - ""
+            - ""
             - ""
             - ""
             - ""
@@ -1592,6 +1599,8 @@
             - ""
             - ""
             - ""
+            - ""
+            - ""
             - module Rpc.Todos exposing (..)
             - ""
             - import Http
@@ -1698,6 +1707,8 @@
             - '                |> D.map (Maybe.withDefault ([]))'
             - '                |> decodeApply)'
             - '    '
+            - ""
+            - ""
             - ""
             - ""
             - ""
@@ -2008,6 +2019,8 @@
             - ""
             - ""
             - ""
+            - ""
+            - ""
             - type alias InputForStatus =
             - '    (())'
             - ""
@@ -2208,6 +2221,8 @@
             - '                    |> D.map (Maybe.withDefault (""))'
             - '                )'
             - '    '
+            - ""
+            - ""
             - ""
             - ""
             - ""
@@ -2715,6 +2730,8 @@
             - '                |> D.map (Maybe.withDefault (False))'
             - '                |> decodeApply)'
             - '    '
+            - ""
+            - ""
             - ""
             - ""
             - ""

@@ -41,8 +41,7 @@ propose:
    
 3. **Predictable Fallbacks over Precision Semantics**  
    There is no need to have strongly-typed enums when a simple string field
-   suffice in a language without enum. In fact, because of this, I have decided
-   to not implement enum at all for the first version.
+   suffice in a language without them.
    
    There is no need to have perfect target language semantic (like `nil` vs `""`)
    when we can just as easily side-step it in the RPC spec (have no `nil` value)
@@ -80,7 +79,7 @@ $ ./test.sh
 
 # Spec File
 
-Syntax is a very small subset language with braces.
+Syntax is a small language with braces.
 
 ```
 option go_import "github.com/chakrit/todo/rpc"
@@ -88,9 +87,14 @@ option go_package "rpc"
 option elm_module "Rpc"
 
 namespace todo {
+  enum State {
+    Pending
+    Completed
+  }
+
   type TodoItem {
     string text
-    bool   completed
+    State state
   }
 
   rpc ListItems() list<TodoItem>
@@ -101,9 +105,10 @@ namespace todo {
 * `option __name__ __value__` - Sets target-specific option.
 * `namespace __name__ { }` - Defines a scope.
 * `type __name__ { }` - Defines an object type (or class or message).
+* `enum __name__ { }` - Defines an enumeration of values.
 * `rpc __name__ ( __args__ ) __return_args__` - Defines an RPC call.
 
-Supported types:
+Basic types:
 
 | Name   | What's generated
 | :--:   | :--
@@ -116,6 +121,7 @@ Supported types:
 | list   | Arrays or native list type.
 | map    | Dictionaries or hashes.
 | time   | Native time type, or same as `double` representing unix seconds.
+| data   | Raw data buffers.
 
 # LICENSE
 

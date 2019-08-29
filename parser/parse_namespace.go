@@ -70,6 +70,13 @@ func (p *parser) parseNamespace_Content(ns *spec.Namespace) error {
 				ns.Types.Add(typ)
 			}
 
+		case "enum":
+			if enum, err := p.parseEnum(); err != nil {
+				return err
+			} else {
+				ns.Enums.Add(enum)
+			}
+
 		case "rpc":
 			if r, err := p.parseRPC(); err != nil {
 				return err

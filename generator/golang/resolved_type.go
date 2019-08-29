@@ -37,6 +37,10 @@ type (
 		valueArg ResolvedType
 	}
 
+	rtEnum struct {
+		name      string
+		importPkg *Pkg
+	}
 	rtUserDefined struct {
 		name      string
 		importPkg *Pkg
@@ -67,7 +71,6 @@ func (t rtTime) AsMarshaler(current *Pkg) string {
 		"return float64(sec) + (float64(nsec)/float64(time.Second));" +
 		"})"
 }
-
 func (t rtTime) AsUnmarshaler(current *Pkg) string {
 	return "(func (t float64) time.Time {" +
 		"fsec, fnsec := math.Modf(t);" +
@@ -89,6 +92,28 @@ func (t rtMap) ImportPkg() *Pkg      { return nil }
 func (t rtMap) AsReference(cur *Pkg) string {
 	return "map[" + t.keyArg.AsReference(cur) +
 		"]" + t.valueArg.AsReference(cur)
+}
+
+func (t rtEnum) Name() string         { return t.name }
+func (t rtEnum) Args() []ResolvedType { return nil }
+func (t rtEnum) ImportPkg() *Pkg      { return t.importPkg }
+func (t rtEnum) AsReference(cur *Pkg) string {
+	if cur == t.importPkg {
+		return t.name
+	} else {
+		return t.importPkg.MangledName + "." + t.name
+	}
+}
+func (t rtEnum) AsMarshalTarget(cur *Pkg) string {
+	return "string"
+}
+func (t rtEnum) AsMarshaler(cur *Pkg) string {
+	ref := t.AsReference(cur)
+	return "(func(v " + ref + ") string { return string(v) })"
+}
+func (t rtEnum) AsUnmarshaler(cur *Pkg) string {
+	ref := t.AsReference(cur)
+	return "(func(v string) " + ref + " { return " + ref + "(v) })"
 }
 
 func (t rtUserDefined) Name() string         { return t.name }

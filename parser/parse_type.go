@@ -18,7 +18,7 @@ func (p *parser) parseType() (*spec.Type, error) {
 
 	closing, _ := p.Consume()
 	if closing.Type != lexer.T_BlockEnd {
-		return nil, p.Fail("closing brakcet for type{} expected")
+		return nil, p.Fail("closing bracket for type{} expected")
 	}
 
 	return typ, nil

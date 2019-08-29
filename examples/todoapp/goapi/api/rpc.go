@@ -22,6 +22,7 @@ type TodoItem struct {
 	Description string    `json:"description" yaml:"description" db:"description"`
 	ID          int64     `json:"id" yaml:"id" db:"id"`
 	Metadata    []byte    `json:"metadata" yaml:"metadata" db:"metadata"`
+	State       State     `json:"state" yaml:"state" db:"state"`
 }
 
 func (obj *TodoItem) MarshalJSON() ([]byte, error) {
@@ -30,6 +31,7 @@ func (obj *TodoItem) MarshalJSON() ([]byte, error) {
 		Description string  `json:"description"`
 		ID          int64   `json:"id"`
 		Metadata    []byte  `json:"metadata"`
+		State       string  `json:"state"`
 	}{
 		Ctime: (func(t time.Time) float64 {
 			sec, nsec := t.Unix(), t.Nanosecond()
@@ -38,6 +40,7 @@ func (obj *TodoItem) MarshalJSON() ([]byte, error) {
 		Description: (obj.Description),
 		ID:          (obj.ID),
 		Metadata:    (obj.Metadata),
+		State:       (func(v State) string { return string(v) })(obj.State),
 	}
 	return json.Marshal(outobj)
 }
@@ -48,6 +51,7 @@ func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
 		Description string  `json:"description"`
 		ID          int64   `json:"id"`
 		Metadata    []byte  `json:"metadata"`
+		State       string  `json:"state"`
 	}{}
 
 	if err := json.Unmarshal(buf, &inobj); err != nil {
@@ -62,8 +66,17 @@ func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
 	obj.Description = (inobj.Description)
 	obj.ID = (inobj.ID)
 	obj.Metadata = (inobj.Metadata)
+	obj.State = (func(v string) State { return State(v) })(inobj.State)
 	return nil
 }
+
+type State string
+
+const (
+	New        = State("new")
+	InProgress = State("in_progress")
+	Completed  = State("completed")
+)
 
 type Interface interface {
 	Create(context.Context, string) (*TodoItem, error,

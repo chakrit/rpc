@@ -6,6 +6,7 @@ type Namespace struct {
 	Options  map[string]interface{} `json:"options"`
 
 	Types Mappings `json:"types"`
+	Enums Mappings `json:"enums"`
 	RPCs  Mappings `json:"rpcs"`
 }
 
@@ -33,6 +34,9 @@ func (ns *Namespace) Merge(node Node) Node {
 	}
 	for _, typ := range another.Types {
 		ns.Types.Add(typ)
+	}
+	for _, enum := range another.Enums {
+		ns.Enums.Add(enum)
 	}
 	for _, rpc := range another.RPCs {
 		ns.RPCs.AddIfNew(rpc)

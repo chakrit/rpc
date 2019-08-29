@@ -21,7 +21,7 @@ func IsDigit(r rune) bool            { return unicode.IsDigit(r) }
 func IsDecimalSeparator(r rune) bool { return r == '.' }
 func IsArgSeparator(r rune) bool     { return r == ',' }
 
-func IsValidIdentFirstChar(r rune) bool { return unicode.IsLetter(r) || strings.ContainsRune("_-", r) }
+func IsValidIdentFirstChar(r rune) bool { return unicode.IsLetter(r) || r == '_' }
 func IsValidIdent(r rune) bool {
 	return unicode.IsLetter(r) || unicode.IsDigit(r) || strings.ContainsRune("_-", r)
 }

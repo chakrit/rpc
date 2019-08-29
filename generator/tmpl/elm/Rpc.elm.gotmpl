@@ -67,6 +67,45 @@ decode{{ $type.Name }} =
     {{  end  }}
 {{  end  }}
 
+{{  range $enum := .Enums  }}
+type {{ $enum.Name }}
+    {{- range $idx, $member := $enum.Members }}
+    {{ ifFirst $idx "=" "|" }} {{ $member.Name }}
+    {{- end  }}
+
+stringTo{{ $enum.Name }} : String -> Maybe {{ $enum.Name }}
+stringTo{{ $enum.Name }} str =
+    case str of
+    {{- range $idx, $member := $enum.Members  }}
+        "{{ $member.Value }}" ->
+            Just {{ $member.Name }}
+
+    {{- end  }}
+        _ ->
+            Nothing
+
+stringFrom{{ $enum.Name }} : {{ $enum.Name }} -> String
+stringFrom{{ $enum.Name }} v =
+    case v of
+    {{- range $idx, $member := $enum.Members  }}
+        {{ $member.Name }} ->
+            "{{ $member.Value }}"
+    {{- end  }}
+
+default{{ $enum.Name }} =
+    {{ (index $enum.Members 0).Name }}
+
+encode{{ $enum.Name }} : {{ $enum.Name }} -> E.Value
+encode{{ $enum.Name }} =
+    stringFrom{{ $enum.Name }} >> E.string
+
+decode{{ $enum.Name }} : D.Decoder {{ $enum.Name }}
+decode{{ $enum.Name }} =
+    D.string
+        |> D.map stringTo{{ $enum.Name }}
+        |> D.map (Maybe.withDefault default{{ $enum.Name }})
+{{  end  }}
+
 {{  range $tuple := .Tuples  }}
 type alias {{ $tuple.Name }} =
     {{  range $idx, $arg := $tuple.Args -}}

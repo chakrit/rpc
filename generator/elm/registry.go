@@ -1,16 +1,37 @@
 package elm
 
-type Registry map[string]*Type
+type Registry map[string]RegistryEntry
 
-func (r Registry) Register(t *Type) {
-	qualifier := t.Module.Name + "." + t.Name
-	r[qualifier] = t
+type RegistryEntry struct {
+	Name      string
+	Qualifier string
+	Module    *Module
+	Object    interface{} // *Type or *Enum
 }
 
-func (r Registry) Lookup(context *Module, name string) *Type {
+func (r Registry) RegisterType(t *Type) {
+	entry := RegistryEntry{
+		Name:      t.Name,
+		Qualifier: t.Module.Name + "." + t.Name,
+		Module:    t.Module,
+		Object:    t,
+	}
+	r[entry.Qualifier] = entry
+}
+func (r Registry) RegisterEnum(e *Enum) {
+	entry := RegistryEntry{
+		Name:      e.Name,
+		Qualifier: e.Module.Name + "." + e.Name,
+		Module:    e.Module,
+		Object:    e,
+	}
+	r[entry.Qualifier] = entry
+}
+
+func (r Registry) Lookup(context *Module, name string) *RegistryEntry {
 	qualifier := context.Name + "." + name
 	if typ, ok := r[qualifier]; ok {
-		return typ
+		return &typ
 	} else if context.Parent != nil {
 		return r.Lookup(context.Parent, name)
 	} else {
@@ -127,8 +148,8 @@ func (r Registry) resolveMap(ref *TypeRef) *TypeResolution {
 }
 
 func (r Registry) resolveUserDefined(ref *TypeRef) *TypeResolution {
-	elmType := r.Lookup(ref.Module, ref.Name)
-	if elmType == nil {
+	entry := r.Lookup(ref.Module, ref.Name)
+	if entry == nil {
 		return r.resolveUnknown() // TODO: Output a warning
 	}
 
@@ -138,11 +159,11 @@ func (r Registry) resolveUserDefined(ref *TypeRef) *TypeResolution {
 		Decode:  "decode" + ref.Name,
 		Default: "default" + ref.Name,
 	}
-	if elmType.Module != ref.Module { // imported type, add module prefix
-		resolved.Name = elmType.Module.Name + "." + resolved.Name
-		resolved.Encode = elmType.Module.Name + "." + resolved.Encode
-		resolved.Decode = elmType.Module.Name + "." + resolved.Decode
-		resolved.Default = elmType.Module.Name + "." + resolved.Default
+	if entry.Module != ref.Module { // imported type, add module prefix
+		resolved.Name = entry.Module.Name + "." + resolved.Name
+		resolved.Encode = entry.Module.Name + "." + resolved.Encode
+		resolved.Decode = entry.Module.Name + "." + resolved.Decode
+		resolved.Default = entry.Module.Name + "." + resolved.Default
 	}
 
 	return resolved
