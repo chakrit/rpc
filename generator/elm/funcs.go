@@ -14,7 +14,7 @@ func funcMap() template.FuncMap {
 		}
 	}
 
-	f["resolve"] = func(ref *ElmTypeRef) *ElmTypeResolution {
+	f["resolve"] = func(ref *TypeRef) *TypeResolution {
 		return ref.Module.Registry.Resolve(ref)
 	}
 

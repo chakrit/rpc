@@ -1,13 +1,13 @@
 package elm
 
-type Registry map[string]*ElmType
+type Registry map[string]*Type
 
-func (r Registry) Register(t *ElmType) {
+func (r Registry) Register(t *Type) {
 	qualifier := t.Module.Name + "." + t.Name
 	r[qualifier] = t
 }
 
-func (r Registry) Lookup(context *Module, name string) *ElmType {
+func (r Registry) Lookup(context *Module, name string) *Type {
 	qualifier := context.Name + "." + name
 	if typ, ok := r[qualifier]; ok {
 		return typ
@@ -18,7 +18,7 @@ func (r Registry) Lookup(context *Module, name string) *ElmType {
 	}
 }
 
-func (r Registry) Resolve(ref *ElmTypeRef) *ElmTypeResolution {
+func (r Registry) Resolve(ref *TypeRef) *TypeResolution {
 	switch ref.Name {
 	case "unit", "string", "bool", "int", "long", "float", "double", "time", "data":
 		return r.resolveBasic(ref)
@@ -31,44 +31,44 @@ func (r Registry) Resolve(ref *ElmTypeRef) *ElmTypeResolution {
 	}
 }
 
-func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
+func (r Registry) resolveBasic(ref *TypeRef) *TypeResolution {
 	switch ref.Name {
 	case "unit":
-		return &ElmTypeResolution{
+		return &TypeResolution{
 			Name:   "()",
 			Encode: `(\_ -> E.object [])`,
 			Decode: `D.map (\_ -> ()) D.value`,
 		}
 	case "string":
-		return &ElmTypeResolution{
+		return &TypeResolution{
 			Name:    "String",
 			Encode:  "E.string",
 			Decode:  "D.string",
 			Default: `""`,
 		}
 	case "bool":
-		return &ElmTypeResolution{
+		return &TypeResolution{
 			Name:    "Bool",
 			Encode:  "E.bool",
 			Decode:  "D.bool",
 			Default: "False",
 		}
 	case "int", "long":
-		return &ElmTypeResolution{
+		return &TypeResolution{
 			Name:    "Int",
 			Encode:  "E.int",
 			Decode:  "D.int",
 			Default: "0",
 		}
 	case "float", "double":
-		return &ElmTypeResolution{
+		return &TypeResolution{
 			Name:    "Float",
 			Encode:  "E.float",
 			Decode:  "D.float",
 			Default: "0.0",
 		}
 	case "time":
-		return &ElmTypeResolution{
+		return &TypeResolution{
 			Name:    "Posix",
 			Encode:  `(Time.posixToMillis >> toFloat >> (\f -> f/1000.0) >> E.float)`,
 			Decode:  `(D.map ((\f -> f * 1000.0) >> round >> Time.millisToPosix) D.float)`,
@@ -77,7 +77,7 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 	case "data":
 		// data url is used on most things on Elm-side and we have easy conversion with
 		// File.toUrl so we assume simple string handling on Elm side for binary data
-		return &ElmTypeResolution{
+		return &TypeResolution{
 			Name:    "String",
 			Encode:  `E.string`,
 			Decode:  `D.string`,
@@ -88,15 +88,15 @@ func (r Registry) resolveBasic(ref *ElmTypeRef) *ElmTypeResolution {
 	}
 }
 
-func (r Registry) resolveList(ref *ElmTypeRef) *ElmTypeResolution {
-	var elementType *ElmTypeResolution
+func (r Registry) resolveList(ref *TypeRef) *TypeResolution {
+	var elementType *TypeResolution
 	if len(ref.Args) > 0 {
 		elementType = r.Resolve(ref.Args[0])
 	} else {
 		elementType = r.resolveUnknown()
 	}
 
-	return &ElmTypeResolution{
+	return &TypeResolution{
 		Name:    "List (" + elementType.Name + ")",
 		Encode:  "E.list (" + elementType.Encode + ")",
 		Decode:  "D.list (" + elementType.Decode + ")",
@@ -104,9 +104,9 @@ func (r Registry) resolveList(ref *ElmTypeRef) *ElmTypeResolution {
 	}
 }
 
-func (r Registry) resolveMap(ref *ElmTypeRef) *ElmTypeResolution {
-	var keyType *ElmTypeResolution
-	var valueType *ElmTypeResolution
+func (r Registry) resolveMap(ref *TypeRef) *TypeResolution {
+	var keyType *TypeResolution
+	var valueType *TypeResolution
 	switch len(ref.Args) {
 	case 0:
 		keyType, valueType = r.resolveUnknown(), r.resolveUnknown()
@@ -118,7 +118,7 @@ func (r Registry) resolveMap(ref *ElmTypeRef) *ElmTypeResolution {
 
 	// TODO: Warn for non-string key types not supported. Currently this code
 	//   will not compile correctly if the key type is not a string
-	return &ElmTypeResolution{
+	return &TypeResolution{
 		Name:    "Dict (" + keyType.Name + ") (" + valueType.Name + ")",
 		Encode:  "E.dict (identity) (" + valueType.Encode + ")",
 		Decode:  "D.dict (" + valueType.Decode + ")",
@@ -126,13 +126,13 @@ func (r Registry) resolveMap(ref *ElmTypeRef) *ElmTypeResolution {
 	}
 }
 
-func (r Registry) resolveUserDefined(ref *ElmTypeRef) *ElmTypeResolution {
+func (r Registry) resolveUserDefined(ref *TypeRef) *TypeResolution {
 	elmType := r.Lookup(ref.Module, ref.Name)
 	if elmType == nil {
 		return r.resolveUnknown() // TODO: Output a warning
 	}
 
-	resolved := &ElmTypeResolution{
+	resolved := &TypeResolution{
 		Name:    ref.Name,
 		Encode:  "encode" + ref.Name,
 		Decode:  "decode" + ref.Name,
@@ -148,8 +148,8 @@ func (r Registry) resolveUserDefined(ref *ElmTypeRef) *ElmTypeResolution {
 	return resolved
 }
 
-func (r Registry) resolveUnknown() *ElmTypeResolution {
-	return &ElmTypeResolution{
+func (r Registry) resolveUnknown() *TypeResolution {
+	return &TypeResolution{
 		Name:   "()",
 		Encode: `(\_ -> E.null)`,
 		Decode: `(D.succeed ())`,

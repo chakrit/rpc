@@ -17,41 +17,41 @@ const (
 	ModuleOption     = "elm_module"
 )
 
-type ElmField struct {
+type Field struct {
 	Name string
-	Type *ElmTypeRef
+	Type *TypeRef
 }
 
-type ElmType struct {
+type Type struct {
 	Name   string
-	Fields []*ElmField
+	Fields []*Field
 	Module *Module
 }
 
-type ElmTypeRef struct {
+type TypeRef struct {
 	Name   string
-	Args   []*ElmTypeRef
+	Args   []*TypeRef
 	Module *Module
 }
 
-type ElmTypeResolution struct {
+type TypeResolution struct {
 	Name    string
 	Encode  string
 	Decode  string
 	Default string
 }
 
-type ElmTuple struct {
+type Tuple struct {
 	Name string
-	Args []*ElmTypeRef
+	Args []*TypeRef
 }
 
-type ElmRPCFunc struct {
+type RpcFunc struct {
 	Name    string
 	RPCPath string
 
-	InArgs  []*ElmTypeRef
-	OutArgs []*ElmTypeRef
+	InArgs  []*TypeRef
+	OutArgs []*TypeRef
 }
 
 func Generate(ns *spec.Namespace, outdir string) error {

@@ -19,9 +19,9 @@ type Module struct {
 	Namespace *spec.Namespace
 	Registry  Registry
 
-	Types    []*ElmType
-	Tuples   []*ElmTuple
-	RPCFuncs []*ElmRPCFunc
+	Types    []*Type
+	Tuples   []*Tuple
+	RPCFuncs []*RpcFunc
 	Imports  []*Module
 
 	Parent   *Module
@@ -79,14 +79,14 @@ func newModule(parent *Module, outdir string, ns *spec.Namespace) *Module {
 func (m *Module) resolveTypes() {
 	for _, t := range m.Namespace.Types.SortedByName() {
 		typ := t.(*spec.Type)
-		elmType := &ElmType{
+		elmType := &Type{
 			Name:   typ.Name,
 			Module: m,
 		}
 
 		for _, p := range typ.Properties.SortedByName() {
 			prop := p.(*spec.Property)
-			elmType.Fields = append(elmType.Fields, &ElmField{
+			elmType.Fields = append(elmType.Fields, &Field{
 				Name: prop.Name,
 				Type: m.mapTypeRef(prop.Type),
 			})
@@ -101,8 +101,8 @@ func (m *Module) resolveRPCFuncs() {
 	for _, r := range m.Namespace.RPCs.SortedByName() {
 		var (
 			rpc    = r.(*spec.RPC)
-			inTup  = &ElmTuple{Name: "InputFor" + rpc.Name}
-			outTup = &ElmTuple{Name: "OutputFor" + rpc.Name}
+			inTup  = &Tuple{Name: "InputFor" + rpc.Name}
+			outTup = &Tuple{Name: "OutputFor" + rpc.Name}
 		)
 
 		for _, ref := range rpc.InputTypes {
@@ -113,7 +113,7 @@ func (m *Module) resolveRPCFuncs() {
 		}
 
 		m.Tuples = append(m.Tuples, inTup, outTup)
-		m.RPCFuncs = append(m.RPCFuncs, &ElmRPCFunc{
+		m.RPCFuncs = append(m.RPCFuncs, &RpcFunc{
 			Name:    rpc.Name,
 			RPCPath: path.Join(m.RPCPath, rpc.Name),
 			InArgs:  inTup.Args,
@@ -129,8 +129,8 @@ func (m *Module) resolveImports() {
 		locals[typ.Name] = struct{}{}
 	}
 
-	var check func(ref *ElmTypeRef)
-	check = func(ref *ElmTypeRef) {
+	var check func(ref *TypeRef)
+	check = func(ref *TypeRef) {
 		for _, arg := range ref.Args {
 			check(arg)
 		}
@@ -166,8 +166,8 @@ func (m *Module) resolveImports() {
 	})
 }
 
-func (m *Module) mapTypeRef(ref *spec.TypeRef) *ElmTypeRef {
-	elmRef := &ElmTypeRef{
+func (m *Module) mapTypeRef(ref *spec.TypeRef) *TypeRef {
+	elmRef := &TypeRef{
 		Name:   ref.Name,
 		Module: m,
 	}
