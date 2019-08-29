@@ -74,7 +74,6 @@ func (c Client_rpc_root) Create(
 	}
 	return
 }
-
 func (c Client_rpc_root) Destroy(
 	ctx context.Context,
 	arg0 int64,
@@ -120,7 +119,6 @@ func (c Client_rpc_root) Destroy(
 	}
 	return
 }
-
 func (c Client_rpc_root) List(
 	ctx context.Context,
 ) (

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/chakrit/rpc/generator/tmpldata"
+
 	"github.com/chakrit/rpc/spec"
 	"github.com/pkg/errors"
 )
@@ -47,7 +48,11 @@ func writeClientPackage(rootdir string, pkg *Pkg) error {
 	return write(
 		path.Join(rootdir, "client/client.go"),
 		ClientTemplateName,
-		pkg,
+		pkg.Registry,
+		&PkgContext{
+			ContextPkg: &Pkg{Name: "client", MangledName: "client", ImportPath: "client"},
+			DataPkg:    pkg,
+		},
 	)
 }
 
@@ -55,13 +60,17 @@ func writeServerPackage(rootdir string, pkg *Pkg) error {
 	return write(
 		path.Join(rootdir, "server/server.go"),
 		ServerTemplateName,
-		pkg,
+		pkg.Registry,
+		&PkgContext{
+			ContextPkg: &Pkg{Name: "server", MangledName: "server", ImportPath: "server"},
+			DataPkg:    pkg,
+		},
 	)
 }
 
 func writeRPCPackages(rootdir string, pkg *Pkg) error {
 	outpath := path.Join(rootdir, pkg.FilePath)
-	if err := write(outpath, PkgTemplateName, pkg); err != nil {
+	if err := write(outpath, PkgTemplateName, pkg.Registry, pkg); err != nil {
 		name := pkg.Name
 		if name == "" {
 			name = "root"
@@ -79,7 +88,7 @@ func writeRPCPackages(rootdir string, pkg *Pkg) error {
 	return nil
 }
 
-func write(outpath, tmplname string, pkg *Pkg) error {
+func write(outpath, tmplname string, registry TypeRegistry, data interface{}) error {
 	if err := os.MkdirAll(filepath.Dir(outpath), 0755); err != nil {
 		return errors.Wrap(err, "mkdir -p")
 	}
@@ -93,21 +102,21 @@ func write(outpath, tmplname string, pkg *Pkg) error {
 	if err != nil {
 		return errors.Wrap(err, "reading template `"+tmplname+"`")
 	}
-	gotmpl, err := template.New(tmplname).Funcs(funcMap(pkg)).Parse(tmplContent)
+	gotmpl, err := template.New(tmplname).Funcs(funcMap(registry)).Parse(tmplContent)
 	if err != nil {
 		return errors.Wrap(err, "template parse")
 	}
 
-	typeRefContent, err := tmpldata.Read(SharedTemplateName)
+	sharedContent, err := tmpldata.Read(SharedTemplateName)
 	if err != nil {
 		return errors.Wrap(err, "reading template `"+SharedTemplateName+"`")
 	}
-	gotmpl, err = gotmpl.Parse(typeRefContent)
+	gotmpl, err = gotmpl.Parse(sharedContent)
 	if err != nil {
 		return errors.Wrap(err, "template parse")
 	}
 
-	err = gotmpl.Execute(outfile, pkg)
+	err = gotmpl.Execute(outfile, data)
 	if err != nil {
 		return errors.Wrap(err, "template render")
 	}

@@ -1,64 +1,103 @@
 package golang
 
-import (
-	"github.com/chakrit/rpc/spec"
+var (
+	unknownType ResolvedType = rtSimple{"interface{}"}
+	unitType    ResolvedType = rtSimple{"struct{}"}
+	stringType  ResolvedType = rtSimple{"string"}
+	boolType    ResolvedType = rtSimple{"bool"}
+	intType     ResolvedType = rtSimple{"int"}
+	longType    ResolvedType = rtSimple{"int64"}
+	floatType   ResolvedType = rtSimple{"float32"}
+	doubleType  ResolvedType = rtSimple{"float64"}
+	dataType    ResolvedType = rtSimple{"[]byte"}
+
+	timeType ResolvedType = rtTime{}
 )
 
-const (
-	TypeSimple = 1 << iota
-	TypeTime
-	TypeMap
-	TypeList
-	TypeUserDefined
-	OriginBuiltin
-	OriginPkgLocal
-	OriginImported
+type (
+	ResolvedType interface {
+		Name() string
+		Args() []ResolvedType
+		ImportPkg() *Pkg
+
+		AsReference(current *Pkg) string
+	}
+
+	CustomMarshaler interface {
+		AsMarshalTarget(current *Pkg) string
+		AsMarshaler(current *Pkg) string
+		AsUnmarshaler(current *Pkg) string
+	}
+
+	rtSimple struct{ name string }
+	rtTime   struct{}
+	rtList   struct{ arg ResolvedType }
+	rtMap    struct {
+		keyArg   ResolvedType
+		valueArg ResolvedType
+	}
+
+	rtUserDefined struct {
+		name      string
+		importPkg *Pkg
+	}
 )
 
-type ResolvedType struct {
-	Name  string
-	Pkg   *Pkg
-	Type  *spec.Type
-	Args  []*ResolvedType
-	Flags int
+func (t rtSimple) Name() string                { return t.name }
+func (t rtSimple) Args() []ResolvedType        { return nil }
+func (t rtSimple) ImportPkg() *Pkg             { return nil }
+func (t rtSimple) AsReference(cur *Pkg) string { return t.name }
+
+func (t rtTime) Name() string         { return "time" }
+func (t rtTime) Args() []ResolvedType { return nil }
+func (t rtTime) ImportPkg() *Pkg {
+	return &Pkg{
+		Name:        "time",
+		MangledName: "time",
+		ImportPath:  "time",
+	}
+}
+func (t rtTime) AsReference(cur *Pkg) string { return "time.Time" }
+func (t rtTime) AsMarshalTarget(cur *Pkg) string {
+	return "float64"
+}
+func (t rtTime) AsMarshaler(current *Pkg) string {
+	return "(func (t time.Time) float64 {" +
+		"sec, nsec := t.Unix(), t.Nanosecond();" +
+		"return float64(sec) + (float64(nsec)/float64(time.Second));" +
+		"})"
 }
 
-func (rt *ResolvedType) IsSimple() bool      { return (rt.Flags & TypeSimple) != 0 }
-func (rt *ResolvedType) IsTime() bool        { return (rt.Flags & TypeTime) != 0 }
-func (rt *ResolvedType) IsMap() bool         { return (rt.Flags & TypeMap) != 0 }
-func (rt *ResolvedType) IsList() bool        { return (rt.Flags & TypeList) != 0 }
-func (rt *ResolvedType) IsUserDefined() bool { return (rt.Flags & TypeUserDefined) != 0 }
+func (t rtTime) AsUnmarshaler(current *Pkg) string {
+	return "(func (t float64) time.Time {" +
+		"fsec, fnsec := math.Modf(t);" +
+		"sec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)));" +
+		"return time.Unix(sec, nsec);" +
+		"})"
+}
 
-func (rt *ResolvedType) IsBuiltin() bool  { return (rt.Flags & OriginBuiltin) != 0 }
-func (rt *ResolvedType) IsPkgLocal() bool { return (rt.Flags & OriginPkgLocal) != 0 }
-func (rt *ResolvedType) IsImported() bool { return (rt.Flags & OriginImported) != 0 }
+func (t rtList) Name() string         { return "[]" }
+func (t rtList) Args() []ResolvedType { return []ResolvedType{t.arg} }
+func (t rtList) ImportPkg() *Pkg      { return nil }
+func (t rtList) AsReference(cur *Pkg) string {
+	return "[]" + t.arg.AsReference(cur)
+}
 
-func (rt *ResolvedType) Arg(n int) *ResolvedType {
-	if len(rt.Args) > n {
-		return rt.Args[n]
+func (t rtMap) Name() string         { return "map" }
+func (t rtMap) Args() []ResolvedType { return []ResolvedType{t.keyArg, t.valueArg} }
+func (t rtMap) ImportPkg() *Pkg      { return nil }
+func (t rtMap) AsReference(cur *Pkg) string {
+	return "map[" + t.keyArg.AsReference(cur) +
+		"]" + t.valueArg.AsReference(cur)
+}
+
+func (t rtUserDefined) Name() string         { return t.name }
+func (t rtUserDefined) Args() []ResolvedType { return nil }
+func (t rtUserDefined) ImportPkg() *Pkg      { return t.importPkg }
+func (t rtUserDefined) AsReference(cur *Pkg) string {
+	if cur == t.importPkg {
+		return "*" + t.name
 	} else {
-		return nil
+		return "*" + t.importPkg.MangledName + "." + t.name
 	}
-}
-
-func (rt *ResolvedType) WithoutFlags(flags int) *ResolvedType {
-	clone := *rt
-	clone.Flags = clone.Flags & ^flags
-	clone.Args = make([]*ResolvedType, len(rt.Args))
-	for idx := range clone.Args {
-		clone.Args[idx] = rt.Args[idx].WithoutFlags(flags)
-	}
-
-	return &clone
-}
-
-func (rt *ResolvedType) WithFlags(flags int) *ResolvedType {
-	clone := *rt
-	clone.Flags = clone.Flags | flags
-	clone.Args = make([]*ResolvedType, len(rt.Args))
-	for idx := range clone.Args {
-		clone.Args[idx] = rt.Args[idx].WithFlags(flags)
-	}
-
-	return &clone
 }

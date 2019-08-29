@@ -3666,7 +3666,6 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - ""
             - func (c Client_rpc_root) Get(
             - "\tctx context.Context,"
             - "\targ0 string,"
@@ -3714,7 +3713,6 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - ""
             - func (c Client_rpc_root) List(
             - "\tctx context.Context,"
             - ) (
@@ -3761,7 +3759,6 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - ""
             - func (c Client_rpc_root) Put(
             - "\tctx context.Context,"
             - "\targ0 *rpc_root.TodoItem,"
@@ -4730,7 +4727,6 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - ""
             - func (c Client_rpc_todos) Get(
             - "\tctx context.Context,"
             - "\targ0 string,"
@@ -4778,7 +4774,6 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - ""
             - func (c Client_rpc_todos) List(
             - "\tctx context.Context,"
             - ) (
@@ -4825,7 +4820,6 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - ""
             - func (c Client_rpc_todos) Put(
             - "\tctx context.Context,"
             - "\targ0 string,"
@@ -5510,7 +5504,6 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - ""
             - func (c Client_rpc_root) CatIn(
             - "\tctx context.Context,"
             - "\targ0 *rpc_root.Containers,"
@@ -5558,7 +5551,6 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - ""
             - func (c Client_rpc_root) MixEmUp(
             - "\tctx context.Context,"
             - "\targ0 *rpc_root.Things,"

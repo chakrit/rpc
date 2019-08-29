@@ -10,7 +10,7 @@ import (
     "encoding/json"
     "math"
 
-    {{  range $dep := .Dependencies -}}
+    {{  range $dep := .Imports -}}
     {{- if . -}}
     {{ .MangledName }} "{{ .ImportPath }}"
     {{  end -}}
@@ -26,18 +26,18 @@ var (
 {{ range $name, $type := .Namespace.Types }}
 type {{ $name }} struct {
     {{  range $name, $prop := .Properties -}}
-    {{ pascal $name }} {{ asReference (resolve $pkg $prop.Type) }} `json:"{{ $name }}" yaml:"{{ $name }}" db:"{{ snake $name}}"`
+    {{ pascal $name }} {{ asReference $pkg (resolve $pkg $prop.Type) }} `json:"{{ $name }}" yaml:"{{ $name }}" db:"{{ snake $name}}"`
     {{  end -}}
 }
 
 func (obj *{{$name}}) MarshalJSON() ([]byte, error) {
     outobj := struct{
         {{  range $name, $prop := .Properties -}}
-        {{ pascal $name }} {{ asMarshalTarget (resolve $pkg $prop.Type) }} `json:"{{ $name }}"`
+        {{ pascal $name }} {{ asMarshalTarget $pkg (resolve $pkg $prop.Type) }} `json:"{{ $name }}"`
         {{  end -}}
     }{
         {{  range $name, $prop := .Properties -}}
-        {{ pascal $name }}: {{ marshaler (resolve $pkg $prop.Type) }}(obj.{{ pascal $name }}),
+        {{ pascal $name }}: {{ asMarshaler $pkg (resolve $pkg $prop.Type) }}(obj.{{ pascal $name }}),
         {{  end -}}
     }
     return json.Marshal(outobj)
@@ -46,7 +46,7 @@ func (obj *{{$name}}) MarshalJSON() ([]byte, error) {
 func (obj *{{$name}}) UnmarshalJSON(buf []byte) error {
     inobj := struct{
         {{  range $name, $prop := .Properties -}}
-        {{ pascal $name }} {{ asMarshalTarget (resolve $pkg $prop.Type) }} `json:"{{ $name }}"`
+        {{ pascal $name }} {{ asMarshalTarget $pkg (resolve $pkg $prop.Type) }} `json:"{{ $name }}"`
         {{  end -}}
     }{}
 
@@ -55,7 +55,7 @@ func (obj *{{$name}}) UnmarshalJSON(buf []byte) error {
     }
 
     {{  range $name, $prop := .Properties -}}
-    obj.{{ pascal $name }} = {{ unmarshaler (resolve $pkg $prop.Type) }}(inobj.{{ pascal $name }})
+    obj.{{ pascal $name }} = {{ asUnmarshaler $pkg (resolve $pkg $prop.Type) }}(inobj.{{ pascal $name }})
     {{  end -}}
     return nil
 }
@@ -65,11 +65,11 @@ type Interface interface {
     {{  range $name, $rpc := .Namespace.RPCs -}}
     {{ $name }}(context.Context,
         {{- range $name, $arg := .InputTypes -}}
-        {{ asReference (resolve $pkg $arg) }},
+        {{ asReference $pkg (resolve $pkg $arg) }},
         {{- end -}}
     ) (
         {{- range $name, $arg := .OutputTypes -}}
-        {{ asReference (resolve $pkg $arg) }},
+        {{ asReference $pkg (resolve $pkg $arg) }},
         {{- end -}}
         error,
     )

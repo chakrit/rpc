@@ -5,20 +5,24 @@ import (
 	"path"
 	"sort"
 	"strings"
-	"text/template"
 
 	"github.com/chakrit/rpc/internal"
 	"github.com/chakrit/rpc/spec"
 )
 
-type pkgByNameAndNumber []*Pkg
+type pkgByName []*Pkg
 
-func (p pkgByNameAndNumber) Len() int      { return len(p) }
-func (p pkgByNameAndNumber) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+func (p pkgByName) Len() int      { return len(p) }
+func (p pkgByName) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 
-func (p pkgByNameAndNumber) Less(i, j int) bool {
+func (p pkgByName) Less(i, j int) bool {
 	left, right := p[i], p[j]
 	return left.Name < right.Name
+}
+
+type PkgContext struct {
+	ContextPkg *Pkg
+	DataPkg    *Pkg
 }
 
 type Pkg struct {
@@ -32,12 +36,10 @@ type Pkg struct {
 
 	Namespace *spec.Namespace
 	Registry  TypeRegistry
-	Funcs     template.FuncMap
 
-	Parent       *Pkg
-	Children     []*Pkg
-	Dependencies []*Pkg
-	LocalTypes   spec.Mappings
+	Parent   *Pkg
+	Children []*Pkg
+	Imports  []*Pkg
 }
 
 func newRootPkg(ns *spec.Namespace) *Pkg {
@@ -48,13 +50,12 @@ func newRootPkg(ns *spec.Namespace) *Pkg {
 		Registry:  reg,
 	}
 
-	pkg.Funcs = funcMap(pkg)
 	for _, node := range ns.Children.SortedByName() {
 		child := newChildPkg(pkg, node.(*spec.Namespace))
 		pkg.Children = append(pkg.Children, child)
 	}
 
-	sort.Sort(pkgByNameAndNumber(pkg.Children))
+	sort.Sort(pkgByName(pkg.Children))
 	pkg.initialize()
 	return pkg
 }
@@ -65,14 +66,13 @@ func newChildPkg(parent *Pkg, ns *spec.Namespace) *Pkg {
 		Parent:    parent,
 		Namespace: ns,
 		Registry:  parent.Registry,
-		Funcs:     parent.Funcs,
 	}
 	for _, node := range ns.Children {
 		child := newChildPkg(pkg, node.(*spec.Namespace))
 		pkg.Children = append(pkg.Children, child)
 	}
 
-	sort.Sort(pkgByNameAndNumber(pkg.Children))
+	sort.Sort(pkgByName(pkg.Children))
 	return pkg
 }
 
@@ -146,14 +146,12 @@ func (pkg *Pkg) resolveImports() {
 			return
 		}
 
-		if resolved.Pkg != nil && resolved.Pkg != pkg {
-			dependencies[resolved.Pkg] = struct{}{}
+		if resolved.ImportPkg() != nil && resolved.ImportPkg() != pkg {
+			dependencies[resolved.ImportPkg()] = struct{}{}
 		}
-		if resolved.Args != nil {
-			for _, arg := range resolved.Args {
-				if arg != nil && arg.Pkg != nil && arg.Pkg != pkg {
-					dependencies[arg.Pkg] = struct{}{}
-				}
+		for _, arg := range resolved.Args() {
+			if arg != nil && arg.ImportPkg() != nil && arg.ImportPkg() != pkg {
+				dependencies[arg.ImportPkg()] = struct{}{}
 			}
 		}
 	}
@@ -172,10 +170,10 @@ func (pkg *Pkg) resolveImports() {
 		}
 	}
 	for dependency := range dependencies {
-		pkg.Dependencies = append(pkg.Dependencies, dependency)
+		pkg.Imports = append(pkg.Imports, dependency)
 	}
 
-	sort.Sort(pkgByNameAndNumber(pkg.Dependencies))
+	sort.Sort(pkgByName(pkg.Imports))
 	for _, child := range pkg.Children {
 		child.resolveImports()
 	}
