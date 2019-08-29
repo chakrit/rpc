@@ -4714,10 +4714,10 @@
             - type State string
             - ""
             - const (
-            - "\tNew        = State(\"new\")"
-            - "\tInProgress = State(\"in_progress\")"
-            - "\tOverdue    = State(\"overdue\")"
-            - "\tCompleted  = State(\"completed\")"
+            - "\tStateNew        = State(\"new\")"
+            - "\tStateInProgress = State(\"in_progress\")"
+            - "\tStateOverdue    = State(\"overdue\")"
+            - "\tStateCompleted  = State(\"completed\")"
             - )
             - ""
             - type Interface interface {
@@ -5594,15 +5594,15 @@
             - type Enums string
             - ""
             - const (
-            - "\tThe   = Enums(\"the\")"
-            - "\tQuick = Enums(\"quick\")"
-            - "\tBrown = Enums(\"brown\")"
-            - "\tFox   = Enums(\"fox\")"
-            - "\tJumps = Enums(\"jumps\")"
-            - "\tOver  = Enums(\"over\")"
-            - "\tThe   = Enums(\"the\")"
-            - "\tLazy  = Enums(\"lazy\")"
-            - "\tDog   = Enums(\"dog\")"
+            - "\tEnumsThe   = Enums(\"the\")"
+            - "\tEnumsQuick = Enums(\"quick\")"
+            - "\tEnumsBrown = Enums(\"brown\")"
+            - "\tEnumsFox   = Enums(\"fox\")"
+            - "\tEnumsJumps = Enums(\"jumps\")"
+            - "\tEnumsOver  = Enums(\"over\")"
+            - "\tEnumsThe   = Enums(\"the\")"
+            - "\tEnumsLazy  = Enums(\"lazy\")"
+            - "\tEnumsDog   = Enums(\"dog\")"
             - )
             - ""
             - type Interface interface {

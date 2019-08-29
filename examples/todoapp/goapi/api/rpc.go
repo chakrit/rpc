@@ -73,9 +73,9 @@ func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
 type State string
 
 const (
-	New        = State("new")
-	InProgress = State("in_progress")
-	Completed  = State("completed")
+	StateNew        = State("new")
+	StateInProgress = State("in_progress")
+	StateCompleted  = State("completed")
 )
 
 type Interface interface {
