@@ -190,6 +190,55 @@ func (s *Server) register_rpc_root(
 		renderResult(s.options, resp, 200, result)
 	})
 
+	mux.HandleFunc("/api/UpdateState", func(resp http.ResponseWriter, req *http.Request) {
+		var (
+			err error
+			ctx context.Context
+		)
+
+		ctx = s.options.CtxFilter(req, "api/UpdateState")
+		req = req.WithContext(ctx)
+
+		var arg0 int64
+		var arg1 rpc_root.State
+		args := [2]interface{}{
+			&arg0,
+			&arg1,
+		}
+
+		if req.Body != nil {
+			if err := json.NewDecoder(req.Body).Decode(&args); err != nil {
+				renderResult(s.options, resp, 400, &Result{
+					Error:   err,
+					Returns: nil,
+				})
+				return
+			}
+		}
+
+		var (
+			out0 *rpc_root.TodoItem
+		)
+
+		out0, err = handler.UpdateState(
+			ctx, arg0, arg1)
+
+		result := &Result{}
+		if err != nil {
+			err = s.options.ErrFilter(req, "api/UpdateState", err)
+			if s.options.ErrLog != nil {
+				s.options.ErrLog(req, "api/UpdateState", err)
+			}
+			result.Error = err
+		} else {
+			result.Returns = []interface{}{
+				out0,
+			}
+		}
+
+		renderResult(s.options, resp, 200, result)
+	})
+
 	return mux
 }
 

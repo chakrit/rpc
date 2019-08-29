@@ -4,11 +4,11 @@ import Api exposing (TodoItem)
 import Browser exposing (Document)
 import Bulma.CDN exposing (stylesheet)
 import Bulma.Elements exposing (TablePartition, TitleSize(..), button, buttonModifiers, notification, subtitle, table, tableBody, tableCell, tableCellHead, tableHead, tableModifiers, tableRow, title)
-import Bulma.Form exposing (controlButton, controlInput, controlInputModifiers, field)
+import Bulma.Form exposing (controlButton, controlInput, controlInputModifiers, controlSelect, controlSelectModifiers, field)
 import Bulma.Layout exposing (SectionSpacing(..), container, section)
 import Bulma.Modifiers as Modifiers exposing (Color(..), Size(..), State(..))
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (value)
+import Html exposing (Html, div, option, span, text)
+import Html.Attributes exposing (selected, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode
 import RpcUtil as Rpc exposing (RpcError(..))
@@ -47,6 +47,7 @@ type Msg
     | Create
     | Reset
     | Refresh
+    | Update Int String
     | Delete Int
     | ErrorReply String
     | ListReply (List TodoItem)
@@ -75,6 +76,10 @@ onCreateReply =
 
 onListReply =
     Rpc.map onError ListReply
+
+
+onUpdateReply =
+    Rpc.map onError (always Refresh)
 
 
 onDeleteReply =
@@ -119,6 +124,13 @@ update msg model =
             , Api.callList config () onListReply
             )
 
+        Update id state ->
+            ( { model | state = Calling }
+            , Api.stringToState state
+                |> Maybe.map (\s -> Api.callUpdateState config ( id, s ) onUpdateReply)
+                |> Maybe.withDefault Cmd.none
+            )
+
         Delete id ->
             ( { model | state = Calling }
             , Api.callDestroy config id onDeleteReply
@@ -139,7 +151,7 @@ view model =
         , viewTitle model
         , viewNotification model
         , if List.isEmpty model.list then
-            div [] []
+            span [] []
 
           else
             viewList model
@@ -216,10 +228,7 @@ viewList model =
     section NotSpaced
         []
         [ container []
-            [ subtitle H2
-                []
-                [ text "Todo List"
-                ]
+            [ subtitle H2 [] [ text "Todo List" ]
             , table
                 { tableModifiers | striped = True, hoverable = True, fullWidth = True }
                 []
@@ -237,6 +246,7 @@ viewTableHeaders model =
             []
             [ tableCellHead [] [ text "Item" ]
             , tableCellHead [] [ text "Created" ]
+            , tableCellHead [] [ text "Set State" ]
             , tableCellHead [] [ text "Actions" ]
             , tableCellHead [] [ text "Metadata" ]
             ]
@@ -281,6 +291,19 @@ viewTableBody model =
                 []
                 [ tableCell [] [ text todoItem.description ]
                 , tableCell [] [ rowTime todoItem ]
+                , tableCell []
+                    [ controlSelect controlSelectModifiers [ onInput (Update todoItem.id) ] [] <|
+                        List.map
+                            (\s ->
+                                option
+                                    [ value (Api.stringFromState s)
+                                    , selected (s == todoItem.state)
+                                    ]
+                                    [ text (Api.titleStringFromState s)
+                                    ]
+                            )
+                            Api.allState
+                    ]
                 , tableCell []
                     [ button
                         { buttonModifiers | color = Danger }

@@ -69,9 +69,16 @@ decode{{ $type.Name }} =
 
 {{  range $enum := .Enums  }}
 type {{ $enum.Name }}
-    {{- range $idx, $member := $enum.Members }}
+    {{- range $idx, $member := $enum.Members  }}
     {{ ifFirst $idx "=" "|" }} {{ $member.Name }}
     {{- end  }}
+
+all{{ $enum.Name }} : List {{ $enum.Name }}
+all{{ $enum.Name }} =
+    {{- range $idx, $member := $enum.Members  }}
+    {{ ifFirst $idx "[" "," }} {{ $member.Name }}
+    {{- end  }}
+    ]
 
 stringTo{{ $enum.Name }} : String -> Maybe {{ $enum.Name }}
 stringTo{{ $enum.Name }} str =
@@ -90,6 +97,14 @@ stringFrom{{ $enum.Name }} v =
     {{- range $idx, $member := $enum.Members  }}
         {{ $member.Name }} ->
             "{{ $member.Value }}"
+    {{- end  }}
+
+titleStringFrom{{ $enum.Name }} : {{ $enum.Name }} -> String
+titleStringFrom{{ $enum.Name }} v =
+    case v of
+    {{- range $idx, $member := $enum.Members  }}
+        {{ $member.Name }} ->
+            "{{ $member.Name }}"
     {{- end  }}
 
 default{{ $enum.Name }} =

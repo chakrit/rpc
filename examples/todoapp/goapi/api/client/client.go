@@ -163,6 +163,52 @@ func (c Client_rpc_root) List(
 	}
 	return
 }
+func (c Client_rpc_root) UpdateState(
+	ctx context.Context,
+	arg0 int64,
+	arg1 rpc_root.State,
+) (
+	out0 *rpc_root.TodoItem,
+	err error,
+) {
+	payload := []interface{}{arg0, arg1}
+
+	buf := &bytes.Buffer{}
+	if err = json.NewEncoder(buf).Encode(payload); err != nil {
+		return
+	}
+
+	var req *http.Request
+	req, err = http.NewRequest("POST", "http://"+c.Client.Options.Addr+"/api/UpdateState", buf)
+	if err != nil {
+		return
+	}
+
+	req = req.WithContext(ctx)
+
+	var resp *http.Response
+	resp, err = c.HTTPClient.Do(req)
+	if err != nil {
+		return
+	}
+
+	returns := [1]interface{}{&out0}
+	result := &Result{}
+	result.Returns = returns[:]
+
+	if resp.Body != nil {
+		defer resp.Body.Close()
+
+		if err = json.NewDecoder(resp.Body).Decode(result); err != nil {
+			return
+		}
+	}
+
+	if result.Error != nil {
+		err = result.Error
+	}
+	return
+}
 
 type Result struct {
 	Error   error         `json:"error"`

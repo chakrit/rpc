@@ -74,7 +74,16 @@ decodeTodoItem =
 type State
     = New
     | InProgress
+    | Overdue
     | Completed
+
+allState : List State
+allState =
+    [ New
+    , InProgress
+    , Overdue
+    , Completed
+    ]
 
 stringToState : String -> Maybe State
 stringToState str =
@@ -83,6 +92,8 @@ stringToState str =
             Just New
         "in_progress" ->
             Just InProgress
+        "overdue" ->
+            Just Overdue
         "completed" ->
             Just Completed
         _ ->
@@ -95,8 +106,22 @@ stringFromState v =
             "new"
         InProgress ->
             "in_progress"
+        Overdue ->
+            "overdue"
         Completed ->
             "completed"
+
+titleStringFromState : State -> String
+titleStringFromState v =
+    case v of
+        New ->
+            "New"
+        InProgress ->
+            "InProgress"
+        Overdue ->
+            "Overdue"
+        Completed ->
+            "Completed"
 
 defaultState =
     New
@@ -217,6 +242,50 @@ decodeOutputForList =
             |> D.map (Maybe.withDefault ([]))
             |> D.map (\a -> (a))
 
+type alias InputForUpdateState =
+    (Int, State)
+
+encodeInputForUpdateState : InputForUpdateState -> E.Value
+encodeInputForUpdateState
+    (arg0,arg1) =
+        E.list (identity)
+            [ E.int arg0
+            , encodeState arg1
+            ]
+
+decodeInputForUpdateState : D.Decoder InputForUpdateState
+decodeInputForUpdateState =
+        D.map2 (\arg0 arg1 -> (arg0, arg1))
+            (D.int
+                |> D.index 0
+                |> D.maybe
+                |> D.map (Maybe.withDefault (0))
+            )
+            (decodeState
+                |> D.index 1
+                |> D.maybe
+                |> D.map (Maybe.withDefault (defaultState))
+            )
+    
+
+type alias OutputForUpdateState =
+    (TodoItem)
+
+encodeOutputForUpdateState : OutputForUpdateState -> E.Value
+encodeOutputForUpdateState
+    (arg0) =
+        E.list (identity)
+            [ encodeTodoItem arg0
+            ]
+
+decodeOutputForUpdateState : D.Decoder OutputForUpdateState
+decodeOutputForUpdateState =
+        decodeTodoItem
+            |> D.index 0
+            |> D.maybe
+            |> D.map (Maybe.withDefault (defaultTodoItem))
+            |> D.map (\a -> (a))
+
 
 
 callCreateTask : Config -> InputForCreate -> Task RpcError OutputForCreate
@@ -318,6 +387,41 @@ callList config input mapResult =
         { method = "POST"
         , headers = config.headers
         , url = config.baseUrl ++ "/api/List"
+        , body = body
+        , expect = expect
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+callUpdateStateTask : Config -> InputForUpdateState -> Task RpcError OutputForUpdateState
+callUpdateStateTask config input =
+    let
+        body =
+            Http.jsonBody (encodeInputForUpdateState input)
+
+        resolver =
+            RpcUtil.resolver decodeOutputForUpdateState
+    in
+    Http.task
+        { method = "POST"
+        , headers = config.headers
+        , url = config.baseUrl ++ "/api/UpdateState"
+        , body = body
+        , resolver = resolver
+        , timeout = Nothing
+        }
+
+
+callUpdateState : Config -> InputForUpdateState -> (RpcResult OutputForUpdateState -> a) -> Cmd a
+callUpdateState config input mapResult =
+    let
+        body = Http.jsonBody (encodeInputForUpdateState input)
+        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder decodeOutputForUpdateState)
+    in
+    Http.request
+        { method = "POST"
+        , headers = config.headers
+        , url = config.baseUrl ++ "/api/UpdateState"
         , body = body
         , expect = expect
         , timeout = Nothing

@@ -5,6 +5,7 @@ option elm_module "Api"
 enum State {
     New
     InProgress
+    Overdue
     Completed
 }
 
@@ -16,6 +17,7 @@ type TodoItem {
     data   metadata
 }
 
-rpc List()         list<TodoItem>
-rpc Create(string) TodoItem
-rpc Destroy(long)  TodoItem
+rpc List()                   list<TodoItem>
+rpc Create(string)           TodoItem
+rpc UpdateState(long, State) TodoItem
+rpc Destroy(long)            TodoItem

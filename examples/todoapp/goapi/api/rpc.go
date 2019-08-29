@@ -75,6 +75,7 @@ type State string
 const (
 	StateNew        = State("new")
 	StateInProgress = State("in_progress")
+	StateOverdue    = State("overdue")
 	StateCompleted  = State("completed")
 )
 
@@ -84,5 +85,7 @@ type Interface interface {
 	Destroy(context.Context, int64) (*TodoItem, error,
 	)
 	List(context.Context) ([]*TodoItem, error,
+	)
+	UpdateState(context.Context, int64, State) (*TodoItem, error,
 	)
 }

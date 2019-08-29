@@ -1749,6 +1749,14 @@
             - '    | Overdue'
             - '    | Completed'
             - ""
+            - 'allState : List State'
+            - allState =
+            - '    [ New'
+            - '    , InProgress'
+            - '    , Overdue'
+            - '    , Completed'
+            - '    ]'
+            - ""
             - 'stringToState : String -> Maybe State'
             - stringToState str =
             - '    case str of'
@@ -1774,6 +1782,18 @@
             - '            "overdue"'
             - '        Completed ->'
             - '            "completed"'
+            - ""
+            - 'titleStringFromState : State -> String'
+            - titleStringFromState v =
+            - '    case v of'
+            - '        New ->'
+            - '            "New"'
+            - '        InProgress ->'
+            - '            "InProgress"'
+            - '        Overdue ->'
+            - '            "Overdue"'
+            - '        Completed ->'
+            - '            "Completed"'
             - ""
             - defaultState =
             - '    New'
@@ -2822,6 +2842,19 @@
             - '    | Lazy'
             - '    | Dog'
             - ""
+            - 'allEnums : List Enums'
+            - allEnums =
+            - '    [ The'
+            - '    , Quick'
+            - '    , Brown'
+            - '    , Fox'
+            - '    , Jumps'
+            - '    , Over'
+            - '    , The'
+            - '    , Lazy'
+            - '    , Dog'
+            - '    ]'
+            - ""
             - 'stringToEnums : String -> Maybe Enums'
             - stringToEnums str =
             - '    case str of'
@@ -2867,6 +2900,28 @@
             - '            "lazy"'
             - '        Dog ->'
             - '            "dog"'
+            - ""
+            - 'titleStringFromEnums : Enums -> String'
+            - titleStringFromEnums v =
+            - '    case v of'
+            - '        The ->'
+            - '            "The"'
+            - '        Quick ->'
+            - '            "Quick"'
+            - '        Brown ->'
+            - '            "Brown"'
+            - '        Fox ->'
+            - '            "Fox"'
+            - '        Jumps ->'
+            - '            "Jumps"'
+            - '        Over ->'
+            - '            "Over"'
+            - '        The ->'
+            - '            "The"'
+            - '        Lazy ->'
+            - '            "Lazy"'
+            - '        Dog ->'
+            - '            "Dog"'
             - ""
             - defaultEnums =
             - '    The'
