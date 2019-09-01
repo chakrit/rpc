@@ -66,7 +66,7 @@ type {{ $name }} string
 
 const (
     {{  range $member := $enum.Members -}}
-    {{ $name }}{{ $member }} = {{ $name }}("{{ snake $member }}")
+    {{ $name }}{{ $member }} = {{ $name }}("{{ dash $member }}")
     {{  end -}}
 )
 {{ end }}

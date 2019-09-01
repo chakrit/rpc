@@ -107,7 +107,7 @@ func (m *Module) resolveTypes() {
 		for _, m := range enum.Members {
 			elmEnum.Members = append(elmEnum.Members, &Member{
 				Name:  m,
-				Value: internal.InflectSnake(m),
+				Value: internal.InflectDash(m),
 			})
 		}
 

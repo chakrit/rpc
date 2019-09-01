@@ -74,7 +74,7 @@ type State string
 
 const (
 	StateNew        = State("new")
-	StateInProgress = State("in_progress")
+	StateInProgress = State("in-progress")
 	StateOverdue    = State("overdue")
 	StateCompleted  = State("completed")
 )

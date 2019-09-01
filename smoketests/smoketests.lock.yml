@@ -1762,7 +1762,7 @@
             - '    case str of'
             - '        "new" ->'
             - '            Just New'
-            - '        "in_progress" ->'
+            - '        "in-progress" ->'
             - '            Just InProgress'
             - '        "overdue" ->'
             - '            Just Overdue'
@@ -1777,7 +1777,7 @@
             - '        New ->'
             - '            "new"'
             - '        InProgress ->'
-            - '            "in_progress"'
+            - '            "in-progress"'
             - '        Overdue ->'
             - '            "overdue"'
             - '        Completed ->'
@@ -4770,7 +4770,7 @@
             - ""
             - const (
             - "\tStateNew        = State(\"new\")"
-            - "\tStateInProgress = State(\"in_progress\")"
+            - "\tStateInProgress = State(\"in-progress\")"
             - "\tStateOverdue    = State(\"overdue\")"
             - "\tStateCompleted  = State(\"completed\")"
             - )

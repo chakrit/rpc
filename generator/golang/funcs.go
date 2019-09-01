@@ -10,6 +10,7 @@ func funcMap(reg TypeRegistry) template.FuncMap {
 	f := template.FuncMap{}
 	f["pascal"] = internal.InflectPascal
 	f["snake"] = internal.InflectSnake
+	f["dash"] = internal.InflectDash
 
 	f["context"] = tmplContext
 

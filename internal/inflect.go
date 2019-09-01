@@ -13,3 +13,6 @@ func InflectPascal(s string) string { return flect.Pascalize(s) }
 //
 // Example: GoLanguage -> go_language
 func InflectSnake(s string) string { return flect.Underscore(s) }
+
+// InflectDash takes a word and produces a dasherized version of it (separate words with `-`)
+func InflectDash(s string) string { return flect.Dasherize(s) }

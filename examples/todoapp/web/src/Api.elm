@@ -90,7 +90,7 @@ stringToState str =
     case str of
         "new" ->
             Just New
-        "in_progress" ->
+        "in-progress" ->
             Just InProgress
         "overdue" ->
             Just Overdue
@@ -105,7 +105,7 @@ stringFromState v =
         New ->
             "new"
         InProgress ->
-            "in_progress"
+            "in-progress"
         Overdue ->
             "overdue"
         Completed ->
