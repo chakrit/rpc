@@ -3,12 +3,13 @@ package generator
 //go:generate statik -src=./tmpl -dest=./ -p tmpldata -f
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/chakrit/rpc/generator/elm"
 	"github.com/chakrit/rpc/generator/golang"
-	"github.com/chakrit/rpc/generator/ruby"
 	"github.com/chakrit/rpc/internal"
 	"github.com/chakrit/rpc/spec"
-	"github.com/pkg/errors"
 )
 
 type Func func(ns *spec.Namespace, outdir string) error
@@ -36,7 +37,7 @@ func Generate(ns *spec.Namespace, opt *Options) error {
 	}
 
 	if err := generate(ns, opt.OutDir); err != nil {
-		return errors.Wrap(err, "generator failure")
+		return fmt.Errorf("generator failure: %w", err)
 	} else {
 		return nil
 	}

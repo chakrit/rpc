@@ -1,14 +1,13 @@
 package elm
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"text/template"
 
 	"github.com/chakrit/rpc/generator/tmpldata"
-
 	"github.com/chakrit/rpc/spec"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -82,7 +81,7 @@ func Generate(ns *spec.Namespace, outdir string) error {
 
 func writeModule(mod *Module, templateName string) error {
 	if err := writeTmpl(mod.OutPath, templateName, mod); err != nil {
-		return errors.Wrap(err, "elm template failure")
+		return fmt.Errorf("elm template failure: %w", err)
 	}
 
 	for _, child := range mod.Children {

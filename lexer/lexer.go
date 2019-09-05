@@ -2,10 +2,12 @@ package lexer
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 
+	"errors"
+
 	"github.com/chakrit/rpc/internal"
-	"github.com/pkg/errors"
 )
 
 type lexFunc func(*lexer, rune) lexFunc
@@ -33,14 +35,14 @@ type lexer struct {
 func Lex(opts Options) ([]*Token, error) {
 	ctx, err := newLexer(opts, lexStart)
 	if err != nil {
-		return nil, errors.Wrap(err, ctx.pos.String())
+		return nil, fmt.Errorf(ctx.pos.String()+": %w", err)
 	}
 
 	for ctx.Step() {
 	}
 
 	if ctx.Err() != nil {
-		return nil, errors.Wrapf(ctx.Err(), ctx.pos.String())
+		return nil, fmt.Errorf(ctx.pos.String()+": %w", ctx.Err())
 	} else {
 		ctx.Emit(T_EndOfFile, "")
 		return ctx.tokens, nil
@@ -99,7 +101,7 @@ func (c *lexer) ClearBuffer() string {
 func (c *lexer) Consume() bool {
 	r, n, err := c.reader.ReadRune()
 	if err != nil && err != io.EOF {
-		c.err = errors.Wrap(err, "read failure")
+		c.err = fmt.Errorf("read failure: %w", err)
 		return false
 	}
 

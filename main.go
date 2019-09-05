@@ -2,10 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
-
-	"github.com/pkg/errors"
 
 	"github.com/chakrit/rpc/generator"
 	"github.com/chakrit/rpc/internal"
@@ -50,7 +49,7 @@ func lexMain(opts Options, logger internal.Logger) {
 	encoder := json.NewEncoder(os.Stdout)
 	for _, token := range allTokens {
 		if err := encoder.Encode(token); err != nil {
-			logger.Fatal(errors.Wrap(err, "json encode failure"))
+			logger.Fatal(fmt.Errorf("json encode failure: %w", err))
 		}
 	}
 }
@@ -72,7 +71,7 @@ func parseMain(opts Options, logger internal.Logger) {
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.SetIndent("", "  ")
 	if err := encoder.Encode(root); err != nil {
-		logger.Fatal(errors.Wrap(err, "json encode failure"))
+		logger.Fatal(fmt.Errorf("json encode failure: %w", err))
 	}
 }
 
@@ -116,7 +115,7 @@ func process(filenames []string, logger internal.Logger, action func(io.Reader) 
 		// skipping one or more input file will have unintended side effects
 		// so failing fast is the better option
 		if err := processOne(filename); err != nil {
-			logger.Fatal(errors.Wrap(err, filename))
+			logger.Fatal(fmt.Errorf("%s: %w", filename, err))
 		}
 	}
 }

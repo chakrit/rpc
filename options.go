@@ -4,7 +4,7 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/pkg/errors"
+	"errors"
 )
 
 type Options struct {

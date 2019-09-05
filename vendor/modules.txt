@@ -4,8 +4,6 @@ github.com/gobuffalo/envy
 github.com/gobuffalo/flect
 # github.com/joho/godotenv v1.3.0
 github.com/joho/godotenv
-# github.com/pkg/errors v0.8.1
-github.com/pkg/errors
 # github.com/rakyll/statik v0.1.6
 github.com/rakyll/statik/fs
 # github.com/rogpeppe/go-internal v1.0.0

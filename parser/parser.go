@@ -1,13 +1,15 @@
 package parser
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/chakrit/rpc/internal"
 
+	"errors"
+
 	"github.com/chakrit/rpc/lexer"
 	"github.com/chakrit/rpc/spec"
-	"github.com/pkg/errors"
 )
 
 type Options struct {
@@ -39,9 +41,9 @@ func Parse(opts Options) (*spec.Namespace, error) {
 	ns, err := p.parseRoot()
 	if err != nil {
 		if token := p.Peek(); token != nil {
-			return nil, errors.Wrap(err, token.Pos.String())
+			return nil, fmt.Errorf(token.Pos.String()+": %w", err)
 		} else {
-			return nil, errors.Wrap(err, "parse failure")
+			return nil, fmt.Errorf("parse failure: %w", err)
 		}
 	}
 
@@ -61,7 +63,7 @@ func (p *parser) Precond(cond bool, msg string) {
 
 func (p *parser) Fail(msg string) error {
 	t := p.Peek()
-	return errors.Errorf("near `%s`: %s", t.Value, msg)
+	return fmt.Errorf("near `%s`: %s", t.Value, msg)
 }
 
 func (p *parser) Peek() *lexer.Token {

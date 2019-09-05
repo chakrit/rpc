@@ -2,6 +2,7 @@ package golang
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"path"
@@ -12,7 +13,6 @@ import (
 	"github.com/chakrit/rpc/generator/tmpldata"
 
 	"github.com/chakrit/rpc/spec"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -32,13 +32,13 @@ const (
 func Generate(ns *spec.Namespace, outdir string) error {
 	pkg := newRootPkg(ns)
 	if err := writeRPCPackages(outdir, pkg); err != nil {
-		return errors.Wrap(err, "go template failure")
+		return fmt.Errorf("go template failure: %w", err)
 	}
 	if err := writeClientPackage(outdir, pkg); err != nil {
-		return errors.Wrap(err, "go template failure")
+		return fmt.Errorf("go template failure: %w", err)
 	}
 	if err := writeServerPackage(outdir, pkg); err != nil {
-		return errors.Wrap(err, "go template failure")
+		return fmt.Errorf("go template failure: %w", err)
 	}
 
 	return nil
@@ -76,7 +76,7 @@ func writeRPCPackages(rootdir string, pkg *Pkg) error {
 			name = "root"
 		}
 
-		return errors.Wrap(err, "generating `"+outpath+"`")
+		return fmt.Errorf("generating `"+outpath+"`: %w", err)
 	}
 
 	for _, child := range pkg.Children {
@@ -90,39 +90,39 @@ func writeRPCPackages(rootdir string, pkg *Pkg) error {
 
 func write(outpath, tmplname string, registry TypeRegistry, data interface{}) error {
 	if err := os.MkdirAll(filepath.Dir(outpath), 0755); err != nil {
-		return errors.Wrap(err, "mkdir -p")
+		return fmt.Errorf("mkdir -p: %w", err)
 	}
 	outfile, err := os.Create(outpath)
 	if err != nil {
-		return errors.Wrap(err, "creating `"+outpath+"`")
+		return fmt.Errorf("creating `"+outpath+"`: %w", err)
 	}
 	defer outfile.Close()
 
 	tmplContent, err := tmpldata.Read(tmplname)
 	if err != nil {
-		return errors.Wrap(err, "reading template `"+tmplname+"`")
+		return fmt.Errorf("reading template `"+tmplname+"`: %w", err)
 	}
 	gotmpl, err := template.New(tmplname).Funcs(funcMap(registry)).Parse(tmplContent)
 	if err != nil {
-		return errors.Wrap(err, "template parse")
+		return fmt.Errorf("parsing template `"+tmplname+"`: %w", err)
 	}
 
 	sharedContent, err := tmpldata.Read(SharedTemplateName)
 	if err != nil {
-		return errors.Wrap(err, "reading template `"+SharedTemplateName+"`")
+		return fmt.Errorf("reading template `"+SharedTemplateName+"`: %w", err)
 	}
 	gotmpl, err = gotmpl.Parse(sharedContent)
 	if err != nil {
-		return errors.Wrap(err, "template parse")
+		return fmt.Errorf("parsing template `"+SharedTemplateName+"`: %w", err)
 	}
 
 	err = gotmpl.Execute(outfile, data)
 	if err != nil {
-		return errors.Wrap(err, "template render")
+		return fmt.Errorf("rendering template: %w", err)
 	}
 
 	if err := gofmt(outpath); err != nil {
-		return errors.Wrap(err, "gofmt")
+		return fmt.Errorf("gofmt: %w", err)
 	}
 	return nil
 }
