@@ -25,10 +25,8 @@ type Options struct {
 
 // added inside each implementation's init()
 var implementations = map[string]Func{
-	"elm":  elm.Generate,
-	"go":   golang.Generate,
-	"rb":   ruby.Generate,
-	"ruby": ruby.Generate,
+	"elm": elm.Generate,
+	"go":  golang.Generate,
 }
 
 func Generate(ns *spec.Namespace, opt *Options) error {
