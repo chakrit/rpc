@@ -104,7 +104,7 @@ titleStringFrom{{ $enum.Name }} v =
     case v of
     {{- range $idx, $member := $enum.Members  }}
         {{ $member.Name }} ->
-            "{{ $member.Name }}"
+            "{{ $member.Title }}"
     {{- end  }}
 
 default{{ $enum.Name }} =

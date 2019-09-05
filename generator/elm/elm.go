@@ -25,6 +25,7 @@ type (
 	Member struct {
 		Name  string
 		Value string
+		Title string
 	}
 
 	Type struct {

@@ -117,7 +117,7 @@ titleStringFromState v =
         New ->
             "New"
         InProgress ->
-            "InProgress"
+            "In Progress"
         Overdue ->
             "Overdue"
         Completed ->

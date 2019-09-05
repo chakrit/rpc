@@ -108,6 +108,7 @@ func (m *Module) resolveTypes() {
 			elmEnum.Members = append(elmEnum.Members, &Member{
 				Name:  m,
 				Value: internal.InflectDash(m),
+				Title: internal.InflectTitle(m),
 			})
 		}
 

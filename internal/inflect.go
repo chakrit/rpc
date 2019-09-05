@@ -16,3 +16,6 @@ func InflectSnake(s string) string { return flect.Underscore(s) }
 
 // InflectDash takes a word and produces a dasherized version of it (separate words with `-`)
 func InflectDash(s string) string { return flect.Dasherize(s) }
+
+// InflectTitle capitalize words and put spaces between them.
+func InflectTitle(s string) string { return flect.Titleize(s) }
