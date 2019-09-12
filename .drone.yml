@@ -1,0 +1,26 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  depth: 1
+
+steps:
+- name: test
+  image: golang:1.13-buster
+  commands:
+  - curl -sL "https://github.com/elm/compiler/releases/download/0.19.0/binary-for-linux-64-bit.gz" | gunzip > /usr/local/bin/elm
+  - curl -sL "https://github.com/avh4/elm-format/releases/download/0.8.2/elm-format-0.8.2-linux-x64.tgz" | tar -xvzf- -C /usr/local/bin
+  - go get -v -u github.com/chakrit/smoke
+  - ./test.sh -vv
+
+---
+kind: signature
+hmac: 9303bbe91c1829e99c86dfd5057820b2b99d7692f9d597419cc0e31becbf14bd
+
+...
