@@ -1,7 +1,7 @@
 ---
 config:
   interpreter: /bin/bash
-  timeout: 3s
+  timeout: 1h
 checks:
   - exitcode
   - stdout
