@@ -15,13 +15,18 @@ import (
 type Func func(ns *spec.Namespace, outdir string) error
 
 type Interface interface {
-	Generate(ns *spec.Namespace, outdir string) error
+	Generate(ns *spec.Namespace, outdir string) ([]OutFile, error)
 }
 
 type Options struct {
 	Logger internal.Logger
 	OutDir string
 	Target string
+}
+
+type OutFile struct {
+	Path    string
+	Content []byte
 }
 
 // added inside each implementation's init()
@@ -36,9 +41,8 @@ func Generate(ns *spec.Namespace, opt *Options) error {
 		return errors.New("unsupported target `" + opt.Target + "`")
 	}
 
-	if err := generate(ns, opt.OutDir); err != nil {
+	outfiles, err := generate(ns, opt.OutDir)
+	if err != nil {
 		return fmt.Errorf("generator failure: %w", err)
-	} else {
-		return nil
 	}
 }

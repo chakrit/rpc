@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"os"
 	"strings"
 
 	"errors"
@@ -14,13 +15,15 @@ type Options struct {
 	Target    string
 
 	OutputDir     string
+	CleanOutput   bool
 	SpecFilenames []string
 }
 
 var (
-	ErrNoInput     = errors.New("no rpc input file given")
-	ErrNoGenTarget = errors.New("no target specified for the generator")
-	ErrNoOutput    = errors.New("no output folder specified for the generator")
+	ErrNoInput      = errors.New("no rpc input file given")
+	ErrNoGenTarget  = errors.New("no target specified for the generator")
+	ErrNoOutput     = errors.New("no output folder specified for the generator")
+	ErrOutputNotDir = errors.New("specified output path is not a directory")
 )
 
 func parseOptions() Options {
@@ -29,6 +32,7 @@ func parseOptions() Options {
 	flag.BoolVar(&options.LexOnly, "lex", false, "Lex MRPC file and print a list of tokens found.")
 	flag.BoolVar(&options.ParseOnly, "parse", false, "Parse MRPC file and output a JSON spec for further processing.")
 	flag.StringVar(&options.Target, "gen", "", "Generate an implementation for the specified target.")
+	flag.BoolVar(&options.CleanOutput, "clean", false, "Cleans the output directory before generating new files into it.")
 	flag.StringVar(&options.OutputDir, "out", "", "Output directory or filename. Defaults to STDOUT.")
 	flag.Parse()
 
@@ -51,9 +55,15 @@ func (opts Options) validate() error {
 		return ErrNoGenTarget
 	case genMode && opts.OutputDir == "":
 		return ErrNoOutput
-	default:
-		return nil
 	}
+
+	if info, err := os.Stat(opts.OutputDir); err != nil {
+		return err
+	} else if !info.IsDir() {
+		return ErrOutputNotDir
+	}
+
+	return nil
 }
 
 func normalizeFilename(str string) string {

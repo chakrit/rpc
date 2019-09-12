@@ -89,6 +89,14 @@ func genMain(opts Options, logger internal.Logger) {
 		}
 	})
 
+	if opts.CleanOutput {
+		// TODO: Actually not possible to use RemoveAll here because we allow
+		//   generating new files into directory that may contains existing
+		//   code. We need to involve the target generator and have it tell us
+		//   the correct folder and file to clean.
+		panic("not yet implementation")
+	}
+
 	err := generator.Generate(root, &generator.Options{
 		Logger: logger,
 		OutDir: opts.OutputDir,
