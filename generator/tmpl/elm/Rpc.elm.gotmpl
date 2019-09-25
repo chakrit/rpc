@@ -83,6 +83,20 @@ all{{ $enum.Name }} =
     {{- end  }}
     ]
 
+pairsOf{{ $enum.Name }} : List ( String, {{ $enum.Name }} )
+pairsOf{{ $enum.Name }} =
+    {{- range $idx, $member := $enum.Members  }}
+    {{ ifFirst $idx "[" "," }} ( "{{ $member.Value }}", {{ $member.Name }} )
+    {{- end  }}
+    ]
+
+titlePairsOf{{ $enum.Name }} : List ( String, String )
+titlePairsOf{{ $enum.Name }} =
+    {{- range $idx, $member := $enum.Members  }}
+    {{ ifFirst $idx "[" "," }} ( "{{ $member.Value }}", "{{ $member.Title }}" )
+    {{- end  }}
+    ]
+
 stringTo{{ $enum.Name }} : String -> Maybe {{ $enum.Name }}
 stringTo{{ $enum.Name }} str =
     case str of

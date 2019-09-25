@@ -88,6 +88,22 @@ allState =
     , Completed
     ]
 
+pairsOfState : List ( String, State )
+pairsOfState =
+    [ ( "new", New )
+    , ( "in-progress", InProgress )
+    , ( "overdue", Overdue )
+    , ( "completed", Completed )
+    ]
+
+titlePairsOfState : List ( String, String )
+titlePairsOfState =
+    [ ( "new", "New" )
+    , ( "in-progress", "In Progress" )
+    , ( "overdue", "Overdue" )
+    , ( "completed", "Completed" )
+    ]
+
 stringToState : String -> Maybe State
 stringToState str =
     case str of
