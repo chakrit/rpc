@@ -1769,6 +1769,22 @@
             - '    , Completed'
             - '    ]'
             - ""
+            - 'pairsOfState : List ( String, State )'
+            - pairsOfState =
+            - '    [ ( "new", New )'
+            - '    , ( "in-progress", InProgress )'
+            - '    , ( "overdue", Overdue )'
+            - '    , ( "completed", Completed )'
+            - '    ]'
+            - ""
+            - 'titlePairsOfState : List ( String, String )'
+            - titlePairsOfState =
+            - '    [ ( "new", "New" )'
+            - '    , ( "in-progress", "In Progress" )'
+            - '    , ( "overdue", "Overdue" )'
+            - '    , ( "completed", "Completed" )'
+            - '    ]'
+            - ""
             - 'stringToState : String -> Maybe State'
             - stringToState str =
             - '    case str of'
@@ -2877,6 +2893,32 @@
             - '    , The'
             - '    , Lazy'
             - '    , Dog'
+            - '    ]'
+            - ""
+            - 'pairsOfEnums : List ( String, Enums )'
+            - pairsOfEnums =
+            - '    [ ( "the", The )'
+            - '    , ( "quick", Quick )'
+            - '    , ( "brown", Brown )'
+            - '    , ( "fox", Fox )'
+            - '    , ( "jumps", Jumps )'
+            - '    , ( "over", Over )'
+            - '    , ( "the", The )'
+            - '    , ( "lazy", Lazy )'
+            - '    , ( "dog", Dog )'
+            - '    ]'
+            - ""
+            - 'titlePairsOfEnums : List ( String, String )'
+            - titlePairsOfEnums =
+            - '    [ ( "the", "The" )'
+            - '    , ( "quick", "Quick" )'
+            - '    , ( "brown", "Brown" )'
+            - '    , ( "fox", "Fox" )'
+            - '    , ( "jumps", "Jumps" )'
+            - '    , ( "over", "Over" )'
+            - '    , ( "the", "The" )'
+            - '    , ( "lazy", "Lazy" )'
+            - '    , ( "dog", "Dog" )'
             - '    ]'
             - ""
             - 'stringToEnums : String -> Maybe Enums'
@@ -5971,10 +6013,9 @@
             - "0"
         - name: stdout
           data:
-            - "[================                                  ] - 1 / 3\r[=================================
-              \                ] - 2 / 3\r[==================================================]
-              - 3 / 3\r                                                                     \rSuccess!
-              Compiled 3 modules."
+            - "Compiling ...\rCompiling (1)\rCompiling (2)\rSuccess! Compiled 2 modules."
+            - ""
+            - '    Main ───> index.html'
         - name: stderr
           data:
             - ""
