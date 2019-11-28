@@ -16,11 +16,12 @@ steps:
   commands:
   - curl -sL "https://github.com/elm/compiler/releases/download/0.19.1/binary-for-linux-64-bit.gz" | gunzip > /usr/local/bin/elm
   - curl -sL "https://github.com/avh4/elm-format/releases/download/0.8.2/elm-format-0.8.2-linux-x64.tgz" | tar -xvzf- -C /usr/local/bin
+  - chmod +x /usr/local/bin/elm /usr/local/bin/elm-format
   - go get -v -u github.com/chakrit/smoke
   - ./test.sh -vv
 
 ---
 kind: signature
-hmac: 150a8a30348cfbef42ee1825b004bb9fdb55876fb4db375beda656dc3e4ce787
+hmac: b314d00fdb0a30ea3af653e8a540eef04ccd80e1677ed4b9e1777f82677e5ad6
 
 ...
