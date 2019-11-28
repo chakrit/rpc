@@ -1,889 +1,61 @@
-- name: ./smoketests.yml \ Basics \ Install
+- name: ./smoketests.yml \ Build \ Generate
   commands:
     - command: go generate ../...
       checks:
         - name: exitcode
           data:
             - "0"
-        - name: stdout
-          data:
-            - ""
-        - name: stderr
-          data:
-            - ""
-    - command: go install -a ..
+- name: ./smoketests.yml \ Build \ Tests
+  commands:
+    - command: go test -v ../...
       checks:
         - name: exitcode
           data:
             - "0"
         - name: stdout
           data:
-            - ""
-        - name: stderr
+            - "?   \tgithub.com/chakrit/rpc\t[no test files]"
+            - "?   \tgithub.com/chakrit/rpc/generator\t[no test files]"
+            - "?   \tgithub.com/chakrit/rpc/generator/elm\t[no test files]"
+            - "?   \tgithub.com/chakrit/rpc/generator/golang\t[no test files]"
+            - "?   \tgithub.com/chakrit/rpc/generator/tmpldata\t[no test files]"
+            - "?   \tgithub.com/chakrit/rpc/internal\t[no test files]"
+            - "?   \tgithub.com/chakrit/rpc/lexer\t[no test files]"
+            - "?   \tgithub.com/chakrit/rpc/parser\t[no test files]"
+            - "?   \tgithub.com/chakrit/rpc/spec\t[no test files]"
+- name: ./smoketests.yml \ Build \ Compile
+  commands:
+    - command: go install ..
+      checks:
+        - name: exitcode
           data:
-            - ""
+            - "0"
 - name: ./smoketests.yml \ Basics \ Lex
   commands:
-    - command: $(go env GOPATH)/bin/rpc -lex todo-simple.rpc
+    - command: $(go env GOPATH)/bin/rpc -lex "*.rpc"
       checks:
         - name: exitcode
           data:
-            - "0"
+            - "1"
         - name: stdout
           data:
-            - '{"type":"keyword","value":"option","pos":{"byte_no":6,"line_no":0,"col_no":6}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":7,"line_no":0,"col_no":7}}'
-            - '{"type":"identifier","value":"transport","pos":{"byte_no":16,"line_no":0,"col_no":16}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":17,"line_no":0,"col_no":17}}'
-            - '{"type":"value-string","value":"http","pos":{"byte_no":23,"line_no":0,"col_no":23}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":24,"line_no":0,"col_no":24}}'
-            - '{"type":"keyword","value":"option","pos":{"byte_no":30,"line_no":1,"col_no":6}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":31,"line_no":1,"col_no":7}}'
-            - '{"type":"identifier","value":"encoding","pos":{"byte_no":39,"line_no":1,"col_no":15}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":40,"line_no":1,"col_no":16}}'
-            - '{"type":"value-string","value":"json","pos":{"byte_no":46,"line_no":1,"col_no":22}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":47,"line_no":1,"col_no":23}}'
-            - '{"type":"keyword","value":"option","pos":{"byte_no":53,"line_no":2,"col_no":6}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":54,"line_no":2,"col_no":7}}'
-            - '{"type":"identifier","value":"ruby_module","pos":{"byte_no":65,"line_no":2,"col_no":18}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":66,"line_no":2,"col_no":19}}'
-            - '{"type":"value-string","value":"minitodo","pos":{"byte_no":76,"line_no":2,"col_no":29}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":77,"line_no":2,"col_no":30}}'
-            - '{"type":"keyword","value":"option","pos":{"byte_no":83,"line_no":3,"col_no":6}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":84,"line_no":3,"col_no":7}}'
-            - '{"type":"identifier","value":"go_package","pos":{"byte_no":94,"line_no":3,"col_no":17}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":95,"line_no":3,"col_no":18}}'
-            - '{"type":"value-string","value":"minitodo","pos":{"byte_no":105,"line_no":3,"col_no":28}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":106,"line_no":3,"col_no":29}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":107,"line_no":4,"col_no":1}}'
-            - '{"type":"keyword","value":"type","pos":{"byte_no":111,"line_no":5,"col_no":4}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":112,"line_no":5,"col_no":5}}'
-            - '{"type":"identifier","value":"Failure","pos":{"byte_no":119,"line_no":5,"col_no":12}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":120,"line_no":5,"col_no":13}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":121,"line_no":5,"col_no":14}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":122,"line_no":5,"col_no":15}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":126,"line_no":6,"col_no":4}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":132,"line_no":6,"col_no":10}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":133,"line_no":6,"col_no":11}}'
-            - '{"type":"identifier","value":"code","pos":{"byte_no":137,"line_no":6,"col_no":15}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":138,"line_no":6,"col_no":16}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":142,"line_no":7,"col_no":4}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":148,"line_no":7,"col_no":10}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":149,"line_no":7,"col_no":11}}'
-            - '{"type":"identifier","value":"description","pos":{"byte_no":160,"line_no":7,"col_no":22}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":161,"line_no":7,"col_no":23}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":162,"line_no":8,"col_no":1}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":163,"line_no":8,"col_no":2}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":164,"line_no":9,"col_no":1}}'
-            - '{"type":"keyword","value":"type","pos":{"byte_no":168,"line_no":10,"col_no":4}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":169,"line_no":10,"col_no":5}}'
-            - '{"type":"identifier","value":"TodoItem","pos":{"byte_no":177,"line_no":10,"col_no":13}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":178,"line_no":10,"col_no":14}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":179,"line_no":10,"col_no":15}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":180,"line_no":10,"col_no":16}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":184,"line_no":11,"col_no":4}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":190,"line_no":11,"col_no":10}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":191,"line_no":11,"col_no":11}}'
-            - '{"type":"identifier","value":"uuid","pos":{"byte_no":195,"line_no":11,"col_no":15}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":196,"line_no":11,"col_no":16}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":200,"line_no":12,"col_no":4}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":206,"line_no":12,"col_no":10}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":207,"line_no":12,"col_no":11}}'
-            - '{"type":"identifier","value":"description","pos":{"byte_no":218,"line_no":12,"col_no":22}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":219,"line_no":12,"col_no":23}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":223,"line_no":13,"col_no":4}}'
-            - '{"type":"keyword","value":"time","pos":{"byte_no":227,"line_no":13,"col_no":8}}'
-            - '{"type":"whitespace","value":"   ","pos":{"byte_no":230,"line_no":13,"col_no":11}}'
-            - '{"type":"identifier","value":"ctime","pos":{"byte_no":235,"line_no":13,"col_no":16}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":236,"line_no":13,"col_no":17}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":240,"line_no":14,"col_no":4}}'
-            - '{"type":"keyword","value":"bool","pos":{"byte_no":244,"line_no":14,"col_no":8}}'
-            - '{"type":"whitespace","value":"   ","pos":{"byte_no":247,"line_no":14,"col_no":11}}'
-            - '{"type":"identifier","value":"completed","pos":{"byte_no":256,"line_no":14,"col_no":20}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":257,"line_no":14,"col_no":21}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":261,"line_no":15,"col_no":4}}'
-            - '{"type":"keyword","value":"data","pos":{"byte_no":265,"line_no":15,"col_no":8}}'
-            - '{"type":"whitespace","value":"   ","pos":{"byte_no":268,"line_no":15,"col_no":11}}'
-            - '{"type":"identifier","value":"metadata","pos":{"byte_no":276,"line_no":15,"col_no":19}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":277,"line_no":15,"col_no":20}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":278,"line_no":16,"col_no":1}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":279,"line_no":16,"col_no":2}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":280,"line_no":17,"col_no":1}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":283,"line_no":18,"col_no":3}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":284,"line_no":18,"col_no":4}}'
-            - '{"type":"identifier","value":"List","pos":{"byte_no":288,"line_no":18,"col_no":8}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":289,"line_no":18,"col_no":9}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":290,"line_no":18,"col_no":10}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":291,"line_no":18,"col_no":11}}'
-            - '{"type":"keyword","value":"list","pos":{"byte_no":295,"line_no":18,"col_no":15}}'
-            - '{"type":"type-arg-list-start","value":"\u003c","pos":{"byte_no":296,"line_no":18,"col_no":16}}'
-            - '{"type":"identifier","value":"TodoItem","pos":{"byte_no":304,"line_no":18,"col_no":24}}'
-            - '{"type":"type-arg-list-end","value":"\u003e","pos":{"byte_no":305,"line_no":18,"col_no":25}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":306,"line_no":18,"col_no":26}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":309,"line_no":19,"col_no":3}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":310,"line_no":19,"col_no":4}}'
-            - '{"type":"identifier","value":"Get","pos":{"byte_no":313,"line_no":19,"col_no":7}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":314,"line_no":19,"col_no":8}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":320,"line_no":19,"col_no":14}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":321,"line_no":19,"col_no":15}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":322,"line_no":19,"col_no":16}}'
-            - '{"type":"identifier","value":"TodoItem","pos":{"byte_no":330,"line_no":19,"col_no":24}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":331,"line_no":19,"col_no":25}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":334,"line_no":20,"col_no":3}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":335,"line_no":20,"col_no":4}}'
-            - '{"type":"identifier","value":"Put","pos":{"byte_no":338,"line_no":20,"col_no":7}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":339,"line_no":20,"col_no":8}}'
-            - '{"type":"identifier","value":"TodoItem","pos":{"byte_no":347,"line_no":20,"col_no":16}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":348,"line_no":20,"col_no":17}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":349,"line_no":20,"col_no":18}}'
-            - '{"type":"identifier","value":"TodoItem","pos":{"byte_no":357,"line_no":20,"col_no":26}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":358,"line_no":20,"col_no":27}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":361,"line_no":21,"col_no":3}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":362,"line_no":21,"col_no":4}}'
-            - '{"type":"identifier","value":"Delete","pos":{"byte_no":368,"line_no":21,"col_no":10}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":369,"line_no":21,"col_no":11}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":375,"line_no":21,"col_no":17}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":376,"line_no":21,"col_no":18}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":377,"line_no":21,"col_no":19}}'
-            - '{"type":"identifier","value":"TodoItem","pos":{"byte_no":385,"line_no":21,"col_no":27}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":386,"line_no":21,"col_no":28}}'
-            - '{"type":"end-of-file","value":"","pos":{"byte_no":386,"line_no":22,"col_no":0}}'
+            - ""
         - name: stderr
           data:
-            - ""
-    - command: $(go env GOPATH)/bin/rpc -lex todo-complex.rpc
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - '{"type":"keyword","value":"option","pos":{"byte_no":6,"line_no":0,"col_no":6}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":7,"line_no":0,"col_no":7}}'
-            - '{"type":"identifier","value":"go_import","pos":{"byte_no":16,"line_no":0,"col_no":16}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":17,"line_no":0,"col_no":17}}'
-            - '{"type":"value-string","value":"github.com/chakrit/rpc/examples","pos":{"byte_no":50,"line_no":0,"col_no":50}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":51,"line_no":0,"col_no":51}}'
-            - '{"type":"keyword","value":"option","pos":{"byte_no":57,"line_no":1,"col_no":6}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":58,"line_no":1,"col_no":7}}'
-            - '{"type":"identifier","value":"go_package","pos":{"byte_no":68,"line_no":1,"col_no":17}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":69,"line_no":1,"col_no":18}}'
-            - '{"type":"value-string","value":"examples","pos":{"byte_no":79,"line_no":1,"col_no":28}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":80,"line_no":1,"col_no":29}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":81,"line_no":2,"col_no":1}}'
-            - '{"type":"keyword","value":"type","pos":{"byte_no":85,"line_no":3,"col_no":4}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":86,"line_no":3,"col_no":5}}'
-            - '{"type":"identifier","value":"Failure","pos":{"byte_no":93,"line_no":3,"col_no":12}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":94,"line_no":3,"col_no":13}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":95,"line_no":3,"col_no":14}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":96,"line_no":3,"col_no":15}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":100,"line_no":4,"col_no":4}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":106,"line_no":4,"col_no":10}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":107,"line_no":4,"col_no":11}}'
-            - '{"type":"identifier","value":"code","pos":{"byte_no":111,"line_no":4,"col_no":15}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":112,"line_no":4,"col_no":16}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":116,"line_no":5,"col_no":4}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":122,"line_no":5,"col_no":10}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":123,"line_no":5,"col_no":11}}'
-            - '{"type":"identifier","value":"description","pos":{"byte_no":134,"line_no":5,"col_no":22}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":135,"line_no":5,"col_no":23}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":136,"line_no":6,"col_no":1}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":137,"line_no":6,"col_no":2}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":138,"line_no":7,"col_no":1}}'
-            - '{"type":"keyword","value":"namespace","pos":{"byte_no":147,"line_no":8,"col_no":9}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":148,"line_no":8,"col_no":10}}'
-            - '{"type":"identifier","value":"System","pos":{"byte_no":154,"line_no":8,"col_no":16}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":155,"line_no":8,"col_no":17}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":156,"line_no":8,"col_no":18}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":157,"line_no":8,"col_no":19}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":161,"line_no":9,"col_no":4}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":164,"line_no":9,"col_no":7}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":165,"line_no":9,"col_no":8}}'
-            - '{"type":"identifier","value":"Status","pos":{"byte_no":171,"line_no":9,"col_no":14}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":172,"line_no":9,"col_no":15}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":173,"line_no":9,"col_no":16}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":174,"line_no":9,"col_no":17}}'
-            - '{"type":"identifier","value":"Failure","pos":{"byte_no":181,"line_no":9,"col_no":24}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":182,"line_no":9,"col_no":25}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":183,"line_no":10,"col_no":1}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":187,"line_no":11,"col_no":4}}'
-            - '{"type":"keyword","value":"namespace","pos":{"byte_no":196,"line_no":11,"col_no":13}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":197,"line_no":11,"col_no":14}}'
-            - '{"type":"identifier","value":"Auth","pos":{"byte_no":201,"line_no":11,"col_no":18}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":202,"line_no":11,"col_no":19}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":203,"line_no":11,"col_no":20}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":204,"line_no":11,"col_no":21}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":212,"line_no":12,"col_no":8}}'
-            - '{"type":"keyword","value":"type","pos":{"byte_no":216,"line_no":12,"col_no":12}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":217,"line_no":12,"col_no":13}}'
-            - '{"type":"identifier","value":"User","pos":{"byte_no":221,"line_no":12,"col_no":17}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":222,"line_no":12,"col_no":18}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":223,"line_no":12,"col_no":19}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":224,"line_no":12,"col_no":20}}'
-            - '{"type":"whitespace","value":"            ","pos":{"byte_no":236,"line_no":13,"col_no":12}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":242,"line_no":13,"col_no":18}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":243,"line_no":13,"col_no":19}}'
-            - '{"type":"identifier","value":"username","pos":{"byte_no":251,"line_no":13,"col_no":27}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":252,"line_no":13,"col_no":28}}'
-            - '{"type":"whitespace","value":"            ","pos":{"byte_no":264,"line_no":14,"col_no":12}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":270,"line_no":14,"col_no":18}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":271,"line_no":14,"col_no":19}}'
-            - '{"type":"identifier","value":"email","pos":{"byte_no":276,"line_no":14,"col_no":24}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":277,"line_no":14,"col_no":25}}'
-            - '{"type":"whitespace","value":"            ","pos":{"byte_no":289,"line_no":15,"col_no":12}}'
-            - '{"type":"keyword","value":"map","pos":{"byte_no":292,"line_no":15,"col_no":15}}'
-            - '{"type":"type-arg-list-start","value":"\u003c","pos":{"byte_no":293,"line_no":15,"col_no":16}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":299,"line_no":15,"col_no":22}}'
-            - '{"type":"arg-list-sep","value":",","pos":{"byte_no":300,"line_no":15,"col_no":23}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":301,"line_no":15,"col_no":24}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":307,"line_no":15,"col_no":30}}'
-            - '{"type":"type-arg-list-end","value":"\u003e","pos":{"byte_no":308,"line_no":15,"col_no":31}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":309,"line_no":15,"col_no":32}}'
-            - '{"type":"identifier","value":"metadata","pos":{"byte_no":317,"line_no":15,"col_no":40}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":318,"line_no":15,"col_no":41}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":326,"line_no":16,"col_no":8}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":327,"line_no":16,"col_no":9}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":328,"line_no":16,"col_no":10}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":329,"line_no":17,"col_no":1}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":337,"line_no":18,"col_no":8}}'
-            - '{"type":"keyword","value":"type","pos":{"byte_no":341,"line_no":18,"col_no":12}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":342,"line_no":18,"col_no":13}}'
-            - '{"type":"identifier","value":"AuthRequest","pos":{"byte_no":353,"line_no":18,"col_no":24}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":354,"line_no":18,"col_no":25}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":355,"line_no":18,"col_no":26}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":356,"line_no":18,"col_no":27}}'
-            - '{"type":"whitespace","value":"            ","pos":{"byte_no":368,"line_no":19,"col_no":12}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":374,"line_no":19,"col_no":18}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":375,"line_no":19,"col_no":19}}'
-            - '{"type":"identifier","value":"provider","pos":{"byte_no":383,"line_no":19,"col_no":27}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":384,"line_no":19,"col_no":28}}'
-            - '{"type":"whitespace","value":"            ","pos":{"byte_no":396,"line_no":20,"col_no":12}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":402,"line_no":20,"col_no":18}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":403,"line_no":20,"col_no":19}}'
-            - '{"type":"identifier","value":"username","pos":{"byte_no":411,"line_no":20,"col_no":27}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":412,"line_no":20,"col_no":28}}'
-            - '{"type":"whitespace","value":"            ","pos":{"byte_no":424,"line_no":21,"col_no":12}}'
-            - '{"type":"keyword","value":"data","pos":{"byte_no":428,"line_no":21,"col_no":16}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":429,"line_no":21,"col_no":17}}'
-            - '{"type":"identifier","value":"authData","pos":{"byte_no":437,"line_no":21,"col_no":25}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":438,"line_no":21,"col_no":26}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":446,"line_no":22,"col_no":8}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":447,"line_no":22,"col_no":9}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":448,"line_no":22,"col_no":10}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":449,"line_no":23,"col_no":1}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":457,"line_no":24,"col_no":8}}'
-            - '{"type":"keyword","value":"type","pos":{"byte_no":461,"line_no":24,"col_no":12}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":462,"line_no":24,"col_no":13}}'
-            - '{"type":"identifier","value":"AuthResponse","pos":{"byte_no":474,"line_no":24,"col_no":25}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":475,"line_no":24,"col_no":26}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":476,"line_no":24,"col_no":27}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":477,"line_no":24,"col_no":28}}'
-            - '{"type":"whitespace","value":"            ","pos":{"byte_no":489,"line_no":25,"col_no":12}}'
-            - '{"type":"identifier","value":"Failure","pos":{"byte_no":496,"line_no":25,"col_no":19}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":497,"line_no":25,"col_no":20}}'
-            - '{"type":"identifier","value":"failure","pos":{"byte_no":504,"line_no":25,"col_no":27}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":505,"line_no":25,"col_no":28}}'
-            - '{"type":"whitespace","value":"            ","pos":{"byte_no":517,"line_no":26,"col_no":12}}'
-            - '{"type":"identifier","value":"User","pos":{"byte_no":521,"line_no":26,"col_no":16}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":522,"line_no":26,"col_no":17}}'
-            - '{"type":"identifier","value":"user","pos":{"byte_no":526,"line_no":26,"col_no":21}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":527,"line_no":26,"col_no":22}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":535,"line_no":27,"col_no":8}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":536,"line_no":27,"col_no":9}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":537,"line_no":27,"col_no":10}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":541,"line_no":28,"col_no":4}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":542,"line_no":28,"col_no":5}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":543,"line_no":28,"col_no":6}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":544,"line_no":29,"col_no":1}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":545,"line_no":29,"col_no":2}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":546,"line_no":30,"col_no":1}}'
-            - '{"type":"keyword","value":"namespace","pos":{"byte_no":555,"line_no":31,"col_no":9}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":556,"line_no":31,"col_no":10}}'
-            - '{"type":"identifier","value":"Todos","pos":{"byte_no":561,"line_no":31,"col_no":15}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":562,"line_no":31,"col_no":16}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":563,"line_no":31,"col_no":17}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":564,"line_no":31,"col_no":18}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":568,"line_no":32,"col_no":4}}'
-            - '{"type":"keyword","value":"enum","pos":{"byte_no":572,"line_no":32,"col_no":8}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":573,"line_no":32,"col_no":9}}'
-            - '{"type":"identifier","value":"State","pos":{"byte_no":578,"line_no":32,"col_no":14}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":579,"line_no":32,"col_no":15}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":580,"line_no":32,"col_no":16}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":581,"line_no":32,"col_no":17}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":589,"line_no":33,"col_no":8}}'
-            - '{"type":"identifier","value":"New","pos":{"byte_no":592,"line_no":33,"col_no":11}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":593,"line_no":33,"col_no":12}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":601,"line_no":34,"col_no":8}}'
-            - '{"type":"identifier","value":"InProgress","pos":{"byte_no":611,"line_no":34,"col_no":18}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":612,"line_no":34,"col_no":19}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":620,"line_no":35,"col_no":8}}'
-            - '{"type":"identifier","value":"Overdue","pos":{"byte_no":627,"line_no":35,"col_no":15}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":628,"line_no":35,"col_no":16}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":636,"line_no":36,"col_no":8}}'
-            - '{"type":"identifier","value":"Completed","pos":{"byte_no":645,"line_no":36,"col_no":17}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":646,"line_no":36,"col_no":18}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":650,"line_no":37,"col_no":4}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":651,"line_no":37,"col_no":5}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":652,"line_no":37,"col_no":6}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":653,"line_no":38,"col_no":1}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":657,"line_no":39,"col_no":4}}'
-            - '{"type":"keyword","value":"type","pos":{"byte_no":661,"line_no":39,"col_no":8}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":662,"line_no":39,"col_no":9}}'
-            - '{"type":"identifier","value":"Item","pos":{"byte_no":666,"line_no":39,"col_no":13}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":667,"line_no":39,"col_no":14}}'
-            - '{"type":"block-start","value":"{","pos":{"byte_no":668,"line_no":39,"col_no":15}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":669,"line_no":39,"col_no":16}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":677,"line_no":40,"col_no":8}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":683,"line_no":40,"col_no":14}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":684,"line_no":40,"col_no":15}}'
-            - '{"type":"identifier","value":"id","pos":{"byte_no":686,"line_no":40,"col_no":17}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":687,"line_no":40,"col_no":18}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":695,"line_no":41,"col_no":8}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":701,"line_no":41,"col_no":14}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":702,"line_no":41,"col_no":15}}'
-            - '{"type":"identifier","value":"description","pos":{"byte_no":713,"line_no":41,"col_no":26}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":714,"line_no":41,"col_no":27}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":722,"line_no":42,"col_no":8}}'
-            - '{"type":"keyword","value":"time","pos":{"byte_no":726,"line_no":42,"col_no":12}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":727,"line_no":42,"col_no":13}}'
-            - '{"type":"identifier","value":"ctime","pos":{"byte_no":732,"line_no":42,"col_no":18}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":733,"line_no":42,"col_no":19}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":741,"line_no":43,"col_no":8}}'
-            - '{"type":"identifier","value":"State","pos":{"byte_no":746,"line_no":43,"col_no":13}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":747,"line_no":43,"col_no":14}}'
-            - '{"type":"identifier","value":"state","pos":{"byte_no":752,"line_no":43,"col_no":19}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":753,"line_no":43,"col_no":20}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":754,"line_no":44,"col_no":1}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":762,"line_no":45,"col_no":8}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":768,"line_no":45,"col_no":14}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":769,"line_no":45,"col_no":15}}'
-            - '{"type":"identifier","value":"author","pos":{"byte_no":775,"line_no":45,"col_no":21}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":776,"line_no":45,"col_no":22}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":784,"line_no":46,"col_no":8}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":790,"line_no":46,"col_no":14}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":791,"line_no":46,"col_no":15}}'
-            - '{"type":"identifier","value":"assignee","pos":{"byte_no":799,"line_no":46,"col_no":23}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":800,"line_no":46,"col_no":24}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":808,"line_no":47,"col_no":8}}'
-            - '{"type":"keyword","value":"time","pos":{"byte_no":812,"line_no":47,"col_no":12}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":813,"line_no":47,"col_no":13}}'
-            - '{"type":"identifier","value":"dueDate","pos":{"byte_no":820,"line_no":47,"col_no":20}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":821,"line_no":47,"col_no":21}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":829,"line_no":48,"col_no":8}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":835,"line_no":48,"col_no":14}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":836,"line_no":48,"col_no":15}}'
-            - '{"type":"identifier","value":"category","pos":{"byte_no":844,"line_no":48,"col_no":23}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":845,"line_no":48,"col_no":24}}'
-            - '{"type":"whitespace","value":"        ","pos":{"byte_no":853,"line_no":49,"col_no":8}}'
-            - '{"type":"keyword","value":"list","pos":{"byte_no":857,"line_no":49,"col_no":12}}'
-            - '{"type":"type-arg-list-start","value":"\u003c","pos":{"byte_no":858,"line_no":49,"col_no":13}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":864,"line_no":49,"col_no":19}}'
-            - '{"type":"type-arg-list-end","value":"\u003e","pos":{"byte_no":865,"line_no":49,"col_no":20}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":866,"line_no":49,"col_no":21}}'
-            - '{"type":"identifier","value":"tags","pos":{"byte_no":870,"line_no":49,"col_no":25}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":871,"line_no":49,"col_no":26}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":875,"line_no":50,"col_no":4}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":876,"line_no":50,"col_no":5}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":877,"line_no":50,"col_no":6}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":878,"line_no":51,"col_no":1}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":882,"line_no":52,"col_no":4}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":885,"line_no":52,"col_no":7}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":886,"line_no":52,"col_no":8}}'
-            - '{"type":"identifier","value":"List","pos":{"byte_no":890,"line_no":52,"col_no":12}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":891,"line_no":52,"col_no":13}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":892,"line_no":52,"col_no":14}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":893,"line_no":52,"col_no":15}}'
-            - '{"type":"keyword","value":"list","pos":{"byte_no":897,"line_no":52,"col_no":19}}'
-            - '{"type":"type-arg-list-start","value":"\u003c","pos":{"byte_no":898,"line_no":52,"col_no":20}}'
-            - '{"type":"identifier","value":"Item","pos":{"byte_no":902,"line_no":52,"col_no":24}}'
-            - '{"type":"type-arg-list-end","value":"\u003e","pos":{"byte_no":903,"line_no":52,"col_no":25}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":904,"line_no":52,"col_no":26}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":908,"line_no":53,"col_no":4}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":911,"line_no":53,"col_no":7}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":912,"line_no":53,"col_no":8}}'
-            - '{"type":"identifier","value":"Get","pos":{"byte_no":915,"line_no":53,"col_no":11}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":916,"line_no":53,"col_no":12}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":922,"line_no":53,"col_no":18}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":923,"line_no":53,"col_no":19}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":924,"line_no":53,"col_no":20}}'
-            - '{"type":"identifier","value":"Item","pos":{"byte_no":928,"line_no":53,"col_no":24}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":929,"line_no":53,"col_no":25}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":933,"line_no":54,"col_no":4}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":936,"line_no":54,"col_no":7}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":937,"line_no":54,"col_no":8}}'
-            - '{"type":"identifier","value":"Put","pos":{"byte_no":940,"line_no":54,"col_no":11}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":941,"line_no":54,"col_no":12}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":947,"line_no":54,"col_no":18}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":948,"line_no":54,"col_no":19}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":949,"line_no":54,"col_no":20}}'
-            - '{"type":"identifier","value":"Item","pos":{"byte_no":953,"line_no":54,"col_no":24}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":954,"line_no":54,"col_no":25}}'
-            - '{"type":"whitespace","value":"    ","pos":{"byte_no":958,"line_no":55,"col_no":4}}'
-            - '{"type":"keyword","value":"rpc","pos":{"byte_no":961,"line_no":55,"col_no":7}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":962,"line_no":55,"col_no":8}}'
-            - '{"type":"identifier","value":"Delete","pos":{"byte_no":968,"line_no":55,"col_no":14}}'
-            - '{"type":"arg-list-start","value":"(","pos":{"byte_no":969,"line_no":55,"col_no":15}}'
-            - '{"type":"keyword","value":"string","pos":{"byte_no":975,"line_no":55,"col_no":21}}'
-            - '{"type":"arg-list-end","value":")","pos":{"byte_no":976,"line_no":55,"col_no":22}}'
-            - '{"type":"whitespace","value":" ","pos":{"byte_no":977,"line_no":55,"col_no":23}}'
-            - '{"type":"identifier","value":"Item","pos":{"byte_no":981,"line_no":55,"col_no":27}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":982,"line_no":55,"col_no":28}}'
-            - '{"type":"block-end","value":"}","pos":{"byte_no":983,"line_no":56,"col_no":1}}'
-            - '{"type":"end-of-line","value":"\n","pos":{"byte_no":984,"line_no":56,"col_no":2}}'
-            - '{"type":"end-of-file","value":"","pos":{"byte_no":984,"line_no":57,"col_no":0}}'
-        - name: stderr
-          data:
-            - ""
+            - '[error] *.rpc: open *.rpc: no such file or directory'
 - name: ./smoketests.yml \ Basics \ Parse
   commands:
-    - command: $(go env GOPATH)/bin/rpc -parse todo-simple.rpc
+    - command: $(go env GOPATH)/bin/rpc -parse "*.rpc"
       checks:
         - name: exitcode
           data:
-            - "0"
+            - "1"
         - name: stdout
           data:
-            - '{'
-            - '  "name": "root",'
-            - '  "children": null,'
-            - '  "options": {'
-            - '    "encoding": "json",'
-            - '    "go_package": "minitodo",'
-            - '    "ruby_module": "minitodo",'
-            - '    "transport": "http"'
-            - '  },'
-            - '  "types": {'
-            - '    "Failure": {'
-            - '      "name": "Failure",'
-            - '      "properties": {'
-            - '        "code": {'
-            - '          "name": "code",'
-            - '          "type": {'
-            - '            "name": "string",'
-            - '            "arguments": null'
-            - '          }'
-            - '        },'
-            - '        "description": {'
-            - '          "name": "description",'
-            - '          "type": {'
-            - '            "name": "string",'
-            - '            "arguments": null'
-            - '          }'
-            - '        }'
-            - '      }'
-            - '    },'
-            - '    "TodoItem": {'
-            - '      "name": "TodoItem",'
-            - '      "properties": {'
-            - '        "completed": {'
-            - '          "name": "completed",'
-            - '          "type": {'
-            - '            "name": "bool",'
-            - '            "arguments": null'
-            - '          }'
-            - '        },'
-            - '        "ctime": {'
-            - '          "name": "ctime",'
-            - '          "type": {'
-            - '            "name": "time",'
-            - '            "arguments": null'
-            - '          }'
-            - '        },'
-            - '        "description": {'
-            - '          "name": "description",'
-            - '          "type": {'
-            - '            "name": "string",'
-            - '            "arguments": null'
-            - '          }'
-            - '        },'
-            - '        "metadata": {'
-            - '          "name": "metadata",'
-            - '          "type": {'
-            - '            "name": "data",'
-            - '            "arguments": null'
-            - '          }'
-            - '        },'
-            - '        "uuid": {'
-            - '          "name": "uuid",'
-            - '          "type": {'
-            - '            "name": "string",'
-            - '            "arguments": null'
-            - '          }'
-            - '        }'
-            - '      }'
-            - '    }'
-            - '  },'
-            - '  "enums": null,'
-            - '  "rpcs": {'
-            - '    "Delete": {'
-            - '      "name": "Delete",'
-            - '      "input": ['
-            - '        {'
-            - '          "name": "string",'
-            - '          "arguments": null'
-            - '        }'
-            - '      ],'
-            - '      "output": ['
-            - '        {'
-            - '          "name": "TodoItem",'
-            - '          "arguments": null'
-            - '        }'
-            - '      ]'
-            - '    },'
-            - '    "Get": {'
-            - '      "name": "Get",'
-            - '      "input": ['
-            - '        {'
-            - '          "name": "string",'
-            - '          "arguments": null'
-            - '        }'
-            - '      ],'
-            - '      "output": ['
-            - '        {'
-            - '          "name": "TodoItem",'
-            - '          "arguments": null'
-            - '        }'
-            - '      ]'
-            - '    },'
-            - '    "List": {'
-            - '      "name": "List",'
-            - '      "input": null,'
-            - '      "output": ['
-            - '        {'
-            - '          "name": "list",'
-            - '          "arguments": ['
-            - '            {'
-            - '              "name": "TodoItem",'
-            - '              "arguments": null'
-            - '            }'
-            - '          ]'
-            - '        }'
-            - '      ]'
-            - '    },'
-            - '    "Put": {'
-            - '      "name": "Put",'
-            - '      "input": ['
-            - '        {'
-            - '          "name": "TodoItem",'
-            - '          "arguments": null'
-            - '        }'
-            - '      ],'
-            - '      "output": ['
-            - '        {'
-            - '          "name": "TodoItem",'
-            - '          "arguments": null'
-            - '        }'
-            - '      ]'
-            - '    }'
-            - '  }'
-            - '}'
+            - ""
         - name: stderr
           data:
-            - ""
-    - command: $(go env GOPATH)/bin/rpc -parse todo-complex.rpc
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - '{'
-            - '  "name": "root",'
-            - '  "children": {'
-            - '    "System": {'
-            - '      "name": "System",'
-            - '      "children": {'
-            - '        "Auth": {'
-            - '          "name": "Auth",'
-            - '          "children": null,'
-            - '          "options": null,'
-            - '          "types": {'
-            - '            "AuthRequest": {'
-            - '              "name": "AuthRequest",'
-            - '              "properties": {'
-            - '                "authData": {'
-            - '                  "name": "authData",'
-            - '                  "type": {'
-            - '                    "name": "data",'
-            - '                    "arguments": null'
-            - '                  }'
-            - '                },'
-            - '                "provider": {'
-            - '                  "name": "provider",'
-            - '                  "type": {'
-            - '                    "name": "string",'
-            - '                    "arguments": null'
-            - '                  }'
-            - '                },'
-            - '                "username": {'
-            - '                  "name": "username",'
-            - '                  "type": {'
-            - '                    "name": "string",'
-            - '                    "arguments": null'
-            - '                  }'
-            - '                }'
-            - '              }'
-            - '            },'
-            - '            "AuthResponse": {'
-            - '              "name": "AuthResponse",'
-            - '              "properties": {'
-            - '                "failure": {'
-            - '                  "name": "failure",'
-            - '                  "type": {'
-            - '                    "name": "Failure",'
-            - '                    "arguments": null'
-            - '                  }'
-            - '                },'
-            - '                "user": {'
-            - '                  "name": "user",'
-            - '                  "type": {'
-            - '                    "name": "User",'
-            - '                    "arguments": null'
-            - '                  }'
-            - '                }'
-            - '              }'
-            - '            },'
-            - '            "User": {'
-            - '              "name": "User",'
-            - '              "properties": {'
-            - '                "email": {'
-            - '                  "name": "email",'
-            - '                  "type": {'
-            - '                    "name": "string",'
-            - '                    "arguments": null'
-            - '                  }'
-            - '                },'
-            - '                "metadata": {'
-            - '                  "name": "metadata",'
-            - '                  "type": {'
-            - '                    "name": "map",'
-            - '                    "arguments": ['
-            - '                      {'
-            - '                        "name": "string",'
-            - '                        "arguments": null'
-            - '                      },'
-            - '                      {'
-            - '                        "name": "string",'
-            - '                        "arguments": null'
-            - '                      }'
-            - '                    ]'
-            - '                  }'
-            - '                },'
-            - '                "username": {'
-            - '                  "name": "username",'
-            - '                  "type": {'
-            - '                    "name": "string",'
-            - '                    "arguments": null'
-            - '                  }'
-            - '                }'
-            - '              }'
-            - '            }'
-            - '          },'
-            - '          "enums": null,'
-            - '          "rpcs": null'
-            - '        }'
-            - '      },'
-            - '      "options": null,'
-            - '      "types": null,'
-            - '      "enums": null,'
-            - '      "rpcs": {'
-            - '        "Status": {'
-            - '          "name": "Status",'
-            - '          "input": null,'
-            - '          "output": ['
-            - '            {'
-            - '              "name": "Failure",'
-            - '              "arguments": null'
-            - '            }'
-            - '          ]'
-            - '        }'
-            - '      }'
-            - '    },'
-            - '    "Todos": {'
-            - '      "name": "Todos",'
-            - '      "children": null,'
-            - '      "options": null,'
-            - '      "types": {'
-            - '        "Item": {'
-            - '          "name": "Item",'
-            - '          "properties": {'
-            - '            "assignee": {'
-            - '              "name": "assignee",'
-            - '              "type": {'
-            - '                "name": "string",'
-            - '                "arguments": null'
-            - '              }'
-            - '            },'
-            - '            "author": {'
-            - '              "name": "author",'
-            - '              "type": {'
-            - '                "name": "string",'
-            - '                "arguments": null'
-            - '              }'
-            - '            },'
-            - '            "category": {'
-            - '              "name": "category",'
-            - '              "type": {'
-            - '                "name": "string",'
-            - '                "arguments": null'
-            - '              }'
-            - '            },'
-            - '            "ctime": {'
-            - '              "name": "ctime",'
-            - '              "type": {'
-            - '                "name": "time",'
-            - '                "arguments": null'
-            - '              }'
-            - '            },'
-            - '            "description": {'
-            - '              "name": "description",'
-            - '              "type": {'
-            - '                "name": "string",'
-            - '                "arguments": null'
-            - '              }'
-            - '            },'
-            - '            "dueDate": {'
-            - '              "name": "dueDate",'
-            - '              "type": {'
-            - '                "name": "time",'
-            - '                "arguments": null'
-            - '              }'
-            - '            },'
-            - '            "id": {'
-            - '              "name": "id",'
-            - '              "type": {'
-            - '                "name": "string",'
-            - '                "arguments": null'
-            - '              }'
-            - '            },'
-            - '            "state": {'
-            - '              "name": "state",'
-            - '              "type": {'
-            - '                "name": "State",'
-            - '                "arguments": null'
-            - '              }'
-            - '            },'
-            - '            "tags": {'
-            - '              "name": "tags",'
-            - '              "type": {'
-            - '                "name": "list",'
-            - '                "arguments": ['
-            - '                  {'
-            - '                    "name": "string",'
-            - '                    "arguments": null'
-            - '                  }'
-            - '                ]'
-            - '              }'
-            - '            }'
-            - '          }'
-            - '        }'
-            - '      },'
-            - '      "enums": {'
-            - '        "State": {'
-            - '          "name": "State",'
-            - '          "members": ['
-            - '            "New",'
-            - '            "InProgress",'
-            - '            "Overdue",'
-            - '            "Completed"'
-            - '          ]'
-            - '        }'
-            - '      },'
-            - '      "rpcs": {'
-            - '        "Delete": {'
-            - '          "name": "Delete",'
-            - '          "input": ['
-            - '            {'
-            - '              "name": "string",'
-            - '              "arguments": null'
-            - '            }'
-            - '          ],'
-            - '          "output": ['
-            - '            {'
-            - '              "name": "Item",'
-            - '              "arguments": null'
-            - '            }'
-            - '          ]'
-            - '        },'
-            - '        "Get": {'
-            - '          "name": "Get",'
-            - '          "input": ['
-            - '            {'
-            - '              "name": "string",'
-            - '              "arguments": null'
-            - '            }'
-            - '          ],'
-            - '          "output": ['
-            - '            {'
-            - '              "name": "Item",'
-            - '              "arguments": null'
-            - '            }'
-            - '          ]'
-            - '        },'
-            - '        "List": {'
-            - '          "name": "List",'
-            - '          "input": null,'
-            - '          "output": ['
-            - '            {'
-            - '              "name": "list",'
-            - '              "arguments": ['
-            - '                {'
-            - '                  "name": "Item",'
-            - '                  "arguments": null'
-            - '                }'
-            - '              ]'
-            - '            }'
-            - '          ]'
-            - '        },'
-            - '        "Put": {'
-            - '          "name": "Put",'
-            - '          "input": ['
-            - '            {'
-            - '              "name": "string",'
-            - '              "arguments": null'
-            - '            }'
-            - '          ],'
-            - '          "output": ['
-            - '            {'
-            - '              "name": "Item",'
-            - '              "arguments": null'
-            - '            }'
-            - '          ]'
-            - '        }'
-            - '      }'
-            - '    }'
-            - '  },'
-            - '  "options": {'
-            - '    "go_import": "github.com/chakrit/rpc/examples",'
-            - '    "go_package": "examples"'
-            - '  },'
-            - '  "types": {'
-            - '    "Failure": {'
-            - '      "name": "Failure",'
-            - '      "properties": {'
-            - '        "code": {'
-            - '          "name": "code",'
-            - '          "type": {'
-            - '            "name": "string",'
-            - '            "arguments": null'
-            - '          }'
-            - '        },'
-            - '        "description": {'
-            - '          "name": "description",'
-            - '          "type": {'
-            - '            "name": "string",'
-            - '            "arguments": null'
-            - '          }'
-            - '        }'
-            - '      }'
-            - '    }'
-            - '  },'
-            - '  "enums": null,'
-            - '  "rpcs": null'
-            - '}'
-        - name: stderr
-          data:
-            - ""
+            - '[error] *.rpc: open *.rpc: no such file or directory'
 - name: ./smoketests.yml \ Generators
   commands:
     - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
@@ -910,6 +82,12 @@
         - name: stderr
           data:
             - ""
+        - name: /tmp/rpc/elm/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*/*.elm
+          data: []
 - name: ./smoketests.yml \ Generators \ Elm \ Simple
   commands:
     - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
@@ -923,6 +101,12 @@
         - name: stderr
           data:
             - ""
+        - name: /tmp/rpc/elm/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*/*.elm
+          data: []
     - command: $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-simple.rpc
       checks:
         - name: exitcode
@@ -934,25 +118,9 @@
         - name: stderr
           data:
             - ""
-    - command: find /tmp/rpc/elm -name "*.elm"
-      checks:
-        - name: exitcode
+        - name: /tmp/rpc/elm/*.elm
           data:
-            - "0"
-        - name: stdout
-          data:
-            - /tmp/rpc/elm/Rpc.elm
-            - /tmp/rpc/elm/RpcUtil.elm
-        - name: stderr
-          data:
-            - ""
-    - command: find /tmp/rpc/elm -name "*.elm" | xargs cat
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
+            - '-----BEGIN Rpc.elm-----'
             - module Rpc exposing (..)
             - ""
             - -- <auto-generated />
@@ -1356,7 +524,9 @@
             - '        , timeout = Nothing'
             - '        , tracker = Nothing'
             - '        }'
+            - '-----END Rpc.elm-----'
             - ""
+            - '-----BEGIN RpcUtil.elm-----'
             - module RpcUtil exposing
             - '    ( Config'
             - '    , RpcError(..)'
@@ -1538,9 +708,12 @@
             - '    JsonDec.map2 mapToResult'
             - '        (JsonDec.field "error" (JsonDec.maybe JsonDec.string))'
             - '        (JsonDec.field "returns" returnDecoder)'
-        - name: stderr
-          data:
+            - '-----END RpcUtil.elm-----'
             - ""
+        - name: /tmp/rpc/elm/*/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*/*.elm
+          data: []
 - name: ./smoketests.yml \ Generators \ Elm \ Complex
   commands:
     - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
@@ -1554,6 +727,12 @@
         - name: stderr
           data:
             - ""
+        - name: /tmp/rpc/elm/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*/*.elm
+          data: []
     - command: $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-complex.rpc
       checks:
         - name: exitcode
@@ -1565,28 +744,9 @@
         - name: stderr
           data:
             - ""
-    - command: find /tmp/rpc/elm -name "*.elm"
-      checks:
-        - name: exitcode
+        - name: /tmp/rpc/elm/*.elm
           data:
-            - "0"
-        - name: stdout
-          data:
-            - /tmp/rpc/elm/Rpc.elm
-            - /tmp/rpc/elm/Rpc/Todos.elm
-            - /tmp/rpc/elm/Rpc/System.elm
-            - /tmp/rpc/elm/Rpc/System/Auth.elm
-            - /tmp/rpc/elm/RpcUtil.elm
-        - name: stderr
-          data:
-            - ""
-    - command: find /tmp/rpc/elm -name "*.elm" | xargs cat
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
+            - '-----BEGIN Rpc.elm-----'
             - module Rpc exposing (..)
             - ""
             - -- <auto-generated />
@@ -1636,6 +796,210 @@
             - '                    |> D.map (Maybe.withDefault (""))'
             - '                )'
             - '    '
+            - '-----END Rpc.elm-----'
+            - ""
+            - '-----BEGIN RpcUtil.elm-----'
+            - module RpcUtil exposing
+            - '    ( Config'
+            - '    , RpcError(..)'
+            - '    , RpcResult'
+            - '    , configDecoder'
+            - '    , decodeApply'
+            - '    , decodeString'
+            - '    , decodeValue'
+            - '    , decoder'
+            - '    , errorToString'
+            - '    , fromHttpResult'
+            - '    , map'
+            - '    , resolver'
+            - '    )'
+            - ""
+            - -- <auto-generated />
+            - -- @generated by github.com/chakrit/rpc
+            - ""
+            - import Array exposing (Array)
+            - import Bitwise as Bits
+            - import Bytes exposing (Bytes)
+            - import Bytes.Decode as BytesDec
+            - import Bytes.Encode as BytesEnc
+            - import Dict exposing (Dict)
+            - import Http exposing (Error(..), Resolver, Response(..))
+            - import Json.Decode as JsonDec
+            - ""
+            - ""
+            - type alias Config =
+            - '    { baseUrl : String'
+            - '    , headers : List Http.Header'
+            - '    }'
+            - ""
+            - ""
+            - 'configDecoder : JsonDec.Decoder Config'
+            - configDecoder =
+            - '    let'
+            - '        mapHeader : Array String -> Http.Header'
+            - '        mapHeader arr ='
+            - '            let'
+            - '                header ='
+            - '                    Array.get 0 arr |> Maybe.withDefault ""'
+            - ""
+            - '                content ='
+            - '                    Array.get 1 arr |> Maybe.withDefault ""'
+            - '            in'
+            - '            Http.header header content'
+            - ""
+            - '        mapHeaderArray : Array (Array String) -> List Http.Header'
+            - '        mapHeaderArray arr ='
+            - '            arr |> Array.map mapHeader |> Array.toList'
+            - '    in'
+            - '    JsonDec.map2 Config'
+            - '        (JsonDec.field "baseUrl" <| JsonDec.string)'
+            - '        (JsonDec.field "headers" <| JsonDec.map mapHeaderArray (JsonDec.array
+              (JsonDec.array JsonDec.string)))'
+            - ""
+            - ""
+            - 'decodeApply : JsonDec.Decoder a -> JsonDec.Decoder (a -> b) -> JsonDec.Decoder
+              b'
+            - decodeApply fieldDec partial =
+            - '    JsonDec.andThen (\p -> JsonDec.map p fieldDec) partial'
+            - ""
+            - ""
+            - type RpcError
+            - '    = HttpError Http.Error'
+            - '    | JsonError JsonDec.Error'
+            - '    | ApiError String'
+            - ""
+            - ""
+            - type alias RpcResult a =
+            - '    Result RpcError a'
+            - ""
+            - ""
+            - 'fromHttpResult : Result Http.Error (RpcResult a) -> RpcResult a'
+            - fromHttpResult httpResult =
+            - '    case httpResult of'
+            - '        Err err ->'
+            - '            Err (HttpError err)'
+            - ""
+            - '        Ok result ->'
+            - '            -- unwrap inner result'
+            - '            result'
+            - ""
+            - ""
+            - 'errorToString : RpcError -> String'
+            - errorToString httpErr =
+            - '    case httpErr of'
+            - '        HttpError (BadUrl str) ->'
+            - '            "Bad URL: " ++ str'
+            - ""
+            - '        HttpError Timeout ->'
+            - '            "Network Timeout"'
+            - ""
+            - '        HttpError NetworkError ->'
+            - '            "Network Error"'
+            - ""
+            - '        HttpError (BadStatus code) ->'
+            - '            "Bad Status Code: " ++ String.fromInt code'
+            - ""
+            - '        HttpError (BadBody str) ->'
+            - '            "Malformed Response: " ++ str'
+            - ""
+            - '        JsonError err ->'
+            - '            "JSON Error: " ++ JsonDec.errorToString err'
+            - ""
+            - '        ApiError str ->'
+            - '            str'
+            - ""
+            - ""
+            - 'resolver : JsonDec.Decoder a -> Resolver RpcError a'
+            - resolver decoder_ =
+            - '    Http.stringResolver'
+            - '        (\resp ->'
+            - '            case resp of'
+            - '                BadUrl_ s ->'
+            - '                    Err (HttpError (BadUrl s))'
+            - ""
+            - '                Timeout_ ->'
+            - '                    Err (HttpError Timeout)'
+            - ""
+            - '                NetworkError_ ->'
+            - '                    Err (HttpError NetworkError)'
+            - ""
+            - '                BadStatus_ metadata _ ->'
+            - '                    Err (HttpError (BadStatus metadata.statusCode))'
+            - ""
+            - '                GoodStatus_ metadata str ->'
+            - '                    decodeString (decoder decoder_) str'
+            - '        )'
+            - ""
+            - ""
+            - 'map : (RpcError -> msg) -> (a -> msg) -> RpcResult a -> msg'
+            - map errMap okMap result =
+            - '    case result of'
+            - '        Err err ->'
+            - '            errMap err'
+            - ""
+            - '        Ok obj ->'
+            - '            okMap obj'
+            - ""
+            - ""
+            - 'decodeString : JsonDec.Decoder (RpcResult a) -> String -> RpcResult
+              a'
+            - decodeString decoder_ str =
+            - '    case JsonDec.decodeString decoder_ str of'
+            - '        Ok v ->'
+            - '            -- unwrap inner Result'
+            - '            v'
+            - ""
+            - '        Err err ->'
+            - '            Err (JsonError err)'
+            - ""
+            - ""
+            - 'decodeValue : JsonDec.Decoder (RpcResult a) -> JsonDec.Value -> RpcResult
+              a'
+            - decodeValue decoder_ value =
+            - '    case JsonDec.decodeValue decoder_ value of'
+            - '        Ok v ->'
+            - '            -- unwrap inner Result'
+            - '            v'
+            - ""
+            - '        Err err ->'
+            - '            Err (JsonError err)'
+            - ""
+            - ""
+            - 'decoder : JsonDec.Decoder a -> JsonDec.Decoder (RpcResult a)'
+            - decoder returnDecoder =
+            - '    let'
+            - '        mapToResult : Maybe String -> a -> RpcResult a'
+            - '        mapToResult err ret ='
+            - '            case err of'
+            - '                Just str ->'
+            - '                    Err (ApiError str)'
+            - ""
+            - '                Nothing ->'
+            - '                    Ok ret'
+            - '    in'
+            - '    JsonDec.map2 mapToResult'
+            - '        (JsonDec.field "error" (JsonDec.maybe JsonDec.string))'
+            - '        (JsonDec.field "returns" returnDecoder)'
+            - '-----END RpcUtil.elm-----'
+            - ""
+        - name: /tmp/rpc/elm/*/*.elm
+          data:
+            - '-----BEGIN System.elm-----'
+            - module Rpc.System exposing (..)
+            - ""
+            - -- <auto-generated />
+            - -- @generated by github.com/chakrit/rpc
+            - ""
+            - import Http
+            - import Json.Decode as D
+            - import Json.Encode as E
+            - import Dict exposing (Dict)
+            - import Task exposing (Task)
+            - import Time exposing (Posix)
+            - import Bytes exposing (Bytes)
+            - import Bytes.Encode
+            - import RpcUtil exposing (Config, RpcError, RpcResult, decodeApply, fromHttpResult)
+            - import Rpc
             - ""
             - ""
             - ""
@@ -1643,6 +1007,79 @@
             - ""
             - ""
             - ""
+            - type alias InputForStatus =
+            - '    (())'
+            - ""
+            - 'encodeInputForStatus : InputForStatus -> E.Value'
+            - encodeInputForStatus
+            - '    () ='
+            - '        E.list (identity)'
+            - '            ['
+            - '            ]'
+            - ""
+            - 'decodeInputForStatus : D.Decoder InputForStatus'
+            - decodeInputForStatus =
+            - '        D.succeed ()'
+            - ""
+            - type alias OutputForStatus =
+            - '    (Rpc.Failure)'
+            - ""
+            - 'encodeOutputForStatus : OutputForStatus -> E.Value'
+            - encodeOutputForStatus
+            - '    (arg0) ='
+            - '        E.list (identity)'
+            - '            [ Rpc.encodeFailure arg0'
+            - '            ]'
+            - ""
+            - 'decodeOutputForStatus : D.Decoder OutputForStatus'
+            - decodeOutputForStatus =
+            - '        Rpc.decodeFailure'
+            - '            |> D.index 0'
+            - '            |> D.maybe'
+            - '            |> D.map (Maybe.withDefault (Rpc.defaultFailure))'
+            - '            |> D.map (\a -> (a))'
+            - ""
+            - ""
+            - ""
+            - 'callStatusTask : Config -> InputForStatus -> Task RpcError OutputForStatus'
+            - callStatusTask config input =
+            - '    let'
+            - '        body ='
+            - '            Http.jsonBody (encodeInputForStatus input)'
+            - ""
+            - '        resolver ='
+            - '            RpcUtil.resolver decodeOutputForStatus'
+            - '    in'
+            - '    Http.task'
+            - '        { method = "POST"'
+            - '        , headers = config.headers'
+            - '        , url = config.baseUrl ++ "/rpc/system/Status"'
+            - '        , body = body'
+            - '        , resolver = resolver'
+            - '        , timeout = Nothing'
+            - '        }'
+            - ""
+            - ""
+            - 'callStatus : Config -> InputForStatus -> (RpcResult OutputForStatus
+              -> a) -> Cmd a'
+            - callStatus config input mapResult =
+            - '    let'
+            - '        body = Http.jsonBody (encodeInputForStatus input)'
+            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
+              decodeOutputForStatus)'
+            - '    in'
+            - '    Http.request'
+            - '        { method = "POST"'
+            - '        , headers = config.headers'
+            - '        , url = config.baseUrl ++ "/rpc/system/Status"'
+            - '        , body = body'
+            - '        , expect = expect'
+            - '        , timeout = Nothing'
+            - '        , tracker = Nothing'
+            - '        }'
+            - '-----END System.elm-----'
+            - ""
+            - '-----BEGIN Todos.elm-----'
             - module Rpc.Todos exposing (..)
             - ""
             - -- <auto-generated />
@@ -2127,100 +1564,11 @@
             - '        , timeout = Nothing'
             - '        , tracker = Nothing'
             - '        }'
+            - '-----END Todos.elm-----'
             - ""
-            - module Rpc.System exposing (..)
-            - ""
-            - -- <auto-generated />
-            - -- @generated by github.com/chakrit/rpc
-            - ""
-            - import Http
-            - import Json.Decode as D
-            - import Json.Encode as E
-            - import Dict exposing (Dict)
-            - import Task exposing (Task)
-            - import Time exposing (Posix)
-            - import Bytes exposing (Bytes)
-            - import Bytes.Encode
-            - import RpcUtil exposing (Config, RpcError, RpcResult, decodeApply, fromHttpResult)
-            - import Rpc
-            - ""
-            - ""
-            - ""
-            - ""
-            - ""
-            - ""
-            - ""
-            - type alias InputForStatus =
-            - '    (())'
-            - ""
-            - 'encodeInputForStatus : InputForStatus -> E.Value'
-            - encodeInputForStatus
-            - '    () ='
-            - '        E.list (identity)'
-            - '            ['
-            - '            ]'
-            - ""
-            - 'decodeInputForStatus : D.Decoder InputForStatus'
-            - decodeInputForStatus =
-            - '        D.succeed ()'
-            - ""
-            - type alias OutputForStatus =
-            - '    (Rpc.Failure)'
-            - ""
-            - 'encodeOutputForStatus : OutputForStatus -> E.Value'
-            - encodeOutputForStatus
-            - '    (arg0) ='
-            - '        E.list (identity)'
-            - '            [ Rpc.encodeFailure arg0'
-            - '            ]'
-            - ""
-            - 'decodeOutputForStatus : D.Decoder OutputForStatus'
-            - decodeOutputForStatus =
-            - '        Rpc.decodeFailure'
-            - '            |> D.index 0'
-            - '            |> D.maybe'
-            - '            |> D.map (Maybe.withDefault (Rpc.defaultFailure))'
-            - '            |> D.map (\a -> (a))'
-            - ""
-            - ""
-            - ""
-            - 'callStatusTask : Config -> InputForStatus -> Task RpcError OutputForStatus'
-            - callStatusTask config input =
-            - '    let'
-            - '        body ='
-            - '            Http.jsonBody (encodeInputForStatus input)'
-            - ""
-            - '        resolver ='
-            - '            RpcUtil.resolver decodeOutputForStatus'
-            - '    in'
-            - '    Http.task'
-            - '        { method = "POST"'
-            - '        , headers = config.headers'
-            - '        , url = config.baseUrl ++ "/rpc/system/Status"'
-            - '        , body = body'
-            - '        , resolver = resolver'
-            - '        , timeout = Nothing'
-            - '        }'
-            - ""
-            - ""
-            - 'callStatus : Config -> InputForStatus -> (RpcResult OutputForStatus
-              -> a) -> Cmd a'
-            - callStatus config input mapResult =
-            - '    let'
-            - '        body = Http.jsonBody (encodeInputForStatus input)'
-            - '        expect = Http.expectJson (fromHttpResult >> mapResult) (RpcUtil.decoder
-              decodeOutputForStatus)'
-            - '    in'
-            - '    Http.request'
-            - '        { method = "POST"'
-            - '        , headers = config.headers'
-            - '        , url = config.baseUrl ++ "/rpc/system/Status"'
-            - '        , body = body'
-            - '        , expect = expect'
-            - '        , timeout = Nothing'
-            - '        , tracker = Nothing'
-            - '        }'
-            - ""
+        - name: /tmp/rpc/elm/*/*/*.elm
+          data:
+            - '-----BEGIN Auth.elm-----'
             - module Rpc.System.Auth exposing (..)
             - ""
             - -- <auto-generated />
@@ -2353,196 +1701,7 @@
             - '                    |> D.map (Maybe.withDefault (""))'
             - '                )'
             - '    '
-            - ""
-            - ""
-            - ""
-            - ""
-            - ""
-            - ""
-            - ""
-            - module RpcUtil exposing
-            - '    ( Config'
-            - '    , RpcError(..)'
-            - '    , RpcResult'
-            - '    , configDecoder'
-            - '    , decodeApply'
-            - '    , decodeString'
-            - '    , decodeValue'
-            - '    , decoder'
-            - '    , errorToString'
-            - '    , fromHttpResult'
-            - '    , map'
-            - '    , resolver'
-            - '    )'
-            - ""
-            - -- <auto-generated />
-            - -- @generated by github.com/chakrit/rpc
-            - ""
-            - import Array exposing (Array)
-            - import Bitwise as Bits
-            - import Bytes exposing (Bytes)
-            - import Bytes.Decode as BytesDec
-            - import Bytes.Encode as BytesEnc
-            - import Dict exposing (Dict)
-            - import Http exposing (Error(..), Resolver, Response(..))
-            - import Json.Decode as JsonDec
-            - ""
-            - ""
-            - type alias Config =
-            - '    { baseUrl : String'
-            - '    , headers : List Http.Header'
-            - '    }'
-            - ""
-            - ""
-            - 'configDecoder : JsonDec.Decoder Config'
-            - configDecoder =
-            - '    let'
-            - '        mapHeader : Array String -> Http.Header'
-            - '        mapHeader arr ='
-            - '            let'
-            - '                header ='
-            - '                    Array.get 0 arr |> Maybe.withDefault ""'
-            - ""
-            - '                content ='
-            - '                    Array.get 1 arr |> Maybe.withDefault ""'
-            - '            in'
-            - '            Http.header header content'
-            - ""
-            - '        mapHeaderArray : Array (Array String) -> List Http.Header'
-            - '        mapHeaderArray arr ='
-            - '            arr |> Array.map mapHeader |> Array.toList'
-            - '    in'
-            - '    JsonDec.map2 Config'
-            - '        (JsonDec.field "baseUrl" <| JsonDec.string)'
-            - '        (JsonDec.field "headers" <| JsonDec.map mapHeaderArray (JsonDec.array
-              (JsonDec.array JsonDec.string)))'
-            - ""
-            - ""
-            - 'decodeApply : JsonDec.Decoder a -> JsonDec.Decoder (a -> b) -> JsonDec.Decoder
-              b'
-            - decodeApply fieldDec partial =
-            - '    JsonDec.andThen (\p -> JsonDec.map p fieldDec) partial'
-            - ""
-            - ""
-            - type RpcError
-            - '    = HttpError Http.Error'
-            - '    | JsonError JsonDec.Error'
-            - '    | ApiError String'
-            - ""
-            - ""
-            - type alias RpcResult a =
-            - '    Result RpcError a'
-            - ""
-            - ""
-            - 'fromHttpResult : Result Http.Error (RpcResult a) -> RpcResult a'
-            - fromHttpResult httpResult =
-            - '    case httpResult of'
-            - '        Err err ->'
-            - '            Err (HttpError err)'
-            - ""
-            - '        Ok result ->'
-            - '            -- unwrap inner result'
-            - '            result'
-            - ""
-            - ""
-            - 'errorToString : RpcError -> String'
-            - errorToString httpErr =
-            - '    case httpErr of'
-            - '        HttpError (BadUrl str) ->'
-            - '            "Bad URL: " ++ str'
-            - ""
-            - '        HttpError Timeout ->'
-            - '            "Network Timeout"'
-            - ""
-            - '        HttpError NetworkError ->'
-            - '            "Network Error"'
-            - ""
-            - '        HttpError (BadStatus code) ->'
-            - '            "Bad Status Code: " ++ String.fromInt code'
-            - ""
-            - '        HttpError (BadBody str) ->'
-            - '            "Malformed Response: " ++ str'
-            - ""
-            - '        JsonError err ->'
-            - '            "JSON Error: " ++ JsonDec.errorToString err'
-            - ""
-            - '        ApiError str ->'
-            - '            str'
-            - ""
-            - ""
-            - 'resolver : JsonDec.Decoder a -> Resolver RpcError a'
-            - resolver decoder_ =
-            - '    Http.stringResolver'
-            - '        (\resp ->'
-            - '            case resp of'
-            - '                BadUrl_ s ->'
-            - '                    Err (HttpError (BadUrl s))'
-            - ""
-            - '                Timeout_ ->'
-            - '                    Err (HttpError Timeout)'
-            - ""
-            - '                NetworkError_ ->'
-            - '                    Err (HttpError NetworkError)'
-            - ""
-            - '                BadStatus_ metadata _ ->'
-            - '                    Err (HttpError (BadStatus metadata.statusCode))'
-            - ""
-            - '                GoodStatus_ metadata str ->'
-            - '                    decodeString (decoder decoder_) str'
-            - '        )'
-            - ""
-            - ""
-            - 'map : (RpcError -> msg) -> (a -> msg) -> RpcResult a -> msg'
-            - map errMap okMap result =
-            - '    case result of'
-            - '        Err err ->'
-            - '            errMap err'
-            - ""
-            - '        Ok obj ->'
-            - '            okMap obj'
-            - ""
-            - ""
-            - 'decodeString : JsonDec.Decoder (RpcResult a) -> String -> RpcResult
-              a'
-            - decodeString decoder_ str =
-            - '    case JsonDec.decodeString decoder_ str of'
-            - '        Ok v ->'
-            - '            -- unwrap inner Result'
-            - '            v'
-            - ""
-            - '        Err err ->'
-            - '            Err (JsonError err)'
-            - ""
-            - ""
-            - 'decodeValue : JsonDec.Decoder (RpcResult a) -> JsonDec.Value -> RpcResult
-              a'
-            - decodeValue decoder_ value =
-            - '    case JsonDec.decodeValue decoder_ value of'
-            - '        Ok v ->'
-            - '            -- unwrap inner Result'
-            - '            v'
-            - ""
-            - '        Err err ->'
-            - '            Err (JsonError err)'
-            - ""
-            - ""
-            - 'decoder : JsonDec.Decoder a -> JsonDec.Decoder (RpcResult a)'
-            - decoder returnDecoder =
-            - '    let'
-            - '        mapToResult : Maybe String -> a -> RpcResult a'
-            - '        mapToResult err ret ='
-            - '            case err of'
-            - '                Just str ->'
-            - '                    Err (ApiError str)'
-            - ""
-            - '                Nothing ->'
-            - '                    Ok ret'
-            - '    in'
-            - '    JsonDec.map2 mapToResult'
-            - '        (JsonDec.field "error" (JsonDec.maybe JsonDec.string))'
-            - '        (JsonDec.field "returns" returnDecoder)'
-        - name: stderr
-          data:
+            - '-----END Auth.elm-----'
             - ""
 - name: ./smoketests.yml \ Generators \ Elm \ Types
   commands:
@@ -2557,6 +1716,12 @@
         - name: stderr
           data:
             - ""
+        - name: /tmp/rpc/elm/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*/*.elm
+          data: []
     - command: $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm all-types.rpc
       checks:
         - name: exitcode
@@ -2568,25 +1733,9 @@
         - name: stderr
           data:
             - ""
-    - command: find /tmp/rpc/elm -name "*.elm"
-      checks:
-        - name: exitcode
+        - name: /tmp/rpc/elm/*.elm
           data:
-            - "0"
-        - name: stdout
-          data:
-            - /tmp/rpc/elm/Rpc.elm
-            - /tmp/rpc/elm/RpcUtil.elm
-        - name: stderr
-          data:
-            - ""
-    - command: find /tmp/rpc/elm -name "*.elm" | xargs cat
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
+            - '-----BEGIN Rpc.elm-----'
             - module Rpc exposing (..)
             - ""
             - -- <auto-generated />
@@ -3238,7 +2387,9 @@
             - '        , timeout = Nothing'
             - '        , tracker = Nothing'
             - '        }'
+            - '-----END Rpc.elm-----'
             - ""
+            - '-----BEGIN RpcUtil.elm-----'
             - module RpcUtil exposing
             - '    ( Config'
             - '    , RpcError(..)'
@@ -3420,9 +2571,12 @@
             - '    JsonDec.map2 mapToResult'
             - '        (JsonDec.field "error" (JsonDec.maybe JsonDec.string))'
             - '        (JsonDec.field "returns" returnDecoder)'
-        - name: stderr
-          data:
+            - '-----END RpcUtil.elm-----'
             - ""
+        - name: /tmp/rpc/elm/*/*.elm
+          data: []
+        - name: /tmp/rpc/elm/*/*/*.elm
+          data: []
 - name: ./smoketests.yml \ Generators \ Go
   commands:
     - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
@@ -3436,6 +2590,12 @@
         - name: stderr
           data:
             - ""
+        - name: /tmp/rpc/go/*.go
+          data: []
+        - name: /tmp/rpc/go/*/*.go
+          data: []
+        - name: /tmp/rpc/go/*/*/*.go
+          data: []
 - name: ./smoketests.yml \ Generators \ Go \ Simple
   commands:
     - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
@@ -3449,6 +2609,12 @@
         - name: stderr
           data:
             - ""
+        - name: /tmp/rpc/go/*.go
+          data: []
+        - name: /tmp/rpc/go/*/*.go
+          data: []
+        - name: /tmp/rpc/go/*/*/*.go
+          data: []
     - command: $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-simple.rpc
       checks:
         - name: exitcode
@@ -3460,26 +2626,377 @@
         - name: stderr
           data:
             - ""
-    - command: find /tmp/rpc/go -name "*.go"
-      checks:
-        - name: exitcode
+        - name: /tmp/rpc/go/*.go
           data:
-            - "0"
-        - name: stdout
-          data:
-            - /tmp/rpc/go/server/server.go
-            - /tmp/rpc/go/rpc.go
-            - /tmp/rpc/go/client/client.go
-        - name: stderr
-          data:
+            - '-----BEGIN rpc.go-----'
+            - // <auto-generated />
+            - // @generated by github.com/chakrit/rpc
+            - //
+            - '// expected import: go.example.com/rpc'
+            - package minitodo
             - ""
-    - command: find /tmp/rpc/go -name "*.go" | xargs cat
-      checks:
-        - name: exitcode
+            - import (
+            - "\t\"context\""
+            - "\t\"encoding/json\""
+            - "\t\"math\""
+            - ""
+            - "\ttime \"time\""
+            - )
+            - ""
+            - var (
+            - "\t_ context.Context = nil"
+            - "\t_                 = json.Marshal"
+            - "\t_                 = math.Pi"
+            - )
+            - ""
+            - type Failure struct {
+            - "\tCode        string `json:\"code\" yaml:\"code\" db:\"code\"`"
+            - "\tDescription string `json:\"description\" yaml:\"description\" db:\"description\"`"
+            - '}'
+            - ""
+            - func (obj *Failure) MarshalJSON() ([]byte, error) {
+            - "\toutobj := struct {"
+            - "\t\tCode        string `json:\"code\"`"
+            - "\t\tDescription string `json:\"description\"`"
+            - "\t}{"
+            - "\t\tCode:        (obj.Code),"
+            - "\t\tDescription: (obj.Description),"
+            - "\t}"
+            - "\treturn json.Marshal(outobj)"
+            - '}'
+            - ""
+            - func (obj *Failure) UnmarshalJSON(buf []byte) error {
+            - "\tinobj := struct {"
+            - "\t\tCode        string `json:\"code\"`"
+            - "\t\tDescription string `json:\"description\"`"
+            - "\t}{}"
+            - ""
+            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
+            - "\t\treturn err"
+            - "\t}"
+            - ""
+            - "\tobj.Code = (inobj.Code)"
+            - "\tobj.Description = (inobj.Description)"
+            - "\treturn nil"
+            - '}'
+            - ""
+            - type TodoItem struct {
+            - "\tCompleted   bool      `json:\"completed\" yaml:\"completed\" db:\"completed\"`"
+            - "\tCtime       time.Time `json:\"ctime\" yaml:\"ctime\" db:\"ctime\"`"
+            - "\tDescription string    `json:\"description\" yaml:\"description\"
+              db:\"description\"`"
+            - "\tMetadata    []byte    `json:\"metadata\" yaml:\"metadata\" db:\"metadata\"`"
+            - "\tUuid        string    `json:\"uuid\" yaml:\"uuid\" db:\"uuid\"`"
+            - '}'
+            - ""
+            - func (obj *TodoItem) MarshalJSON() ([]byte, error) {
+            - "\toutobj := struct {"
+            - "\t\tCompleted   bool    `json:\"completed\"`"
+            - "\t\tCtime       float64 `json:\"ctime\"`"
+            - "\t\tDescription string  `json:\"description\"`"
+            - "\t\tMetadata    []byte  `json:\"metadata\"`"
+            - "\t\tUuid        string  `json:\"uuid\"`"
+            - "\t}{"
+            - "\t\tCompleted: (obj.Completed),"
+            - "\t\tCtime: (func(t time.Time) float64 {"
+            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
+            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
+            - "\t\t})(obj.Ctime),"
+            - "\t\tDescription: (obj.Description),"
+            - "\t\tMetadata:    (obj.Metadata),"
+            - "\t\tUuid:        (obj.Uuid),"
+            - "\t}"
+            - "\treturn json.Marshal(outobj)"
+            - '}'
+            - ""
+            - func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
+            - "\tinobj := struct {"
+            - "\t\tCompleted   bool    `json:\"completed\"`"
+            - "\t\tCtime       float64 `json:\"ctime\"`"
+            - "\t\tDescription string  `json:\"description\"`"
+            - "\t\tMetadata    []byte  `json:\"metadata\"`"
+            - "\t\tUuid        string  `json:\"uuid\"`"
+            - "\t}{}"
+            - ""
+            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
+            - "\t\treturn err"
+            - "\t}"
+            - ""
+            - "\tobj.Completed = (inobj.Completed)"
+            - "\tobj.Ctime = (func(t float64) time.Time {"
+            - "\t\tfsec, fnsec := math.Modf(t)"
+            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
+            - "\t\treturn time.Unix(sec, nsec)"
+            - "\t})(inobj.Ctime)"
+            - "\tobj.Description = (inobj.Description)"
+            - "\tobj.Metadata = (inobj.Metadata)"
+            - "\tobj.Uuid = (inobj.Uuid)"
+            - "\treturn nil"
+            - '}'
+            - ""
+            - type Interface interface {
+            - "\tDelete(context.Context, string) (*TodoItem, error,"
+            - "\t)"
+            - "\tGet(context.Context, string) (*TodoItem, error,"
+            - "\t)"
+            - "\tList(context.Context) ([]*TodoItem, error,"
+            - "\t)"
+            - "\tPut(context.Context, *TodoItem) (*TodoItem, error,"
+            - "\t)"
+            - '}'
+            - '-----END rpc.go-----'
+            - ""
+        - name: /tmp/rpc/go/*/*.go
           data:
-            - "0"
-        - name: stdout
-          data:
+            - '-----BEGIN client.go-----'
+            - // <auto-generated />
+            - // @generated by github.com/chakrit/rpc
+            - //
+            - '// expected import: go.example.com/rpc/client'
+            - package client
+            - ""
+            - import (
+            - "\t\"bytes\""
+            - "\t\"context\""
+            - "\t\"encoding/json\""
+            - "\t\"net/http\""
+            - "\t\"time\""
+            - ""
+            - "\trpc_root \"go.example.com/rpc\""
+            - )
+            - ""
+            - var (
+            - "\t_ context.Context = nil"
+            - "\t_ time.Time       = time.Time{}"
+            - )
+            - ""
+            - // go.example.com/rpc
+            - var _ rpc_root.Interface = Client_rpc_root{}
+            - ""
+            - type Client_rpc_root struct {
+            - "\t*Client"
+            - '}'
+            - ""
+            - func (c *Client_rpc_root) initialize(client *Client) {
+            - "\tc.Client = client"
+            - '}'
+            - ""
+            - func (c Client_rpc_root) Delete(
+            - "\tctx context.Context,"
+            - "\targ0 string,"
+            - ) (
+            - "\tout0 *rpc_root.TodoItem,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/Delete\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - func (c Client_rpc_root) Get(
+            - "\tctx context.Context,"
+            - "\targ0 string,"
+            - ) (
+            - "\tout0 *rpc_root.TodoItem,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/Get\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - func (c Client_rpc_root) List(
+            - "\tctx context.Context,"
+            - ) (
+            - "\tout0 []*rpc_root.TodoItem,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/List\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - func (c Client_rpc_root) Put(
+            - "\tctx context.Context,"
+            - "\targ0 *rpc_root.TodoItem,"
+            - ) (
+            - "\tout0 *rpc_root.TodoItem,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/Put\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - ""
+            - type Result struct {
+            - "\tError   error         `json:\"error\"`"
+            - "\tReturns []interface{} `json:\"returns\"`"
+            - '}'
+            - ""
+            - type Client struct {
+            - "\tOptions"
+            - "\tClient_rpc_root"
+            - ""
+            - "\tHTTPClient *http.Client"
+            - '}'
+            - ""
+            - type Options struct {
+            - "\tAddr string"
+            - '}'
+            - ""
+            - func New(opts *Options) *Client {
+            - "\tclient := &Client{"
+            - "\t\tOptions:         *opts,"
+            - "\t\tClient_rpc_root: Client_rpc_root{},"
+            - "\t\tHTTPClient:      &http.Client{},"
+            - "\t}"
+            - "\tclient.Client_rpc_root.initialize(client)"
+            - "\treturn client"
+            - '}'
+            - '-----END client.go-----'
+            - ""
+            - '-----BEGIN server.go-----'
             - // <auto-generated />
             - // @generated by github.com/chakrit/rpc
             - //
@@ -3764,18 +3281,53 @@
             - "\t\t_, _ = resp.Write(buf)"
             - "\t}"
             - '}'
+            - '-----END server.go-----'
+            - ""
+        - name: /tmp/rpc/go/*/*/*.go
+          data: []
+- name: ./smoketests.yml \ Generators \ Go \ Complex
+  commands:
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
+        - name: /tmp/rpc/go/*.go
+          data: []
+        - name: /tmp/rpc/go/*/*.go
+          data: []
+        - name: /tmp/rpc/go/*/*/*.go
+          data: []
+    - command: $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-complex.rpc
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
+        - name: /tmp/rpc/go/*.go
+          data:
+            - '-----BEGIN rpc.go-----'
             - // <auto-generated />
             - // @generated by github.com/chakrit/rpc
             - //
-            - '// expected import: go.example.com/rpc'
-            - package minitodo
+            - '// expected import: github.com/chakrit/rpc/examples'
+            - package examples
             - ""
             - import (
             - "\t\"context\""
             - "\t\"encoding/json\""
             - "\t\"math\""
-            - ""
-            - "\ttime \"time\""
             - )
             - ""
             - var (
@@ -3815,74 +3367,17 @@
             - "\treturn nil"
             - '}'
             - ""
-            - type TodoItem struct {
-            - "\tCompleted   bool      `json:\"completed\" yaml:\"completed\" db:\"completed\"`"
-            - "\tCtime       time.Time `json:\"ctime\" yaml:\"ctime\" db:\"ctime\"`"
-            - "\tDescription string    `json:\"description\" yaml:\"description\"
-              db:\"description\"`"
-            - "\tMetadata    []byte    `json:\"metadata\" yaml:\"metadata\" db:\"metadata\"`"
-            - "\tUuid        string    `json:\"uuid\" yaml:\"uuid\" db:\"uuid\"`"
-            - '}'
-            - ""
-            - func (obj *TodoItem) MarshalJSON() ([]byte, error) {
-            - "\toutobj := struct {"
-            - "\t\tCompleted   bool    `json:\"completed\"`"
-            - "\t\tCtime       float64 `json:\"ctime\"`"
-            - "\t\tDescription string  `json:\"description\"`"
-            - "\t\tMetadata    []byte  `json:\"metadata\"`"
-            - "\t\tUuid        string  `json:\"uuid\"`"
-            - "\t}{"
-            - "\t\tCompleted: (obj.Completed),"
-            - "\t\tCtime: (func(t time.Time) float64 {"
-            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
-            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
-            - "\t\t})(obj.Ctime),"
-            - "\t\tDescription: (obj.Description),"
-            - "\t\tMetadata:    (obj.Metadata),"
-            - "\t\tUuid:        (obj.Uuid),"
-            - "\t}"
-            - "\treturn json.Marshal(outobj)"
-            - '}'
-            - ""
-            - func (obj *TodoItem) UnmarshalJSON(buf []byte) error {
-            - "\tinobj := struct {"
-            - "\t\tCompleted   bool    `json:\"completed\"`"
-            - "\t\tCtime       float64 `json:\"ctime\"`"
-            - "\t\tDescription string  `json:\"description\"`"
-            - "\t\tMetadata    []byte  `json:\"metadata\"`"
-            - "\t\tUuid        string  `json:\"uuid\"`"
-            - "\t}{}"
-            - ""
-            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
-            - "\t\treturn err"
-            - "\t}"
-            - ""
-            - "\tobj.Completed = (inobj.Completed)"
-            - "\tobj.Ctime = (func(t float64) time.Time {"
-            - "\t\tfsec, fnsec := math.Modf(t)"
-            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
-            - "\t\treturn time.Unix(sec, nsec)"
-            - "\t})(inobj.Ctime)"
-            - "\tobj.Description = (inobj.Description)"
-            - "\tobj.Metadata = (inobj.Metadata)"
-            - "\tobj.Uuid = (inobj.Uuid)"
-            - "\treturn nil"
-            - '}'
-            - ""
             - type Interface interface {
-            - "\tDelete(context.Context, string) (*TodoItem, error,"
-            - "\t)"
-            - "\tGet(context.Context, string) (*TodoItem, error,"
-            - "\t)"
-            - "\tList(context.Context) ([]*TodoItem, error,"
-            - "\t)"
-            - "\tPut(context.Context, *TodoItem) (*TodoItem, error,"
-            - "\t)"
             - '}'
+            - '-----END rpc.go-----'
+            - ""
+        - name: /tmp/rpc/go/*/*.go
+          data:
+            - '-----BEGIN client.go-----'
             - // <auto-generated />
             - // @generated by github.com/chakrit/rpc
             - //
-            - '// expected import: go.example.com/rpc/client'
+            - '// expected import: github.com/chakrit/rpc/examples/client'
             - package client
             - ""
             - import (
@@ -3892,7 +3387,11 @@
             - "\t\"net/http\""
             - "\t\"time\""
             - ""
-            - "\trpc_root \"go.example.com/rpc\""
+            - "\trpc_root \"github.com/chakrit/rpc/examples\""
+            - "\trpc_system \"github.com/chakrit/rpc/examples/system\""
+            - "\trpc_system_auth \"github.com/chakrit/rpc/examples/system/auth\""
+            - ""
+            - "\trpc_todos \"github.com/chakrit/rpc/examples/todos\""
             - )
             - ""
             - var (
@@ -3900,115 +3399,41 @@
             - "\t_ time.Time       = time.Time{}"
             - )
             - ""
-            - // go.example.com/rpc
+            - // github.com/chakrit/rpc/examples
             - var _ rpc_root.Interface = Client_rpc_root{}
             - ""
             - type Client_rpc_root struct {
             - "\t*Client"
+            - "\tSystem Client_rpc_system"
+            - "\tTodos  Client_rpc_todos"
             - '}'
             - ""
             - func (c *Client_rpc_root) initialize(client *Client) {
             - "\tc.Client = client"
+            - "\tc.System = Client_rpc_system{}"
+            - "\tc.System.initialize(client)"
+            - "\tc.Todos = Client_rpc_todos{}"
+            - "\tc.Todos.initialize(client)"
             - '}'
             - ""
-            - func (c Client_rpc_root) Delete(
-            - "\tctx context.Context,"
-            - "\targ0 string,"
-            - ) (
-            - "\tout0 *rpc_root.TodoItem,"
-            - "\terr error,"
-            - ) {
-            - "\tpayload := []interface{}{arg0}"
+            - // github.com/chakrit/rpc/examples/system
+            - var _ rpc_system.Interface = Client_rpc_system{}
             - ""
-            - "\tbuf := &bytes.Buffer{}"
-            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/Delete\",
-              buf)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treq = req.WithContext(ctx)"
-            - ""
-            - "\tvar resp *http.Response"
-            - "\tresp, err = c.HTTPClient.Do(req)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treturns := [1]interface{}{&out0}"
-            - "\tresult := &Result{}"
-            - "\tresult.Returns = returns[:]"
-            - ""
-            - "\tif resp.Body != nil {"
-            - "\t\tdefer resp.Body.Close()"
-            - ""
-            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
-              {"
-            - "\t\t\treturn"
-            - "\t\t}"
-            - "\t}"
-            - ""
-            - "\tif result.Error != nil {"
-            - "\t\terr = result.Error"
-            - "\t}"
-            - "\treturn"
+            - type Client_rpc_system struct {
+            - "\t*Client"
+            - "\tAuth Client_rpc_system_auth"
             - '}'
-            - func (c Client_rpc_root) Get(
-            - "\tctx context.Context,"
-            - "\targ0 string,"
-            - ) (
-            - "\tout0 *rpc_root.TodoItem,"
-            - "\terr error,"
-            - ) {
-            - "\tpayload := []interface{}{arg0}"
             - ""
-            - "\tbuf := &bytes.Buffer{}"
-            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/Get\",
-              buf)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treq = req.WithContext(ctx)"
-            - ""
-            - "\tvar resp *http.Response"
-            - "\tresp, err = c.HTTPClient.Do(req)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treturns := [1]interface{}{&out0}"
-            - "\tresult := &Result{}"
-            - "\tresult.Returns = returns[:]"
-            - ""
-            - "\tif resp.Body != nil {"
-            - "\t\tdefer resp.Body.Close()"
-            - ""
-            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
-              {"
-            - "\t\t\treturn"
-            - "\t\t}"
-            - "\t}"
-            - ""
-            - "\tif result.Error != nil {"
-            - "\t\terr = result.Error"
-            - "\t}"
-            - "\treturn"
+            - func (c *Client_rpc_system) initialize(client *Client) {
+            - "\tc.Client = client"
+            - "\tc.Auth = Client_rpc_system_auth{}"
+            - "\tc.Auth.initialize(client)"
             - '}'
-            - func (c Client_rpc_root) List(
+            - ""
+            - func (c Client_rpc_system) Status(
             - "\tctx context.Context,"
             - ) (
-            - "\tout0 []*rpc_root.TodoItem,"
+            - "\tout0 *rpc_root.Failure,"
             - "\terr error,"
             - ) {
             - "\tpayload := []interface{}{}"
@@ -4019,7 +3444,7 @@
             - "\t}"
             - ""
             - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/List\",
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/system/Status\",
               buf)"
             - "\tif err != nil {"
             - "\t\treturn"
@@ -4051,11 +3476,34 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - func (c Client_rpc_root) Put(
+            - ""
+            - // github.com/chakrit/rpc/examples/system/auth
+            - var _ rpc_system_auth.Interface = Client_rpc_system_auth{}
+            - ""
+            - type Client_rpc_system_auth struct {
+            - "\t*Client"
+            - '}'
+            - ""
+            - func (c *Client_rpc_system_auth) initialize(client *Client) {
+            - "\tc.Client = client"
+            - '}'
+            - ""
+            - // github.com/chakrit/rpc/examples/todos
+            - var _ rpc_todos.Interface = Client_rpc_todos{}
+            - ""
+            - type Client_rpc_todos struct {
+            - "\t*Client"
+            - '}'
+            - ""
+            - func (c *Client_rpc_todos) initialize(client *Client) {
+            - "\tc.Client = client"
+            - '}'
+            - ""
+            - func (c Client_rpc_todos) Delete(
             - "\tctx context.Context,"
-            - "\targ0 *rpc_root.TodoItem,"
+            - "\targ0 string,"
             - ) (
-            - "\tout0 *rpc_root.TodoItem,"
+            - "\tout0 *rpc_todos.Item,"
             - "\terr error,"
             - ) {
             - "\tpayload := []interface{}{arg0}"
@@ -4066,7 +3514,147 @@
             - "\t}"
             - ""
             - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/minitodo/Put\",
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/todos/Delete\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - func (c Client_rpc_todos) Get(
+            - "\tctx context.Context,"
+            - "\targ0 string,"
+            - ) (
+            - "\tout0 *rpc_todos.Item,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/todos/Get\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - func (c Client_rpc_todos) List(
+            - "\tctx context.Context,"
+            - ) (
+            - "\tout0 []*rpc_todos.Item,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/todos/List\",
+              buf)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treq = req.WithContext(ctx)"
+            - ""
+            - "\tvar resp *http.Response"
+            - "\tresp, err = c.HTTPClient.Do(req)"
+            - "\tif err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\treturns := [1]interface{}{&out0}"
+            - "\tresult := &Result{}"
+            - "\tresult.Returns = returns[:]"
+            - ""
+            - "\tif resp.Body != nil {"
+            - "\t\tdefer resp.Body.Close()"
+            - ""
+            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
+              {"
+            - "\t\t\treturn"
+            - "\t\t}"
+            - "\t}"
+            - ""
+            - "\tif result.Error != nil {"
+            - "\t\terr = result.Error"
+            - "\t}"
+            - "\treturn"
+            - '}'
+            - func (c Client_rpc_todos) Put(
+            - "\tctx context.Context,"
+            - "\targ0 string,"
+            - ) (
+            - "\tout0 *rpc_todos.Item,"
+            - "\terr error,"
+            - ) {
+            - "\tpayload := []interface{}{arg0}"
+            - ""
+            - "\tbuf := &bytes.Buffer{}"
+            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
+            - "\t\treturn"
+            - "\t}"
+            - ""
+            - "\tvar req *http.Request"
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/todos/Put\",
               buf)"
             - "\tif err != nil {"
             - "\t\treturn"
@@ -4124,56 +3712,9 @@
             - "\tclient.Client_rpc_root.initialize(client)"
             - "\treturn client"
             - '}'
-        - name: stderr
-          data:
+            - '-----END client.go-----'
             - ""
-- name: ./smoketests.yml \ Generators \ Go \ Complex
-  commands:
-    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - ""
-        - name: stderr
-          data:
-            - ""
-    - command: $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-complex.rpc
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - ""
-        - name: stderr
-          data:
-            - ""
-    - command: find /tmp/rpc/go -name "*.go"
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - /tmp/rpc/go/server/server.go
-            - /tmp/rpc/go/system/auth/rpc.go
-            - /tmp/rpc/go/system/rpc.go
-            - /tmp/rpc/go/rpc.go
-            - /tmp/rpc/go/todos/rpc.go
-            - /tmp/rpc/go/client/client.go
-        - name: stderr
-          data:
-            - ""
-    - command: find /tmp/rpc/go -name "*.go" | xargs cat
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
+            - '-----BEGIN server.go-----'
             - // <auto-generated />
             - // @generated by github.com/chakrit/rpc
             - //
@@ -4542,6 +4083,161 @@
             - "\t\t_, _ = resp.Write(buf)"
             - "\t}"
             - '}'
+            - '-----END server.go-----'
+            - ""
+            - '-----BEGIN rpc.go-----'
+            - // <auto-generated />
+            - // @generated by github.com/chakrit/rpc
+            - //
+            - '// expected import: github.com/chakrit/rpc/examples/system'
+            - package system
+            - ""
+            - import (
+            - "\t\"context\""
+            - "\t\"encoding/json\""
+            - "\t\"math\""
+            - ""
+            - "\trpc_root \"github.com/chakrit/rpc/examples\""
+            - )
+            - ""
+            - var (
+            - "\t_ context.Context = nil"
+            - "\t_                 = json.Marshal"
+            - "\t_                 = math.Pi"
+            - )
+            - ""
+            - type Interface interface {
+            - "\tStatus(context.Context) (*rpc_root.Failure, error,"
+            - "\t)"
+            - '}'
+            - '-----END rpc.go-----'
+            - ""
+            - '-----BEGIN rpc.go-----'
+            - // <auto-generated />
+            - // @generated by github.com/chakrit/rpc
+            - //
+            - '// expected import: github.com/chakrit/rpc/examples/todos'
+            - package todos
+            - ""
+            - import (
+            - "\t\"context\""
+            - "\t\"encoding/json\""
+            - "\t\"math\""
+            - ""
+            - "\ttime \"time\""
+            - )
+            - ""
+            - var (
+            - "\t_ context.Context = nil"
+            - "\t_                 = json.Marshal"
+            - "\t_                 = math.Pi"
+            - )
+            - ""
+            - type Item struct {
+            - "\tAssignee    string    `json:\"assignee\" yaml:\"assignee\" db:\"assignee\"`"
+            - "\tAuthor      string    `json:\"author\" yaml:\"author\" db:\"author\"`"
+            - "\tCategory    string    `json:\"category\" yaml:\"category\" db:\"category\"`"
+            - "\tCtime       time.Time `json:\"ctime\" yaml:\"ctime\" db:\"ctime\"`"
+            - "\tDescription string    `json:\"description\" yaml:\"description\"
+              db:\"description\"`"
+            - "\tDueDate     time.Time `json:\"dueDate\" yaml:\"dueDate\" db:\"due_date\"`"
+            - "\tID          string    `json:\"id\" yaml:\"id\" db:\"id\"`"
+            - "\tState       State     `json:\"state\" yaml:\"state\" db:\"state\"`"
+            - "\tTags        []string  `json:\"tags\" yaml:\"tags\" db:\"tags\"`"
+            - '}'
+            - ""
+            - func (obj *Item) MarshalJSON() ([]byte, error) {
+            - "\toutobj := struct {"
+            - "\t\tAssignee    string   `json:\"assignee\"`"
+            - "\t\tAuthor      string   `json:\"author\"`"
+            - "\t\tCategory    string   `json:\"category\"`"
+            - "\t\tCtime       float64  `json:\"ctime\"`"
+            - "\t\tDescription string   `json:\"description\"`"
+            - "\t\tDueDate     float64  `json:\"dueDate\"`"
+            - "\t\tID          string   `json:\"id\"`"
+            - "\t\tState       string   `json:\"state\"`"
+            - "\t\tTags        []string `json:\"tags\"`"
+            - "\t}{"
+            - "\t\tAssignee: (obj.Assignee),"
+            - "\t\tAuthor:   (obj.Author),"
+            - "\t\tCategory: (obj.Category),"
+            - "\t\tCtime: (func(t time.Time) float64 {"
+            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
+            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
+            - "\t\t})(obj.Ctime),"
+            - "\t\tDescription: (obj.Description),"
+            - "\t\tDueDate: (func(t time.Time) float64 {"
+            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
+            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
+            - "\t\t})(obj.DueDate),"
+            - "\t\tID:    (obj.ID),"
+            - "\t\tState: (func(v State) string { return string(v) })(obj.State),"
+            - "\t\tTags:  (obj.Tags),"
+            - "\t}"
+            - "\treturn json.Marshal(outobj)"
+            - '}'
+            - ""
+            - func (obj *Item) UnmarshalJSON(buf []byte) error {
+            - "\tinobj := struct {"
+            - "\t\tAssignee    string   `json:\"assignee\"`"
+            - "\t\tAuthor      string   `json:\"author\"`"
+            - "\t\tCategory    string   `json:\"category\"`"
+            - "\t\tCtime       float64  `json:\"ctime\"`"
+            - "\t\tDescription string   `json:\"description\"`"
+            - "\t\tDueDate     float64  `json:\"dueDate\"`"
+            - "\t\tID          string   `json:\"id\"`"
+            - "\t\tState       string   `json:\"state\"`"
+            - "\t\tTags        []string `json:\"tags\"`"
+            - "\t}{}"
+            - ""
+            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
+            - "\t\treturn err"
+            - "\t}"
+            - ""
+            - "\tobj.Assignee = (inobj.Assignee)"
+            - "\tobj.Author = (inobj.Author)"
+            - "\tobj.Category = (inobj.Category)"
+            - "\tobj.Ctime = (func(t float64) time.Time {"
+            - "\t\tfsec, fnsec := math.Modf(t)"
+            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
+            - "\t\treturn time.Unix(sec, nsec)"
+            - "\t})(inobj.Ctime)"
+            - "\tobj.Description = (inobj.Description)"
+            - "\tobj.DueDate = (func(t float64) time.Time {"
+            - "\t\tfsec, fnsec := math.Modf(t)"
+            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
+            - "\t\treturn time.Unix(sec, nsec)"
+            - "\t})(inobj.DueDate)"
+            - "\tobj.ID = (inobj.ID)"
+            - "\tobj.State = (func(v string) State { return State(v) })(inobj.State)"
+            - "\tobj.Tags = (inobj.Tags)"
+            - "\treturn nil"
+            - '}'
+            - ""
+            - type State string
+            - ""
+            - const (
+            - "\tStateNew        = State(\"new\")"
+            - "\tStateInProgress = State(\"in-progress\")"
+            - "\tStateOverdue    = State(\"overdue\")"
+            - "\tStateCompleted  = State(\"completed\")"
+            - )
+            - ""
+            - type Interface interface {
+            - "\tDelete(context.Context, string) (*Item, error,"
+            - "\t)"
+            - "\tGet(context.Context, string) (*Item, error,"
+            - "\t)"
+            - "\tList(context.Context) ([]*Item, error,"
+            - "\t)"
+            - "\tPut(context.Context, string) (*Item, error,"
+            - "\t)"
+            - '}'
+            - '-----END rpc.go-----'
+            - ""
+        - name: /tmp/rpc/go/*/*/*.go
+          data:
+            - '-----BEGIN rpc.go-----'
             - // <auto-generated />
             - // @generated by github.com/chakrit/rpc
             - //
@@ -4667,86 +4363,46 @@
             - ""
             - type Interface interface {
             - '}'
+            - '-----END rpc.go-----'
+            - ""
+- name: ./smoketests.yml \ Generators \ Go \ Types
+  commands:
+    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
+        - name: /tmp/rpc/go/*.go
+          data: []
+        - name: /tmp/rpc/go/*/*.go
+          data: []
+        - name: /tmp/rpc/go/*/*/*.go
+          data: []
+    - command: $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go all-types.rpc
+      checks:
+        - name: exitcode
+          data:
+            - "0"
+        - name: stdout
+          data:
+            - ""
+        - name: stderr
+          data:
+            - ""
+        - name: /tmp/rpc/go/*.go
+          data:
+            - '-----BEGIN rpc.go-----'
             - // <auto-generated />
             - // @generated by github.com/chakrit/rpc
             - //
-            - '// expected import: github.com/chakrit/rpc/examples/system'
-            - package system
-            - ""
-            - import (
-            - "\t\"context\""
-            - "\t\"encoding/json\""
-            - "\t\"math\""
-            - ""
-            - "\trpc_root \"github.com/chakrit/rpc/examples\""
-            - )
-            - ""
-            - var (
-            - "\t_ context.Context = nil"
-            - "\t_                 = json.Marshal"
-            - "\t_                 = math.Pi"
-            - )
-            - ""
-            - type Interface interface {
-            - "\tStatus(context.Context) (*rpc_root.Failure, error,"
-            - "\t)"
-            - '}'
-            - // <auto-generated />
-            - // @generated by github.com/chakrit/rpc
-            - //
-            - '// expected import: github.com/chakrit/rpc/examples'
-            - package examples
-            - ""
-            - import (
-            - "\t\"context\""
-            - "\t\"encoding/json\""
-            - "\t\"math\""
-            - )
-            - ""
-            - var (
-            - "\t_ context.Context = nil"
-            - "\t_                 = json.Marshal"
-            - "\t_                 = math.Pi"
-            - )
-            - ""
-            - type Failure struct {
-            - "\tCode        string `json:\"code\" yaml:\"code\" db:\"code\"`"
-            - "\tDescription string `json:\"description\" yaml:\"description\" db:\"description\"`"
-            - '}'
-            - ""
-            - func (obj *Failure) MarshalJSON() ([]byte, error) {
-            - "\toutobj := struct {"
-            - "\t\tCode        string `json:\"code\"`"
-            - "\t\tDescription string `json:\"description\"`"
-            - "\t}{"
-            - "\t\tCode:        (obj.Code),"
-            - "\t\tDescription: (obj.Description),"
-            - "\t}"
-            - "\treturn json.Marshal(outobj)"
-            - '}'
-            - ""
-            - func (obj *Failure) UnmarshalJSON(buf []byte) error {
-            - "\tinobj := struct {"
-            - "\t\tCode        string `json:\"code\"`"
-            - "\t\tDescription string `json:\"description\"`"
-            - "\t}{}"
-            - ""
-            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
-            - "\t\treturn err"
-            - "\t}"
-            - ""
-            - "\tobj.Code = (inobj.Code)"
-            - "\tobj.Description = (inobj.Description)"
-            - "\treturn nil"
-            - '}'
-            - ""
-            - type Interface interface {
-            - '}'
-            - // <auto-generated />
-            - // @generated by github.com/chakrit/rpc
-            - //
-            - '// expected import: github.com/chakrit/rpc/examples/todos'
-            - package todos
+            - '// expected import: go.example.com/rpc'
+            - package rpc
             - ""
             - import (
             - "\t\"context\""
@@ -4762,110 +4418,242 @@
             - "\t_                 = math.Pi"
             - )
             - ""
-            - type Item struct {
-            - "\tAssignee    string    `json:\"assignee\" yaml:\"assignee\" db:\"assignee\"`"
-            - "\tAuthor      string    `json:\"author\" yaml:\"author\" db:\"author\"`"
-            - "\tCategory    string    `json:\"category\" yaml:\"category\" db:\"category\"`"
-            - "\tCtime       time.Time `json:\"ctime\" yaml:\"ctime\" db:\"ctime\"`"
-            - "\tDescription string    `json:\"description\" yaml:\"description\"
-              db:\"description\"`"
-            - "\tDueDate     time.Time `json:\"dueDate\" yaml:\"dueDate\" db:\"due_date\"`"
-            - "\tID          string    `json:\"id\" yaml:\"id\" db:\"id\"`"
-            - "\tState       State     `json:\"state\" yaml:\"state\" db:\"state\"`"
-            - "\tTags        []string  `json:\"tags\" yaml:\"tags\" db:\"tags\"`"
+            - type Containers struct {
+            - "\tEllijList        []int                `json:\"ellijList\" yaml:\"ellijList\"
+              db:\"ellij_list\"`"
+            - "\tEllijMap         map[string]int       `json:\"ellijMap\" yaml:\"ellijMap\"
+              db:\"ellij_map\"`"
+            - "\tEspressoList     []float64            `json:\"espressoList\" yaml:\"espressoList\"
+              db:\"espresso_list\"`"
+            - "\tEspressoMap      map[string]float64   `json:\"espressoMap\" yaml:\"espressoMap\"
+              db:\"espresso_map\"`"
+            - "\tIngCastleList    []float32            `json:\"ingCastleList\" yaml:\"ingCastleList\"
+              db:\"ing_castle_list\"`"
+            - "\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\" yaml:\"ingCastleMap\"
+              db:\"ing_castle_map\"`"
+            - "\tIslandList       []int64              `json:\"islandList\" yaml:\"islandList\"
+              db:\"island_list\"`"
+            - "\tIslandMap        map[string]int64     `json:\"islandMap\" yaml:\"islandMap\"
+              db:\"island_map\"`"
+            - "\tOfCharactersList []string             `json:\"ofCharactersList\"
+              yaml:\"ofCharactersList\" db:\"of_characters_list\"`"
+            - "\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\" yaml:\"ofCharactersMap\"
+              db:\"of_characters_map\"`"
+            - "\tOlogyList        []struct{}           `json:\"ologyList\" yaml:\"ologyList\"
+              db:\"ology_list\"`"
+            - "\tOlogyMap         map[string]struct{}  `json:\"ologyMap\" yaml:\"ologyMap\"
+              db:\"ology_map\"`"
+            - "\tSoongTypeList    [][]byte             `json:\"soongTypeList\" yaml:\"soongTypeList\"
+              db:\"soong_type_list\"`"
+            - "\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\" yaml:\"soongTypeMap\"
+              db:\"soong_type_map\"`"
+            - "\tTravellingList   []time.Time          `json:\"travellingList\" yaml:\"travellingList\"
+              db:\"travelling_list\"`"
+            - "\tTravellingMap    map[string]time.Time `json:\"travellingMap\" yaml:\"travellingMap\"
+              db:\"travelling_map\"`"
+            - "\tTruthOrDareList  []bool               `json:\"truthOrDareList\" yaml:\"truthOrDareList\"
+              db:\"truth_or_dare_list\"`"
+            - "\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\" yaml:\"truthOrDareMap\"
+              db:\"truth_or_dare_map\"`"
             - '}'
             - ""
-            - func (obj *Item) MarshalJSON() ([]byte, error) {
+            - func (obj *Containers) MarshalJSON() ([]byte, error) {
             - "\toutobj := struct {"
-            - "\t\tAssignee    string   `json:\"assignee\"`"
-            - "\t\tAuthor      string   `json:\"author\"`"
-            - "\t\tCategory    string   `json:\"category\"`"
-            - "\t\tCtime       float64  `json:\"ctime\"`"
-            - "\t\tDescription string   `json:\"description\"`"
-            - "\t\tDueDate     float64  `json:\"dueDate\"`"
-            - "\t\tID          string   `json:\"id\"`"
-            - "\t\tState       string   `json:\"state\"`"
-            - "\t\tTags        []string `json:\"tags\"`"
+            - "\t\tEllijList        []int                `json:\"ellijList\"`"
+            - "\t\tEllijMap         map[string]int       `json:\"ellijMap\"`"
+            - "\t\tEspressoList     []float64            `json:\"espressoList\"`"
+            - "\t\tEspressoMap      map[string]float64   `json:\"espressoMap\"`"
+            - "\t\tIngCastleList    []float32            `json:\"ingCastleList\"`"
+            - "\t\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\"`"
+            - "\t\tIslandList       []int64              `json:\"islandList\"`"
+            - "\t\tIslandMap        map[string]int64     `json:\"islandMap\"`"
+            - "\t\tOfCharactersList []string             `json:\"ofCharactersList\"`"
+            - "\t\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\"`"
+            - "\t\tOlogyList        []struct{}           `json:\"ologyList\"`"
+            - "\t\tOlogyMap         map[string]struct{}  `json:\"ologyMap\"`"
+            - "\t\tSoongTypeList    [][]byte             `json:\"soongTypeList\"`"
+            - "\t\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\"`"
+            - "\t\tTravellingList   []time.Time          `json:\"travellingList\"`"
+            - "\t\tTravellingMap    map[string]time.Time `json:\"travellingMap\"`"
+            - "\t\tTruthOrDareList  []bool               `json:\"truthOrDareList\"`"
+            - "\t\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\"`"
             - "\t}{"
-            - "\t\tAssignee: (obj.Assignee),"
-            - "\t\tAuthor:   (obj.Author),"
-            - "\t\tCategory: (obj.Category),"
-            - "\t\tCtime: (func(t time.Time) float64 {"
-            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
-            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
-            - "\t\t})(obj.Ctime),"
-            - "\t\tDescription: (obj.Description),"
-            - "\t\tDueDate: (func(t time.Time) float64 {"
-            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
-            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
-            - "\t\t})(obj.DueDate),"
-            - "\t\tID:    (obj.ID),"
-            - "\t\tState: (func(v State) string { return string(v) })(obj.State),"
-            - "\t\tTags:  (obj.Tags),"
+            - "\t\tEllijList:        (obj.EllijList),"
+            - "\t\tEllijMap:         (obj.EllijMap),"
+            - "\t\tEspressoList:     (obj.EspressoList),"
+            - "\t\tEspressoMap:      (obj.EspressoMap),"
+            - "\t\tIngCastleList:    (obj.IngCastleList),"
+            - "\t\tIngCastleMap:     (obj.IngCastleMap),"
+            - "\t\tIslandList:       (obj.IslandList),"
+            - "\t\tIslandMap:        (obj.IslandMap),"
+            - "\t\tOfCharactersList: (obj.OfCharactersList),"
+            - "\t\tOfCharactersMap:  (obj.OfCharactersMap),"
+            - "\t\tOlogyList:        (obj.OlogyList),"
+            - "\t\tOlogyMap:         (obj.OlogyMap),"
+            - "\t\tSoongTypeList:    (obj.SoongTypeList),"
+            - "\t\tSoongTypeMap:     (obj.SoongTypeMap),"
+            - "\t\tTravellingList:   (obj.TravellingList),"
+            - "\t\tTravellingMap:    (obj.TravellingMap),"
+            - "\t\tTruthOrDareList:  (obj.TruthOrDareList),"
+            - "\t\tTruthOrDareMap:   (obj.TruthOrDareMap),"
             - "\t}"
             - "\treturn json.Marshal(outobj)"
             - '}'
             - ""
-            - func (obj *Item) UnmarshalJSON(buf []byte) error {
+            - func (obj *Containers) UnmarshalJSON(buf []byte) error {
             - "\tinobj := struct {"
-            - "\t\tAssignee    string   `json:\"assignee\"`"
-            - "\t\tAuthor      string   `json:\"author\"`"
-            - "\t\tCategory    string   `json:\"category\"`"
-            - "\t\tCtime       float64  `json:\"ctime\"`"
-            - "\t\tDescription string   `json:\"description\"`"
-            - "\t\tDueDate     float64  `json:\"dueDate\"`"
-            - "\t\tID          string   `json:\"id\"`"
-            - "\t\tState       string   `json:\"state\"`"
-            - "\t\tTags        []string `json:\"tags\"`"
+            - "\t\tEllijList        []int                `json:\"ellijList\"`"
+            - "\t\tEllijMap         map[string]int       `json:\"ellijMap\"`"
+            - "\t\tEspressoList     []float64            `json:\"espressoList\"`"
+            - "\t\tEspressoMap      map[string]float64   `json:\"espressoMap\"`"
+            - "\t\tIngCastleList    []float32            `json:\"ingCastleList\"`"
+            - "\t\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\"`"
+            - "\t\tIslandList       []int64              `json:\"islandList\"`"
+            - "\t\tIslandMap        map[string]int64     `json:\"islandMap\"`"
+            - "\t\tOfCharactersList []string             `json:\"ofCharactersList\"`"
+            - "\t\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\"`"
+            - "\t\tOlogyList        []struct{}           `json:\"ologyList\"`"
+            - "\t\tOlogyMap         map[string]struct{}  `json:\"ologyMap\"`"
+            - "\t\tSoongTypeList    [][]byte             `json:\"soongTypeList\"`"
+            - "\t\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\"`"
+            - "\t\tTravellingList   []time.Time          `json:\"travellingList\"`"
+            - "\t\tTravellingMap    map[string]time.Time `json:\"travellingMap\"`"
+            - "\t\tTruthOrDareList  []bool               `json:\"truthOrDareList\"`"
+            - "\t\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\"`"
             - "\t}{}"
             - ""
             - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
             - "\t\treturn err"
             - "\t}"
             - ""
-            - "\tobj.Assignee = (inobj.Assignee)"
-            - "\tobj.Author = (inobj.Author)"
-            - "\tobj.Category = (inobj.Category)"
-            - "\tobj.Ctime = (func(t float64) time.Time {"
-            - "\t\tfsec, fnsec := math.Modf(t)"
-            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
-            - "\t\treturn time.Unix(sec, nsec)"
-            - "\t})(inobj.Ctime)"
-            - "\tobj.Description = (inobj.Description)"
-            - "\tobj.DueDate = (func(t float64) time.Time {"
-            - "\t\tfsec, fnsec := math.Modf(t)"
-            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
-            - "\t\treturn time.Unix(sec, nsec)"
-            - "\t})(inobj.DueDate)"
-            - "\tobj.ID = (inobj.ID)"
-            - "\tobj.State = (func(v string) State { return State(v) })(inobj.State)"
-            - "\tobj.Tags = (inobj.Tags)"
+            - "\tobj.EllijList = (inobj.EllijList)"
+            - "\tobj.EllijMap = (inobj.EllijMap)"
+            - "\tobj.EspressoList = (inobj.EspressoList)"
+            - "\tobj.EspressoMap = (inobj.EspressoMap)"
+            - "\tobj.IngCastleList = (inobj.IngCastleList)"
+            - "\tobj.IngCastleMap = (inobj.IngCastleMap)"
+            - "\tobj.IslandList = (inobj.IslandList)"
+            - "\tobj.IslandMap = (inobj.IslandMap)"
+            - "\tobj.OfCharactersList = (inobj.OfCharactersList)"
+            - "\tobj.OfCharactersMap = (inobj.OfCharactersMap)"
+            - "\tobj.OlogyList = (inobj.OlogyList)"
+            - "\tobj.OlogyMap = (inobj.OlogyMap)"
+            - "\tobj.SoongTypeList = (inobj.SoongTypeList)"
+            - "\tobj.SoongTypeMap = (inobj.SoongTypeMap)"
+            - "\tobj.TravellingList = (inobj.TravellingList)"
+            - "\tobj.TravellingMap = (inobj.TravellingMap)"
+            - "\tobj.TruthOrDareList = (inobj.TruthOrDareList)"
+            - "\tobj.TruthOrDareMap = (inobj.TruthOrDareMap)"
             - "\treturn nil"
             - '}'
             - ""
-            - type State string
+            - type Things struct {
+            - "\tEllij        int       `json:\"ellij\" yaml:\"ellij\" db:\"ellij\"`"
+            - "\tEspresso     float64   `json:\"espresso\" yaml:\"espresso\" db:\"espresso\"`"
+            - "\tIngCastle    float32   `json:\"ingCastle\" yaml:\"ingCastle\" db:\"ing_castle\"`"
+            - "\tIsland       int64     `json:\"island\" yaml:\"island\" db:\"island\"`"
+            - "\tOfCharacters string    `json:\"ofCharacters\" yaml:\"ofCharacters\"
+              db:\"of_characters\"`"
+            - "\tOlogy        struct{}  `json:\"ology\" yaml:\"ology\" db:\"ology\"`"
+            - "\tSoongType    []byte    `json:\"soongType\" yaml:\"soongType\" db:\"soong_type\"`"
+            - "\tTravelling   time.Time `json:\"travelling\" yaml:\"travelling\" db:\"travelling\"`"
+            - "\tTruthOrDare  bool      `json:\"truthOrDare\" yaml:\"truthOrDare\"
+              db:\"truth_or_dare\"`"
+            - '}'
+            - ""
+            - func (obj *Things) MarshalJSON() ([]byte, error) {
+            - "\toutobj := struct {"
+            - "\t\tEllij        int      `json:\"ellij\"`"
+            - "\t\tEspresso     float64  `json:\"espresso\"`"
+            - "\t\tIngCastle    float32  `json:\"ingCastle\"`"
+            - "\t\tIsland       int64    `json:\"island\"`"
+            - "\t\tOfCharacters string   `json:\"ofCharacters\"`"
+            - "\t\tOlogy        struct{} `json:\"ology\"`"
+            - "\t\tSoongType    []byte   `json:\"soongType\"`"
+            - "\t\tTravelling   float64  `json:\"travelling\"`"
+            - "\t\tTruthOrDare  bool     `json:\"truthOrDare\"`"
+            - "\t}{"
+            - "\t\tEllij:        (obj.Ellij),"
+            - "\t\tEspresso:     (obj.Espresso),"
+            - "\t\tIngCastle:    (obj.IngCastle),"
+            - "\t\tIsland:       (obj.Island),"
+            - "\t\tOfCharacters: (obj.OfCharacters),"
+            - "\t\tOlogy:        (obj.Ology),"
+            - "\t\tSoongType:    (obj.SoongType),"
+            - "\t\tTravelling: (func(t time.Time) float64 {"
+            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
+            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
+            - "\t\t})(obj.Travelling),"
+            - "\t\tTruthOrDare: (obj.TruthOrDare),"
+            - "\t}"
+            - "\treturn json.Marshal(outobj)"
+            - '}'
+            - ""
+            - func (obj *Things) UnmarshalJSON(buf []byte) error {
+            - "\tinobj := struct {"
+            - "\t\tEllij        int      `json:\"ellij\"`"
+            - "\t\tEspresso     float64  `json:\"espresso\"`"
+            - "\t\tIngCastle    float32  `json:\"ingCastle\"`"
+            - "\t\tIsland       int64    `json:\"island\"`"
+            - "\t\tOfCharacters string   `json:\"ofCharacters\"`"
+            - "\t\tOlogy        struct{} `json:\"ology\"`"
+            - "\t\tSoongType    []byte   `json:\"soongType\"`"
+            - "\t\tTravelling   float64  `json:\"travelling\"`"
+            - "\t\tTruthOrDare  bool     `json:\"truthOrDare\"`"
+            - "\t}{}"
+            - ""
+            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
+            - "\t\treturn err"
+            - "\t}"
+            - ""
+            - "\tobj.Ellij = (inobj.Ellij)"
+            - "\tobj.Espresso = (inobj.Espresso)"
+            - "\tobj.IngCastle = (inobj.IngCastle)"
+            - "\tobj.Island = (inobj.Island)"
+            - "\tobj.OfCharacters = (inobj.OfCharacters)"
+            - "\tobj.Ology = (inobj.Ology)"
+            - "\tobj.SoongType = (inobj.SoongType)"
+            - "\tobj.Travelling = (func(t float64) time.Time {"
+            - "\t\tfsec, fnsec := math.Modf(t)"
+            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
+            - "\t\treturn time.Unix(sec, nsec)"
+            - "\t})(inobj.Travelling)"
+            - "\tobj.TruthOrDare = (inobj.TruthOrDare)"
+            - "\treturn nil"
+            - '}'
+            - ""
+            - type Enums string
             - ""
             - const (
-            - "\tStateNew        = State(\"new\")"
-            - "\tStateInProgress = State(\"in-progress\")"
-            - "\tStateOverdue    = State(\"overdue\")"
-            - "\tStateCompleted  = State(\"completed\")"
+            - "\tEnumsThe   = Enums(\"the\")"
+            - "\tEnumsQuick = Enums(\"quick\")"
+            - "\tEnumsBrown = Enums(\"brown\")"
+            - "\tEnumsFox   = Enums(\"fox\")"
+            - "\tEnumsJumps = Enums(\"jumps\")"
+            - "\tEnumsOver  = Enums(\"over\")"
+            - "\tEnumsThe   = Enums(\"the\")"
+            - "\tEnumsLazy  = Enums(\"lazy\")"
+            - "\tEnumsDog   = Enums(\"dog\")"
             - )
             - ""
             - type Interface interface {
-            - "\tDelete(context.Context, string) (*Item, error,"
+            - "\tAllThe(context.Context, *Things) (*Things, error,"
             - "\t)"
-            - "\tGet(context.Context, string) (*Item, error,"
+            - "\tCatIn(context.Context, *Containers) (*Containers, error,"
             - "\t)"
-            - "\tList(context.Context) ([]*Item, error,"
-            - "\t)"
-            - "\tPut(context.Context, string) (*Item, error,"
+            - "\tMixEmUp(context.Context, *Things, *Containers, []*Things) (struct{},
+              error,"
             - "\t)"
             - '}'
+            - '-----END rpc.go-----'
+            - ""
+        - name: /tmp/rpc/go/*/*.go
+          data:
+            - '-----BEGIN client.go-----'
             - // <auto-generated />
             - // @generated by github.com/chakrit/rpc
             - //
-            - '// expected import: github.com/chakrit/rpc/examples/client'
+            - '// expected import: go.example.com/rpc/client'
             - package client
             - ""
             - import (
@@ -4875,11 +4663,7 @@
             - "\t\"net/http\""
             - "\t\"time\""
             - ""
-            - "\trpc_root \"github.com/chakrit/rpc/examples\""
-            - "\trpc_system \"github.com/chakrit/rpc/examples/system\""
-            - "\trpc_system_auth \"github.com/chakrit/rpc/examples/system/auth\""
-            - ""
-            - "\trpc_todos \"github.com/chakrit/rpc/examples/todos\""
+            - "\trpc_root \"go.example.com/rpc\""
             - )
             - ""
             - var (
@@ -4887,111 +4671,22 @@
             - "\t_ time.Time       = time.Time{}"
             - )
             - ""
-            - // github.com/chakrit/rpc/examples
+            - // go.example.com/rpc
             - var _ rpc_root.Interface = Client_rpc_root{}
             - ""
             - type Client_rpc_root struct {
             - "\t*Client"
-            - "\tSystem Client_rpc_system"
-            - "\tTodos  Client_rpc_todos"
             - '}'
             - ""
             - func (c *Client_rpc_root) initialize(client *Client) {
             - "\tc.Client = client"
-            - "\tc.System = Client_rpc_system{}"
-            - "\tc.System.initialize(client)"
-            - "\tc.Todos = Client_rpc_todos{}"
-            - "\tc.Todos.initialize(client)"
             - '}'
             - ""
-            - // github.com/chakrit/rpc/examples/system
-            - var _ rpc_system.Interface = Client_rpc_system{}
-            - ""
-            - type Client_rpc_system struct {
-            - "\t*Client"
-            - "\tAuth Client_rpc_system_auth"
-            - '}'
-            - ""
-            - func (c *Client_rpc_system) initialize(client *Client) {
-            - "\tc.Client = client"
-            - "\tc.Auth = Client_rpc_system_auth{}"
-            - "\tc.Auth.initialize(client)"
-            - '}'
-            - ""
-            - func (c Client_rpc_system) Status(
+            - func (c Client_rpc_root) AllThe(
             - "\tctx context.Context,"
+            - "\targ0 *rpc_root.Things,"
             - ) (
-            - "\tout0 *rpc_root.Failure,"
-            - "\terr error,"
-            - ) {
-            - "\tpayload := []interface{}{}"
-            - ""
-            - "\tbuf := &bytes.Buffer{}"
-            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/system/Status\",
-              buf)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treq = req.WithContext(ctx)"
-            - ""
-            - "\tvar resp *http.Response"
-            - "\tresp, err = c.HTTPClient.Do(req)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treturns := [1]interface{}{&out0}"
-            - "\tresult := &Result{}"
-            - "\tresult.Returns = returns[:]"
-            - ""
-            - "\tif resp.Body != nil {"
-            - "\t\tdefer resp.Body.Close()"
-            - ""
-            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
-              {"
-            - "\t\t\treturn"
-            - "\t\t}"
-            - "\t}"
-            - ""
-            - "\tif result.Error != nil {"
-            - "\t\terr = result.Error"
-            - "\t}"
-            - "\treturn"
-            - '}'
-            - ""
-            - // github.com/chakrit/rpc/examples/system/auth
-            - var _ rpc_system_auth.Interface = Client_rpc_system_auth{}
-            - ""
-            - type Client_rpc_system_auth struct {
-            - "\t*Client"
-            - '}'
-            - ""
-            - func (c *Client_rpc_system_auth) initialize(client *Client) {
-            - "\tc.Client = client"
-            - '}'
-            - ""
-            - // github.com/chakrit/rpc/examples/todos
-            - var _ rpc_todos.Interface = Client_rpc_todos{}
-            - ""
-            - type Client_rpc_todos struct {
-            - "\t*Client"
-            - '}'
-            - ""
-            - func (c *Client_rpc_todos) initialize(client *Client) {
-            - "\tc.Client = client"
-            - '}'
-            - ""
-            - func (c Client_rpc_todos) Delete(
-            - "\tctx context.Context,"
-            - "\targ0 string,"
-            - ) (
-            - "\tout0 *rpc_todos.Item,"
+            - "\tout0 *rpc_root.Things,"
             - "\terr error,"
             - ) {
             - "\tpayload := []interface{}{arg0}"
@@ -5002,7 +4697,7 @@
             - "\t}"
             - ""
             - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/todos/Delete\",
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/rpc/AllThe\",
               buf)"
             - "\tif err != nil {"
             - "\t\treturn"
@@ -5034,11 +4729,11 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - func (c Client_rpc_todos) Get(
+            - func (c Client_rpc_root) CatIn(
             - "\tctx context.Context,"
-            - "\targ0 string,"
+            - "\targ0 *rpc_root.Containers,"
             - ) (
-            - "\tout0 *rpc_todos.Item,"
+            - "\tout0 *rpc_root.Containers,"
             - "\terr error,"
             - ) {
             - "\tpayload := []interface{}{arg0}"
@@ -5049,7 +4744,7 @@
             - "\t}"
             - ""
             - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/todos/Get\",
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/rpc/CatIn\",
               buf)"
             - "\tif err != nil {"
             - "\t\treturn"
@@ -5081,13 +4776,16 @@
             - "\t}"
             - "\treturn"
             - '}'
-            - func (c Client_rpc_todos) List(
+            - func (c Client_rpc_root) MixEmUp(
             - "\tctx context.Context,"
+            - "\targ0 *rpc_root.Things,"
+            - "\targ1 *rpc_root.Containers,"
+            - "\targ2 []*rpc_root.Things,"
             - ) (
-            - "\tout0 []*rpc_todos.Item,"
+            - "\tout0 struct{},"
             - "\terr error,"
             - ) {
-            - "\tpayload := []interface{}{}"
+            - "\tpayload := []interface{}{arg0, arg1, arg2}"
             - ""
             - "\tbuf := &bytes.Buffer{}"
             - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
@@ -5095,54 +4793,7 @@
             - "\t}"
             - ""
             - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/todos/List\",
-              buf)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treq = req.WithContext(ctx)"
-            - ""
-            - "\tvar resp *http.Response"
-            - "\tresp, err = c.HTTPClient.Do(req)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treturns := [1]interface{}{&out0}"
-            - "\tresult := &Result{}"
-            - "\tresult.Returns = returns[:]"
-            - ""
-            - "\tif resp.Body != nil {"
-            - "\t\tdefer resp.Body.Close()"
-            - ""
-            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
-              {"
-            - "\t\t\treturn"
-            - "\t\t}"
-            - "\t}"
-            - ""
-            - "\tif result.Error != nil {"
-            - "\t\terr = result.Error"
-            - "\t}"
-            - "\treturn"
-            - '}'
-            - func (c Client_rpc_todos) Put(
-            - "\tctx context.Context,"
-            - "\targ0 string,"
-            - ) (
-            - "\tout0 *rpc_todos.Item,"
-            - "\terr error,"
-            - ) {
-            - "\tpayload := []interface{}{arg0}"
-            - ""
-            - "\tbuf := &bytes.Buffer{}"
-            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/examples/todos/Put\",
+            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/rpc/MixEmUp\",
               buf)"
             - "\tif err != nil {"
             - "\t\treturn"
@@ -5200,53 +4851,9 @@
             - "\tclient.Client_rpc_root.initialize(client)"
             - "\treturn client"
             - '}'
-        - name: stderr
-          data:
+            - '-----END client.go-----'
             - ""
-- name: ./smoketests.yml \ Generators \ Go \ Types
-  commands:
-    - command: rm -r /tmp/rpc >/dev/null 2>&1 || true
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - ""
-        - name: stderr
-          data:
-            - ""
-    - command: $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go all-types.rpc
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - ""
-        - name: stderr
-          data:
-            - ""
-    - command: find /tmp/rpc/go -name "*.go"
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
-            - /tmp/rpc/go/server/server.go
-            - /tmp/rpc/go/rpc.go
-            - /tmp/rpc/go/client/client.go
-        - name: stderr
-          data:
-            - ""
-    - command: find /tmp/rpc/go -name "*.go" | xargs cat
-      checks:
-        - name: exitcode
-          data:
-            - "0"
-        - name: stdout
-          data:
+            - '-----BEGIN server.go-----'
             - // <auto-generated />
             - // @generated by github.com/chakrit/rpc
             - //
@@ -5502,461 +5109,17 @@
             - "\t\t_, _ = resp.Write(buf)"
             - "\t}"
             - '}'
-            - // <auto-generated />
-            - // @generated by github.com/chakrit/rpc
-            - //
-            - '// expected import: go.example.com/rpc'
-            - package rpc
+            - '-----END server.go-----'
             - ""
-            - import (
-            - "\t\"context\""
-            - "\t\"encoding/json\""
-            - "\t\"math\""
-            - ""
-            - "\ttime \"time\""
-            - )
-            - ""
-            - var (
-            - "\t_ context.Context = nil"
-            - "\t_                 = json.Marshal"
-            - "\t_                 = math.Pi"
-            - )
-            - ""
-            - type Containers struct {
-            - "\tEllijList        []int                `json:\"ellijList\" yaml:\"ellijList\"
-              db:\"ellij_list\"`"
-            - "\tEllijMap         map[string]int       `json:\"ellijMap\" yaml:\"ellijMap\"
-              db:\"ellij_map\"`"
-            - "\tEspressoList     []float64            `json:\"espressoList\" yaml:\"espressoList\"
-              db:\"espresso_list\"`"
-            - "\tEspressoMap      map[string]float64   `json:\"espressoMap\" yaml:\"espressoMap\"
-              db:\"espresso_map\"`"
-            - "\tIngCastleList    []float32            `json:\"ingCastleList\" yaml:\"ingCastleList\"
-              db:\"ing_castle_list\"`"
-            - "\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\" yaml:\"ingCastleMap\"
-              db:\"ing_castle_map\"`"
-            - "\tIslandList       []int64              `json:\"islandList\" yaml:\"islandList\"
-              db:\"island_list\"`"
-            - "\tIslandMap        map[string]int64     `json:\"islandMap\" yaml:\"islandMap\"
-              db:\"island_map\"`"
-            - "\tOfCharactersList []string             `json:\"ofCharactersList\"
-              yaml:\"ofCharactersList\" db:\"of_characters_list\"`"
-            - "\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\" yaml:\"ofCharactersMap\"
-              db:\"of_characters_map\"`"
-            - "\tOlogyList        []struct{}           `json:\"ologyList\" yaml:\"ologyList\"
-              db:\"ology_list\"`"
-            - "\tOlogyMap         map[string]struct{}  `json:\"ologyMap\" yaml:\"ologyMap\"
-              db:\"ology_map\"`"
-            - "\tSoongTypeList    [][]byte             `json:\"soongTypeList\" yaml:\"soongTypeList\"
-              db:\"soong_type_list\"`"
-            - "\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\" yaml:\"soongTypeMap\"
-              db:\"soong_type_map\"`"
-            - "\tTravellingList   []time.Time          `json:\"travellingList\" yaml:\"travellingList\"
-              db:\"travelling_list\"`"
-            - "\tTravellingMap    map[string]time.Time `json:\"travellingMap\" yaml:\"travellingMap\"
-              db:\"travelling_map\"`"
-            - "\tTruthOrDareList  []bool               `json:\"truthOrDareList\" yaml:\"truthOrDareList\"
-              db:\"truth_or_dare_list\"`"
-            - "\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\" yaml:\"truthOrDareMap\"
-              db:\"truth_or_dare_map\"`"
-            - '}'
-            - ""
-            - func (obj *Containers) MarshalJSON() ([]byte, error) {
-            - "\toutobj := struct {"
-            - "\t\tEllijList        []int                `json:\"ellijList\"`"
-            - "\t\tEllijMap         map[string]int       `json:\"ellijMap\"`"
-            - "\t\tEspressoList     []float64            `json:\"espressoList\"`"
-            - "\t\tEspressoMap      map[string]float64   `json:\"espressoMap\"`"
-            - "\t\tIngCastleList    []float32            `json:\"ingCastleList\"`"
-            - "\t\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\"`"
-            - "\t\tIslandList       []int64              `json:\"islandList\"`"
-            - "\t\tIslandMap        map[string]int64     `json:\"islandMap\"`"
-            - "\t\tOfCharactersList []string             `json:\"ofCharactersList\"`"
-            - "\t\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\"`"
-            - "\t\tOlogyList        []struct{}           `json:\"ologyList\"`"
-            - "\t\tOlogyMap         map[string]struct{}  `json:\"ologyMap\"`"
-            - "\t\tSoongTypeList    [][]byte             `json:\"soongTypeList\"`"
-            - "\t\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\"`"
-            - "\t\tTravellingList   []time.Time          `json:\"travellingList\"`"
-            - "\t\tTravellingMap    map[string]time.Time `json:\"travellingMap\"`"
-            - "\t\tTruthOrDareList  []bool               `json:\"truthOrDareList\"`"
-            - "\t\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\"`"
-            - "\t}{"
-            - "\t\tEllijList:        (obj.EllijList),"
-            - "\t\tEllijMap:         (obj.EllijMap),"
-            - "\t\tEspressoList:     (obj.EspressoList),"
-            - "\t\tEspressoMap:      (obj.EspressoMap),"
-            - "\t\tIngCastleList:    (obj.IngCastleList),"
-            - "\t\tIngCastleMap:     (obj.IngCastleMap),"
-            - "\t\tIslandList:       (obj.IslandList),"
-            - "\t\tIslandMap:        (obj.IslandMap),"
-            - "\t\tOfCharactersList: (obj.OfCharactersList),"
-            - "\t\tOfCharactersMap:  (obj.OfCharactersMap),"
-            - "\t\tOlogyList:        (obj.OlogyList),"
-            - "\t\tOlogyMap:         (obj.OlogyMap),"
-            - "\t\tSoongTypeList:    (obj.SoongTypeList),"
-            - "\t\tSoongTypeMap:     (obj.SoongTypeMap),"
-            - "\t\tTravellingList:   (obj.TravellingList),"
-            - "\t\tTravellingMap:    (obj.TravellingMap),"
-            - "\t\tTruthOrDareList:  (obj.TruthOrDareList),"
-            - "\t\tTruthOrDareMap:   (obj.TruthOrDareMap),"
-            - "\t}"
-            - "\treturn json.Marshal(outobj)"
-            - '}'
-            - ""
-            - func (obj *Containers) UnmarshalJSON(buf []byte) error {
-            - "\tinobj := struct {"
-            - "\t\tEllijList        []int                `json:\"ellijList\"`"
-            - "\t\tEllijMap         map[string]int       `json:\"ellijMap\"`"
-            - "\t\tEspressoList     []float64            `json:\"espressoList\"`"
-            - "\t\tEspressoMap      map[string]float64   `json:\"espressoMap\"`"
-            - "\t\tIngCastleList    []float32            `json:\"ingCastleList\"`"
-            - "\t\tIngCastleMap     map[string]float32   `json:\"ingCastleMap\"`"
-            - "\t\tIslandList       []int64              `json:\"islandList\"`"
-            - "\t\tIslandMap        map[string]int64     `json:\"islandMap\"`"
-            - "\t\tOfCharactersList []string             `json:\"ofCharactersList\"`"
-            - "\t\tOfCharactersMap  map[string]string    `json:\"ofCharactersMap\"`"
-            - "\t\tOlogyList        []struct{}           `json:\"ologyList\"`"
-            - "\t\tOlogyMap         map[string]struct{}  `json:\"ologyMap\"`"
-            - "\t\tSoongTypeList    [][]byte             `json:\"soongTypeList\"`"
-            - "\t\tSoongTypeMap     map[string][]byte    `json:\"soongTypeMap\"`"
-            - "\t\tTravellingList   []time.Time          `json:\"travellingList\"`"
-            - "\t\tTravellingMap    map[string]time.Time `json:\"travellingMap\"`"
-            - "\t\tTruthOrDareList  []bool               `json:\"truthOrDareList\"`"
-            - "\t\tTruthOrDareMap   map[string]bool      `json:\"truthOrDareMap\"`"
-            - "\t}{}"
-            - ""
-            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
-            - "\t\treturn err"
-            - "\t}"
-            - ""
-            - "\tobj.EllijList = (inobj.EllijList)"
-            - "\tobj.EllijMap = (inobj.EllijMap)"
-            - "\tobj.EspressoList = (inobj.EspressoList)"
-            - "\tobj.EspressoMap = (inobj.EspressoMap)"
-            - "\tobj.IngCastleList = (inobj.IngCastleList)"
-            - "\tobj.IngCastleMap = (inobj.IngCastleMap)"
-            - "\tobj.IslandList = (inobj.IslandList)"
-            - "\tobj.IslandMap = (inobj.IslandMap)"
-            - "\tobj.OfCharactersList = (inobj.OfCharactersList)"
-            - "\tobj.OfCharactersMap = (inobj.OfCharactersMap)"
-            - "\tobj.OlogyList = (inobj.OlogyList)"
-            - "\tobj.OlogyMap = (inobj.OlogyMap)"
-            - "\tobj.SoongTypeList = (inobj.SoongTypeList)"
-            - "\tobj.SoongTypeMap = (inobj.SoongTypeMap)"
-            - "\tobj.TravellingList = (inobj.TravellingList)"
-            - "\tobj.TravellingMap = (inobj.TravellingMap)"
-            - "\tobj.TruthOrDareList = (inobj.TruthOrDareList)"
-            - "\tobj.TruthOrDareMap = (inobj.TruthOrDareMap)"
-            - "\treturn nil"
-            - '}'
-            - ""
-            - type Things struct {
-            - "\tEllij        int       `json:\"ellij\" yaml:\"ellij\" db:\"ellij\"`"
-            - "\tEspresso     float64   `json:\"espresso\" yaml:\"espresso\" db:\"espresso\"`"
-            - "\tIngCastle    float32   `json:\"ingCastle\" yaml:\"ingCastle\" db:\"ing_castle\"`"
-            - "\tIsland       int64     `json:\"island\" yaml:\"island\" db:\"island\"`"
-            - "\tOfCharacters string    `json:\"ofCharacters\" yaml:\"ofCharacters\"
-              db:\"of_characters\"`"
-            - "\tOlogy        struct{}  `json:\"ology\" yaml:\"ology\" db:\"ology\"`"
-            - "\tSoongType    []byte    `json:\"soongType\" yaml:\"soongType\" db:\"soong_type\"`"
-            - "\tTravelling   time.Time `json:\"travelling\" yaml:\"travelling\" db:\"travelling\"`"
-            - "\tTruthOrDare  bool      `json:\"truthOrDare\" yaml:\"truthOrDare\"
-              db:\"truth_or_dare\"`"
-            - '}'
-            - ""
-            - func (obj *Things) MarshalJSON() ([]byte, error) {
-            - "\toutobj := struct {"
-            - "\t\tEllij        int      `json:\"ellij\"`"
-            - "\t\tEspresso     float64  `json:\"espresso\"`"
-            - "\t\tIngCastle    float32  `json:\"ingCastle\"`"
-            - "\t\tIsland       int64    `json:\"island\"`"
-            - "\t\tOfCharacters string   `json:\"ofCharacters\"`"
-            - "\t\tOlogy        struct{} `json:\"ology\"`"
-            - "\t\tSoongType    []byte   `json:\"soongType\"`"
-            - "\t\tTravelling   float64  `json:\"travelling\"`"
-            - "\t\tTruthOrDare  bool     `json:\"truthOrDare\"`"
-            - "\t}{"
-            - "\t\tEllij:        (obj.Ellij),"
-            - "\t\tEspresso:     (obj.Espresso),"
-            - "\t\tIngCastle:    (obj.IngCastle),"
-            - "\t\tIsland:       (obj.Island),"
-            - "\t\tOfCharacters: (obj.OfCharacters),"
-            - "\t\tOlogy:        (obj.Ology),"
-            - "\t\tSoongType:    (obj.SoongType),"
-            - "\t\tTravelling: (func(t time.Time) float64 {"
-            - "\t\t\tsec, nsec := t.Unix(), t.Nanosecond()"
-            - "\t\t\treturn float64(sec) + (float64(nsec) / float64(time.Second))"
-            - "\t\t})(obj.Travelling),"
-            - "\t\tTruthOrDare: (obj.TruthOrDare),"
-            - "\t}"
-            - "\treturn json.Marshal(outobj)"
-            - '}'
-            - ""
-            - func (obj *Things) UnmarshalJSON(buf []byte) error {
-            - "\tinobj := struct {"
-            - "\t\tEllij        int      `json:\"ellij\"`"
-            - "\t\tEspresso     float64  `json:\"espresso\"`"
-            - "\t\tIngCastle    float32  `json:\"ingCastle\"`"
-            - "\t\tIsland       int64    `json:\"island\"`"
-            - "\t\tOfCharacters string   `json:\"ofCharacters\"`"
-            - "\t\tOlogy        struct{} `json:\"ology\"`"
-            - "\t\tSoongType    []byte   `json:\"soongType\"`"
-            - "\t\tTravelling   float64  `json:\"travelling\"`"
-            - "\t\tTruthOrDare  bool     `json:\"truthOrDare\"`"
-            - "\t}{}"
-            - ""
-            - "\tif err := json.Unmarshal(buf, &inobj); err != nil {"
-            - "\t\treturn err"
-            - "\t}"
-            - ""
-            - "\tobj.Ellij = (inobj.Ellij)"
-            - "\tobj.Espresso = (inobj.Espresso)"
-            - "\tobj.IngCastle = (inobj.IngCastle)"
-            - "\tobj.Island = (inobj.Island)"
-            - "\tobj.OfCharacters = (inobj.OfCharacters)"
-            - "\tobj.Ology = (inobj.Ology)"
-            - "\tobj.SoongType = (inobj.SoongType)"
-            - "\tobj.Travelling = (func(t float64) time.Time {"
-            - "\t\tfsec, fnsec := math.Modf(t)"
-            - "\t\tsec, nsec := int64(fsec), int64(math.Round(fnsec*float64(time.Second)))"
-            - "\t\treturn time.Unix(sec, nsec)"
-            - "\t})(inobj.Travelling)"
-            - "\tobj.TruthOrDare = (inobj.TruthOrDare)"
-            - "\treturn nil"
-            - '}'
-            - ""
-            - type Enums string
-            - ""
-            - const (
-            - "\tEnumsThe   = Enums(\"the\")"
-            - "\tEnumsQuick = Enums(\"quick\")"
-            - "\tEnumsBrown = Enums(\"brown\")"
-            - "\tEnumsFox   = Enums(\"fox\")"
-            - "\tEnumsJumps = Enums(\"jumps\")"
-            - "\tEnumsOver  = Enums(\"over\")"
-            - "\tEnumsThe   = Enums(\"the\")"
-            - "\tEnumsLazy  = Enums(\"lazy\")"
-            - "\tEnumsDog   = Enums(\"dog\")"
-            - )
-            - ""
-            - type Interface interface {
-            - "\tAllThe(context.Context, *Things) (*Things, error,"
-            - "\t)"
-            - "\tCatIn(context.Context, *Containers) (*Containers, error,"
-            - "\t)"
-            - "\tMixEmUp(context.Context, *Things, *Containers, []*Things) (struct{},
-              error,"
-            - "\t)"
-            - '}'
-            - // <auto-generated />
-            - // @generated by github.com/chakrit/rpc
-            - //
-            - '// expected import: go.example.com/rpc/client'
-            - package client
-            - ""
-            - import (
-            - "\t\"bytes\""
-            - "\t\"context\""
-            - "\t\"encoding/json\""
-            - "\t\"net/http\""
-            - "\t\"time\""
-            - ""
-            - "\trpc_root \"go.example.com/rpc\""
-            - )
-            - ""
-            - var (
-            - "\t_ context.Context = nil"
-            - "\t_ time.Time       = time.Time{}"
-            - )
-            - ""
-            - // go.example.com/rpc
-            - var _ rpc_root.Interface = Client_rpc_root{}
-            - ""
-            - type Client_rpc_root struct {
-            - "\t*Client"
-            - '}'
-            - ""
-            - func (c *Client_rpc_root) initialize(client *Client) {
-            - "\tc.Client = client"
-            - '}'
-            - ""
-            - func (c Client_rpc_root) AllThe(
-            - "\tctx context.Context,"
-            - "\targ0 *rpc_root.Things,"
-            - ) (
-            - "\tout0 *rpc_root.Things,"
-            - "\terr error,"
-            - ) {
-            - "\tpayload := []interface{}{arg0}"
-            - ""
-            - "\tbuf := &bytes.Buffer{}"
-            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/rpc/AllThe\",
-              buf)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treq = req.WithContext(ctx)"
-            - ""
-            - "\tvar resp *http.Response"
-            - "\tresp, err = c.HTTPClient.Do(req)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treturns := [1]interface{}{&out0}"
-            - "\tresult := &Result{}"
-            - "\tresult.Returns = returns[:]"
-            - ""
-            - "\tif resp.Body != nil {"
-            - "\t\tdefer resp.Body.Close()"
-            - ""
-            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
-              {"
-            - "\t\t\treturn"
-            - "\t\t}"
-            - "\t}"
-            - ""
-            - "\tif result.Error != nil {"
-            - "\t\terr = result.Error"
-            - "\t}"
-            - "\treturn"
-            - '}'
-            - func (c Client_rpc_root) CatIn(
-            - "\tctx context.Context,"
-            - "\targ0 *rpc_root.Containers,"
-            - ) (
-            - "\tout0 *rpc_root.Containers,"
-            - "\terr error,"
-            - ) {
-            - "\tpayload := []interface{}{arg0}"
-            - ""
-            - "\tbuf := &bytes.Buffer{}"
-            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/rpc/CatIn\",
-              buf)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treq = req.WithContext(ctx)"
-            - ""
-            - "\tvar resp *http.Response"
-            - "\tresp, err = c.HTTPClient.Do(req)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treturns := [1]interface{}{&out0}"
-            - "\tresult := &Result{}"
-            - "\tresult.Returns = returns[:]"
-            - ""
-            - "\tif resp.Body != nil {"
-            - "\t\tdefer resp.Body.Close()"
-            - ""
-            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
-              {"
-            - "\t\t\treturn"
-            - "\t\t}"
-            - "\t}"
-            - ""
-            - "\tif result.Error != nil {"
-            - "\t\terr = result.Error"
-            - "\t}"
-            - "\treturn"
-            - '}'
-            - func (c Client_rpc_root) MixEmUp(
-            - "\tctx context.Context,"
-            - "\targ0 *rpc_root.Things,"
-            - "\targ1 *rpc_root.Containers,"
-            - "\targ2 []*rpc_root.Things,"
-            - ) (
-            - "\tout0 struct{},"
-            - "\terr error,"
-            - ) {
-            - "\tpayload := []interface{}{arg0, arg1, arg2}"
-            - ""
-            - "\tbuf := &bytes.Buffer{}"
-            - "\tif err = json.NewEncoder(buf).Encode(payload); err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\tvar req *http.Request"
-            - "\treq, err = http.NewRequest(\"POST\", \"http://\"+c.Client.Options.Addr+\"/rpc/MixEmUp\",
-              buf)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treq = req.WithContext(ctx)"
-            - ""
-            - "\tvar resp *http.Response"
-            - "\tresp, err = c.HTTPClient.Do(req)"
-            - "\tif err != nil {"
-            - "\t\treturn"
-            - "\t}"
-            - ""
-            - "\treturns := [1]interface{}{&out0}"
-            - "\tresult := &Result{}"
-            - "\tresult.Returns = returns[:]"
-            - ""
-            - "\tif resp.Body != nil {"
-            - "\t\tdefer resp.Body.Close()"
-            - ""
-            - "\t\tif err = json.NewDecoder(resp.Body).Decode(result); err != nil
-              {"
-            - "\t\t\treturn"
-            - "\t\t}"
-            - "\t}"
-            - ""
-            - "\tif result.Error != nil {"
-            - "\t\terr = result.Error"
-            - "\t}"
-            - "\treturn"
-            - '}'
-            - ""
-            - type Result struct {
-            - "\tError   error         `json:\"error\"`"
-            - "\tReturns []interface{} `json:\"returns\"`"
-            - '}'
-            - ""
-            - type Client struct {
-            - "\tOptions"
-            - "\tClient_rpc_root"
-            - ""
-            - "\tHTTPClient *http.Client"
-            - '}'
-            - ""
-            - type Options struct {
-            - "\tAddr string"
-            - '}'
-            - ""
-            - func New(opts *Options) *Client {
-            - "\tclient := &Client{"
-            - "\t\tOptions:         *opts,"
-            - "\t\tClient_rpc_root: Client_rpc_root{},"
-            - "\t\tHTTPClient:      &http.Client{},"
-            - "\t}"
-            - "\tclient.Client_rpc_root.initialize(client)"
-            - "\treturn client"
-            - '}'
-        - name: stderr
-          data:
-            - ""
+        - name: /tmp/rpc/go/*/*/*.go
+          data: []
 - name: ./smoketests.yml \ Client<->Server \ Go
   commands:
     - command: go generate -v ./...
       checks:
+        - name: exitcode
+          data:
+            - "0"
         - name: exitcode
           data:
             - "0"
@@ -5975,6 +5138,9 @@
         - name: exitcode
           data:
             - "0"
+        - name: exitcode
+          data:
+            - "0"
         - name: stdout
           data:
             - ""
@@ -5983,6 +5149,9 @@
             - ""
     - command: ./bin/clientserver
       checks:
+        - name: exitcode
+          data:
+            - "0"
         - name: exitcode
           data:
             - "0"
@@ -6008,6 +5177,9 @@
   commands:
     - command: ./build.sh
       checks:
+        - name: exitcode
+          data:
+            - "0"
         - name: exitcode
           data:
             - "0"

@@ -4,66 +4,77 @@ config:
   timeout: 1h
 checks:
   - exitcode
-  - stdout
-  - stderr
 tests:
-  - name: Basics
+  - name: Build
     tests:
-      - name: Install
+      - name: Generate
+        commands:
+          - go generate ../...
+      - name: Tests
+        checks:
+          - stdout
+        commands:
+          - go test -v ../...
+      - name: Compile
         config:
           timeout: 15s
         commands:
-          - go generate ../...
-          - go install -a ..
+          - go install ..
+  - name: Basics
+    checks:
+      - stdout
+      - stderr
+    tests:
       - name: Lex
         commands:
-          - $(go env GOPATH)/bin/rpc -lex todo-simple.rpc
-          - $(go env GOPATH)/bin/rpc -lex todo-complex.rpc
+          - $(go env GOPATH)/bin/rpc -lex "*.rpc"
       - name: Parse
         commands:
-          - $(go env GOPATH)/bin/rpc -parse todo-simple.rpc
-          - $(go env GOPATH)/bin/rpc -parse todo-complex.rpc
+          - $(go env GOPATH)/bin/rpc -parse "*.rpc"
   - name: Generators
     commands:
       - rm -r /tmp/rpc >/dev/null 2>&1 || true
+    checks:
+      - stdout
+      - stderr
     tests:
       - name: Elm
+        checks:
+          - /tmp/rpc/elm/*.elm
+          - /tmp/rpc/elm/*/*.elm
+          - /tmp/rpc/elm/*/*/*.elm
         tests:
           - name: Simple
             commands:
               - $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-simple.rpc
-              - find /tmp/rpc/elm -name "*.elm"
-              - find /tmp/rpc/elm -name "*.elm" | xargs cat
           - name: Complex
             commands:
               - $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm todo-complex.rpc
-              - find /tmp/rpc/elm -name "*.elm"
-              - find /tmp/rpc/elm -name "*.elm" | xargs cat
           - name: Types
             commands:
               - $(go env GOPATH)/bin/rpc -gen elm -out /tmp/rpc/elm all-types.rpc
-              - find /tmp/rpc/elm -name "*.elm"
-              - find /tmp/rpc/elm -name "*.elm" | xargs cat
       - name: Go
+        checks:
+          - /tmp/rpc/go/*.go
+          - /tmp/rpc/go/*/*.go
+          - /tmp/rpc/go/*/*/*.go
         tests:
           - name: Simple
             commands:
               - $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-simple.rpc
-              - find /tmp/rpc/go -name "*.go"
-              - find /tmp/rpc/go -name "*.go" | xargs cat
           - name: Complex
             commands:
               - $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go todo-complex.rpc
-              - find /tmp/rpc/go -name "*.go"
-              - find /tmp/rpc/go -name "*.go" | xargs cat
           - name: Types
             commands:
               - $(go env GOPATH)/bin/rpc -gen go -out /tmp/rpc/go all-types.rpc
-              - find /tmp/rpc/go -name "*.go"
-              - find /tmp/rpc/go -name "*.go" | xargs cat
   - name: Client<->Server
     config:
       workdir: ./clientserver
+    checks:
+      - exitcode
+      - stdout
+      - stderr
     tests:
       - name: Go
         commands:
@@ -71,6 +82,10 @@ tests:
           - go build -o ./bin/clientserver .
           - ./bin/clientserver # prints interaction output
   - name: Examples
+    checks:
+      - exitcode
+      - stdout
+      - stderr
     tests:
       - name: todoapp
         config:

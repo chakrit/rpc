@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"sort"
 
 	"github.com/chakrit/rpc/generator"
 	"github.com/chakrit/rpc/internal"
@@ -99,7 +101,7 @@ func genMain(opts Options, logger internal.Logger) {
 	}
 }
 
-func process(filenames []string, logger internal.Logger, action func(io.Reader) error) {
+func process(patterns []string, logger internal.Logger, action func(io.Reader) error) {
 	processOne := func(filename string) error { // provide scope for defer file closing
 		file, err := openInput(filename)
 		if err != nil {
@@ -110,12 +112,23 @@ func process(filenames []string, logger internal.Logger, action func(io.Reader) 
 		return action(file)
 	}
 
-	for _, filename := range filenames {
-		// fatal here, since we allow overrides from chaining multiple RPCs,
-		// skipping one or more input file will have unintended side effects
-		// so failing fast is the better option
-		if err := processOne(filename); err != nil {
-			logger.Fatal(fmt.Errorf("%s: %w", filename, err))
+	sort.Sort(sort.StringSlice(patterns))
+	for _, pattern := range patterns {
+		filenames, err := filepath.Glob(pattern)
+		if err != nil {
+			logger.Fatal(fmt.Errorf("%s: %w", pattern, err))
+			return
+		}
+
+		sort.Sort(sort.StringSlice(filenames))
+		for _, filename := range filenames {
+			// fatal here, since we allow overrides from chaining multiple RPCs,
+			// skipping one or more input file will have unintended side effects
+			// so failing fast is the better option
+			if err := processOne(filename); err != nil {
+				logger.Fatal(fmt.Errorf("%s: %w", filename, err))
+				return
+			}
 		}
 	}
 }
